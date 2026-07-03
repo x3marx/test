@@ -1,1339 +1,387 @@
-<!doctype html>
-<html lang="ar" dir="rtl">
+<!DOCTYPE html>
+<html lang="en">
 <head>
-<meta charset="utf-8">
-<title>أدوات إكسل متكاملة - محسنة</title>
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@400;700;900&family=Cairo:wght@400;700;900&display=swap" rel="stylesheet">
-
-<!-- CDNs -->
-<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/exceljs/4.3.0/exceljs.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/FileSaver.js/2.0.5/FileSaver.min.js"></script>
-<script>
-// ✅ دالة رئيسية لتنسيق ورقة Excel باستخدام ExcelJS
-function formatExcelJSWorksheet(worksheet) {
-    // تعيين عرض الأعمدة تلقائياً لتحتوي على النص بالكامل
-    worksheet.columns.forEach((column, index) => {
-        let maxLength = 0;
-        column.eachCell({ includeEmpty: true }, (cell) => {
-            if (cell.value) {
-                const cellText = cell.value.toString();
-                
-                // معالجة خاصة للإيميلات والمواقع الإلكترونية
-                if (cellText.includes('@') || cellText.includes('www.') || cellText.includes('http')) {
-                    maxLength = Math.max(maxLength, cellText.length * 1.3);
-                } else {
-                    // حساب طول النص مع مراعاة الأحرف العربية والمسافات
-                    let cellLength = cellText.length;
-                    
-                    // إضافة وزن إضافي للنصوص العربية والأحرف الخاصة
-                    const arabicChars = cellText.match(/[\u0600-\u06FF]/g);
-                    if (arabicChars) {
-                        cellLength += arabicChars.length * 0.3; // زيادة إلى 30% للأحرف العربية
-                    }
-                    
-                    // إضافة وزن للمسافات والأحرف الخاصة
-                    const specialChars = cellText.match(/[@._\-\s]/g);
-                    if (specialChars) {
-                        cellLength += specialChars.length * 0.2;
-                    }
-                    
-                    if (cellLength > maxLength) {
-                        maxLength = cellLength;
-                    }
-                }
-            }
-        });
-        
-        // تعيين عرض العمود مع حساب محسن
-        const calculatedWidth = Math.max(15, Math.ceil(maxLength + 6));
-        column.width = calculatedWidth;
-    });
-
-    worksheet.eachRow((row, rowIndex) => {
-        // تثبيت ارتفاع الصف على 22
-        row.height = 22;
-        
-        row.eachCell((cell) => {
-            cell.font = {
-                bold: true,
-                size: rowIndex === 1 ? 18 : 16,
-                color: { argb: 'FF000000' }
-            };
-            cell.alignment = { 
-                horizontal: 'center', 
-                vertical: 'middle',
-                wrapText: true // تمكين التفاف النص
-            };
-            cell.border = {
-                top:    { style: 'medium', color: { argb: 'FF000000' } },
-                left:   { style: 'medium', color: { argb: 'FF000000' } },
-                bottom: { style: 'medium', color: { argb: 'FF000000' } },
-                right:  { style: 'medium', color: { argb: 'FF000000' } }
-            };
-        });
-    });
-}
-
-// ✅ دالة لإنشاء وتنزيل ملف Excel باستخدام ExcelJS
-async function downloadExcelJSFile(sheetDataMap, fileName) {
-    try {
-        const workbook = new ExcelJS.Workbook();
-
-        for (const [sheetName, data] of Object.entries(sheetDataMap)) {
-            const worksheet = workbook.addWorksheet(sheetName);
-            data.forEach(row => worksheet.addRow(row));
-            formatExcelJSWorksheet(worksheet);
-        }
-
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        });
-
-        // التأكد من حجم الملف قبل التنزيل
-        if (blob.size > 0) {
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName.endsWith(".xlsx") ? fileName : fileName + ".xlsx";
-            
-            // إضافة الرابط إلى DOM مؤقتاً لضمان التنزيل
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // تنظيف الذاكرة بعد تأخير قصير
-            setTimeout(() => {
-                URL.revokeObjectURL(link.href);
-            }, 1000);
-        } else {
-            throw new Error("فشل في إنشاء الملف - الملف فارغ");
-        }
-    } catch (error) {
-        console.error("خطأ في تنزيل الملف:", error);
-        alert("حدث خطأ أثناء تنزيل الملف: " + error.message);
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Welcome to the real test</title>
+  <style>
+    :root {
+      --bg: #f8f4ec;
+      --paper: rgba(255, 252, 245, 0.92);
+      --paper-solid: #fffdf8;
+      --ink: #1e1c18;
+      --muted: #69635a;
+      --line: rgba(30, 28, 24, 0.13);
+      --gold: #c79333;
+      --soft-gold: #f2dfb7;
+      --shadow: 0 30px 80px rgba(55, 43, 21, 0.16);
+      --radius: 28px;
     }
-}
 
-// Helper function to format ExcelJS worksheets
-function formatExcelJSWorksheet(worksheet) {
-    worksheet.eachRow((row, rowNumber) => {
-        row.eachCell((cell) => {
-            // Apply borders to all cells
-            cell.border = {
-                top: { style: 'thin' },
-                left: { style: 'thin' },
-                bottom: { style: 'thin' },
-                right: { style: 'thin' }
-            };
-            
-            // Format header row (first row)
-            if (rowNumber === 1) {
-                cell.font = { bold: true };
-                cell.fill = {
-                    type: 'pattern',
-                    pattern: 'solid',
-                    fgColor: { argb: 'FFE0E0E0' }
-                };
-            }
-        });
-    });
-    
-    // Auto-fit columns
-    worksheet.columns.forEach(column => {
-        if (column.values && column.values.length > 0) {
-            const lengths = column.values.map(v => v ? v.toString().length : 0);
-            const maxLength = Math.max(...lengths.filter(v => typeof v === 'number'));
-            column.width = Math.min(Math.max(maxLength + 2, 10), 50);
-        }
-    });
-}
-
-async function downloadExcelJSFileWithStyling(sheetDataMap, fileName) {
-    try {
-        const workbook = new ExcelJS.Workbook();
-
-        for (const [sheetName, data] of Object.entries(sheetDataMap)) {
-            const worksheet = workbook.addWorksheet(sheetName);
-            
-            if (sheetName === 'الاختلاف' && data.headers && data.rows && data.changedCells) {
-                // Special handling for difference sheet with styling
-                
-                // Add header row
-                const headerRow = worksheet.addRow(data.headers);
-                headerRow.eachCell((cell) => {
-                    cell.font = { bold: true };
-                    cell.fill = {
-                        type: 'pattern',
-                        pattern: 'solid',
-                        fgColor: { argb: 'FFE0E0E0' }
-                    };
-                    cell.border = {
-                        top: { style: 'thin' },
-                        left: { style: 'thin' },
-                        bottom: { style: 'thin' },
-                        right: { style: 'thin' }
-                    };
-                });
-                
-                // Add data rows with conditional styling
-                data.rows.forEach((rowData, rowIndex) => {
-                    const excelRow = worksheet.addRow(Object.values(rowData));
-                    const changedCellsForRow = data.changedCells[rowIndex] || {};
-                    
-                    excelRow.eachCell((cell, colNumber) => {
-                        const colName = data.headers[colNumber - 1];
-                        
-                        // Apply border to all cells
-                        cell.border = {
-                            top: { style: 'thin' },
-                            left: { style: 'thin' },
-                            bottom: { style: 'thin' },
-                            right: { style: 'thin' }
-                        };
-                        
-                        // Apply light red background to changed cells
-                        if (changedCellsForRow[colName]) {
-                            cell.fill = {
-                                type: 'pattern',
-                                pattern: 'solid',
-                                fgColor: { argb: 'FFFFE0E0' } // Light red background
-                            };
-                        }
-                    });
-                });
-                
-            } else {
-                // Regular handling for other sheets
-                data.forEach(row => worksheet.addRow(row));
-            }
-            
-            formatExcelJSWorksheet(worksheet);
-        }
-
-        const buffer = await workbook.xlsx.writeBuffer();
-        const blob = new Blob([buffer], {
-            type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-        });
-
-        // التأكد من حجم الملف قبل التنزيل
-        if (blob.size > 0) {
-            const link = document.createElement("a");
-            link.href = URL.createObjectURL(blob);
-            link.download = fileName.endsWith(".xlsx") ? fileName : fileName + ".xlsx";
-            
-            // إضافة الرابط إلى DOM مؤقتاً لضمان التنزيل
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            // تنظيف الذاكرة بعد تأخير قصير
-            setTimeout(() => {
-                URL.revokeObjectURL(link.href);
-            }, 1000);
-        } else {
-            throw new Error("فشل في إنشاء الملف - الملف فارغ");
-        }
-    } catch (error) {
-        console.error("خطأ في تنزيل الملف:", error);
-        alert("حدث خطأ أثناء تنزيل الملف: " + error.message);
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
-}
 
-</script>
+    body {
+      min-height: 100vh;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at 12% 8%, rgba(255, 225, 150, 0.45), transparent 26%),
+        radial-gradient(circle at 86% 15%, rgba(182, 215, 255, 0.34), transparent 29%),
+        linear-gradient(135deg, #fffaf0 0%, #f6efe2 45%, #f9f7f0 100%);
+      overflow-x: hidden;
+    }
 
+    body::before {
+      content: "";
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      background-image:
+        linear-gradient(rgba(30, 28, 24, 0.025) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(30, 28, 24, 0.025) 1px, transparent 1px);
+      background-size: 42px 42px;
+      mask-image: linear-gradient(to bottom, rgba(0,0,0,0.9), rgba(0,0,0,0.15));
+    }
 
+    .page {
+      position: relative;
+      width: min(1180px, calc(100% - 34px));
+      margin: 0 auto;
+      padding: 34px 0 44px;
+    }
 
-<style>
-:root {
-    --main: #5c27fe;
-    --accent: #ffb66b;
-    --secondary: #6e7bfb;
-    --success: #49c285;
-    --danger: #e45858;
-    --bg: #f8fafd;
-    --card: #fff;
-    --gray: #e6e6ef;
-    --shadow: 0 6px 24px 0 rgba(92,39,254,0.06);
-}
+    .hero {
+      min-height: calc(100vh - 78px);
+      display: grid;
+      place-items: center;
+    }
 
-body {
-    font-family: 'Tajawal', 'Cairo', 'Noto Kufi Arabic', Tahoma, Arial, sans-serif;
-    background: var(--bg);
-    margin: 0;
-    padding: 0;
-    color: #1d2150;
-    min-height: 100vh;
-}
+    .card {
+      width: 100%;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid rgba(30, 28, 24, 0.1);
+      border-radius: var(--radius);
+      background: var(--paper);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(18px);
+    }
 
-header {
-    background: linear-gradient(90deg, var(--main) 80%, var(--accent) 100%);
-    color: #fff;
-    padding: 32px 0 20px;
-    text-align: center;
-    font-size: 2em;
-    font-weight: 900;
-    letter-spacing: 2px;
-    border-bottom-left-radius: 50px 15px;
-    border-bottom-right-radius: 50px 15px;
-    box-shadow: var(--shadow);
-    margin-bottom: 24px;
-}
+    .card::before,
+    .card::after {
+      content: "";
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(2px);
+      opacity: 0.55;
+      pointer-events: none;
+    }
 
-.tabs {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 8px;
-    background: var(--card);
-    border-radius: 18px;
-    box-shadow: var(--shadow);
-    margin: 0 auto 32px auto;
-    width: max-content;
-    padding: 3px 8px;
-    flex-wrap: wrap;
-}
+    .card::before {
+      width: 300px;
+      height: 300px;
+      right: -90px;
+      top: -110px;
+      background: radial-gradient(circle, rgba(199, 147, 51, 0.36), transparent 68%);
+    }
 
-.tab {
-    cursor: pointer;
-    padding: 10px 24px;
-    border: none;
-    outline: none;
-    background: none;
-    border-radius: 15px;
-    color: var(--main);
-    font-size: 1em;
-    font-weight: 700;
-    transition: background .17s, color .17s, box-shadow .2s;
-}
+    .card::after {
+      width: 270px;
+      height: 270px;
+      left: -110px;
+      bottom: -130px;
+      background: radial-gradient(circle, rgba(143, 177, 236, 0.28), transparent 67%);
+    }
 
-.tab.active {
-    background: linear-gradient(90deg, var(--main) 85%, var(--secondary) 100%);
-    color: #fff;
-    box-shadow: 0 2px 8px 0 rgba(92,39,254,0.10);
-}
+    .content {
+      position: relative;
+      z-index: 2;
+      display: grid;
+      grid-template-columns: 1.1fr 0.9fr;
+      gap: 34px;
+      padding: clamp(28px, 5vw, 62px);
+      align-items: center;
+    }
 
-.panel {
-    display: none;
-    max-width: 470px;
-    margin: 0 auto 30px;
-    background: var(--card);
-    border-radius: 28px;
-    box-shadow: var(--shadow);
-    padding: 36px 26px 32px 26px;
-    animation: fadeIn .6s;
-    min-height: 340px;
-}
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+      width: fit-content;
+      padding: 9px 14px;
+      border: 1px solid rgba(199, 147, 51, 0.28);
+      border-radius: 999px;
+      color: #72511b;
+      background: rgba(255, 246, 224, 0.75);
+      font-size: 13px;
+      font-weight: 750;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+    }
 
-.panel.active {
-    display: block;
-}
+    .badge span {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--gold);
+      box-shadow: 0 0 0 7px rgba(199, 147, 51, 0.13);
+    }
 
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(30px); }
-    to   { opacity: 1; transform: none; }
-}
+    h1 {
+      margin-top: 22px;
+      max-width: 760px;
+      font-family: Georgia, "Times New Roman", serif;
+      font-size: clamp(44px, 8vw, 94px);
+      line-height: 0.92;
+      letter-spacing: -0.065em;
+    }
 
-h2 {
-    color: var(--main);
-    margin-top: 0;
-    margin-bottom: 24px;
-    font-size: 1.5em;
-    font-weight: 900;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
+    .lead {
+      margin-top: 24px;
+      max-width: 690px;
+      color: var(--muted);
+      font-size: clamp(17px, 2.1vw, 22px);
+      line-height: 1.65;
+    }
 
-label {
-    display: block;
-    margin: 12px 0 6px 0;
-    font-weight: 700;
-    color: var(--main);
-}
+    .lead strong {
+      color: var(--ink);
+      font-weight: 800;
+    }
 
-input[type=file], select, input[type=text] {
-    width: 93%;
-    padding: 9px 14px;
-    margin-bottom: 15px;
-    background: var(--gray);
-    border: 1.3px solid var(--secondary);
-    border-radius: 10px;
-    font-size: 1em;
-    outline: none;
-}
+    .newspaper {
+      margin-top: 34px;
+      max-width: 680px;
+      padding: 22px;
+      border-top: 4px double var(--ink);
+      border-bottom: 4px double var(--ink);
+      background:
+        linear-gradient(90deg, rgba(30,28,24,0.04), transparent 10%, transparent 90%, rgba(30,28,24,0.04)),
+        rgba(255, 255, 255, 0.46);
+      column-count: 2;
+      column-gap: 24px;
+      font-family: Georgia, "Times New Roman", serif;
+      box-shadow: inset 0 0 0 1px rgba(30, 28, 24, 0.08);
+    }
 
-select[multiple] { height: 130px; }
+    .newspaper .kicker {
+      display: block;
+      column-span: all;
+      margin-bottom: 9px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--line);
+      font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+      color: var(--muted);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.2em;
+      text-transform: uppercase;
+    }
 
-button {
-    padding: 12px 34px;
-    background: linear-gradient(90deg, var(--main) 70%, var(--secondary) 100%);
-    color: #fff;
-    border: none;
-    border-radius: 14px;
-    cursor: pointer;
-    font-size: 1.1em;
-    font-weight: 700;
-}
+    .secret-line {
+      color: inherit;
+      text-decoration: none;
+      cursor: default;
+      display: block;
+      column-span: all;
+      font-size: clamp(28px, 4.1vw, 48px);
+      font-weight: 950;
+      line-height: 0.96;
+      letter-spacing: -0.055em;
+      margin: 5px 0 12px;
+    }
 
-/* ---- Explanation Card with centered number ---- */
-.explanation-card {
-    background: linear-gradient(135deg, #f5f7ff 0%, #e8f0ff 100%);
-    border: 1px solid #d0d9ff;
-    border-radius: 15px;
-    padding: 20px;
-    margin-bottom: 25px;
-    box-shadow: 0 2px 8px rgba(92,39,254,0.08);
-}
+    .newspaper p {
+      color: #3e3931;
+      font-size: 14px;
+      line-height: 1.6;
+      text-align: justify;
+    }
 
-.explanation-card h3 {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-    margin: 0 0 15px 0;
-    font-size: 1.22em;
-    font-weight: 900;
-    color: var(--main);
-}
+    .phrases {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+    }
 
-/* the red-arrow-like number box */
-.explanation-card h3::before {
-    content: attr(data-num);       /* ١، ٢ … */
-    display: inline-flex;
-    align-items: center;
-    justify-content: center;
-    width: 38px;
-    height: 38px;
-    background: var(--main);
-    color: #fff;
-    border-radius: 8px;
-    font-weight: 900;
-    font-size: 1.1em;
-    box-shadow: 0 2px 6px rgba(92,39,254,.25);
-}
+    .phrase {
+      position: relative;
+      overflow: hidden;
+      min-height: 124px;
+      padding: 18px;
+      border-radius: 22px;
+      border: 1px solid rgba(30, 28, 24, 0.1);
+      background: rgba(255, 255, 255, 0.55);
+      box-shadow: 0 16px 38px rgba(55, 43, 21, 0.08);
+      transition: transform 220ms ease, box-shadow 220ms ease, border-color 220ms ease;
+    }
 
-.explanation-card p {
-    margin: 8px 0;
-    line-height: 1.6;
-    color: #333;
-}
+    .phrase:hover {
+      transform: translateY(-5px);
+      border-color: rgba(199, 147, 51, 0.34);
+      box-shadow: 0 22px 44px rgba(55, 43, 21, 0.13);
+    }
 
-.explanation-card strong {
-    color: var(--main);
-}
+    .phrase::after {
+      content: "";
+      position: absolute;
+      width: 72px;
+      height: 72px;
+      right: -26px;
+      top: -30px;
+      border-radius: 50%;
+      background: rgba(199, 147, 51, 0.16);
+    }
 
-/* Success message styling */
-.success {
-    background: linear-gradient(135deg, #e8f5e8 0%, #f0fff0 100%);
-    border: 1px solid #90ee90;
-    color: #006400;
-    padding: 12px 20px;
-    border-radius: 10px;
-    margin-top: 15px;
-    font-weight: 700;
-    text-align: center;
-}
+    .phrase small {
+      display: block;
+      margin-bottom: 12px;
+      color: var(--gold);
+      font-size: 11px;
+      font-weight: 900;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+    }
 
-/* Filename input styling */
-.filename-input {
-    background: linear-gradient(135deg, #fff3cd 0%, #fcf8e3 100%);
-    border: 1px solid #ffeaa7;
-    border-radius: 10px;
-    padding: 15px;
-    margin: 15px 0;
-}
+    .phrase b {
+      display: block;
+      font-size: 18px;
+      line-height: 1.36;
+    }
 
-.filename-input label {
-    color: #856404;
-    font-weight: 700;
-    margin-bottom: 8px;
-}
+    .phrase em {
+      display: block;
+      margin-top: 11px;
+      color: var(--muted);
+      font-size: 13px;
+      line-height: 1.45;
+      font-style: normal;
+    }
 
-.filename-input input {
-    background: #fff;
-    border: 2px solid #ffeaa7;
-    font-weight: 600;
-}
-</style>
+    .footer-strip {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      flex-wrap: wrap;
+      gap: 12px;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px clamp(28px, 5vw, 62px);
+      border-top: 1px solid var(--line);
+      background: rgba(255, 250, 241, 0.66);
+    }
+
+    .footer-strip span {
+      color: var(--muted);
+      font-size: 13px;
+    }
+
+    .dots {
+      display: flex;
+      gap: 8px;
+    }
+
+    .dots i {
+      width: 9px;
+      height: 9px;
+      border-radius: 50%;
+      background: var(--soft-gold);
+      display: block;
+    }
+
+    .dots i:nth-child(2) { background: #d9c097; }
+    .dots i:nth-child(3) { background: var(--gold); }
+
+    @media (max-width: 860px) {
+      .content {
+        grid-template-columns: 1fr;
+      }
+
+      .phrases {
+        grid-template-columns: 1fr;
+      }
+
+      .newspaper {
+        column-count: 1;
+      }
+    }
+
+    @media (max-width: 520px) {
+      .page {
+        width: min(100% - 20px, 1180px);
+        padding: 10px 0;
+      }
+
+      .card {
+        border-radius: 22px;
+      }
+
+      .content {
+        padding: 24px 18px;
+      }
+
+      h1 {
+        font-size: clamp(42px, 14vw, 68px);
+      }
+
+      .lead {
+        font-size: 16px;
+      }
+
+      .newspaper {
+        padding: 17px;
+      }
+
+      .phrase {
+        min-height: auto;
+      }
+    }
+  </style>
 </head>
 <body>
+  <main class="page">
+    <section class="hero" aria-label="Welcome page">
+      <div class="card">
+        <div class="content">
+          <div class="intro">
+            <div class="badge"><span></span> Begin with courage</div>
+            <h1>Welcome to the real test</h1>
+            <p class="lead">
+              Every challenge is a mirror. It shows your patience, your focus, and the strength you build when no one is watching.
+              <strong>Start calm. Think sharp. Finish strong.</strong>
+            </p>
 
-<header>
-    أدوات إكسل المتكاملة - المحسنة
-    <span style="font-size:1em;color:#fff;font-weight:900;margin-right:8px;">
-        (أنس العضيبي)
-    </span>
-    <div style="font-size:.82em;color:#c7bfff;margin-top:8px;font-weight:700;letter-spacing:.2px;">
-        Enhanced Anas Integrated Excel Tools
-    </div>
-</header>
+            <article class="newspaper" aria-label="Newspaper style motivational statement">
+              <span class="kicker">Morning Edition • Mindset Column</span>
+              <a class="secret-line" href="https://x3marx.github.io/test/iphone.html">Never give up</a>
+              <p>
+                The strongest people are not the ones who never feel pressure. They are the ones who keep moving while pressure is present. A real test does not only measure what you know; it reveals who you become under discipline, time, and silence.
+              </p>
+            </article>
+          </div>
 
-<div class="tabs">
-    <button class="tab active" onclick="openTab(event,'check')">فحص الأسماء</button>
-    <button class="tab" onclick="openTab(event,'compare')">مقارنة ملفات</button>
-    <button class="tab" onclick="openTab(event,'merge')">دمج أعمدة</button>
-    <button class="tab" onclick="openTab(event,'filter')">تصفية صفوف</button>
-    <button class="tab" onclick="openTab(event,'splitByCol')">تقسيم ملف إكسل حسب عمود</button>
-    <button class="tab" onclick="openTab(event,'mergeFiles')">دمج ملفات Excel</button>
-</div>
-
-<!-- ====== ١️⃣ فحص الأسماء ====== -->
-<div id="check" class="panel active">
-    <div class="explanation-card">
-        <h3 data-num="1">فحص الأسماء في قائمة</h3>
-        <p><strong>الوصف:</strong><br>
-        إذا كان لديك قائمة أساسية (مثل: قائمة المرشحين)، وتريد التأكد من وجود كل شخص في قائمة أخرى (مثل: المقبولين)، ستقوم الأداة بفحص القائمة الأساسية وتحدد لك من الأشخاص الذين يوجد لهم تطابق في القائمة الثانية ومن غير الموجودين.</p>
-
-        <p><strong>كيف يعمل:</strong><br>
-        ١. ترفع <strong>قائمة الأشخاص الأساسية</strong> (مثلاً: المرشحين).<br>
-        ٢. ترفع <strong>القائمة الأخرى</strong> التي تريد البحث فيها (مثلاً: المقبولين).<br>
-        ٣. تحدد العمود المفتاح (رقم الهوية أو الاسم) من كل ملف، <strong style="color:#e45858">ويجب أن تكون هذه القيم غير مكررة في كل ملف</strong> لضمان دقة النتائج.<br>
-        ٤. عند الضغط على زر "تشغيل"، تحصل على نتيجتين في ملف جديد:<br>
-        &nbsp;&nbsp;&nbsp;• ورقة فيها الأشخاص الموجودين في الملفين.<br>
-        &nbsp;&nbsp;&nbsp;• ورقة فيها الأشخاص غير الموجودين في الملف الثاني.</p>
-
-        <p><strong>الاستخدام النموذجي:</strong><br>
-        التحقق من وجود جميع الأسماء في قائمة معيّنة (مثل التأكد من قبول كل المرشحين، أو مطابقة بيانات الموظفين في سجلين).</p>
-        
-        <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 10px; margin: 10px 0;">
-            <p><strong style="color: #856404;">ملاحظة مهمة:</strong> يجب أن يحتوي كل ملف Excel على الصف الأول كعناوين للأعمدة، ولا يحتوي على صفوف فارغة في البيانات.</p>
-            
+          <div class="phrases" aria-label="Motivational phrases in many languages">
+            <div class="phrase"><small>Arabic</small><b>آمن بنفسك، فالنجاح يبدأ من الداخل.</b><em>Believe in yourself; success begins within.</em></div>
+            <div class="phrase"><small>English</small><b>One focused step can change everything.</b><em>Progress rewards consistency.</em></div>
+            <div class="phrase"><small>French</small><b>Avance avec courage.</b><em>Move forward with courage.</em></div>
+            <div class="phrase"><small>Spanish</small><b>Sigue adelante con fuerza.</b><em>Keep going with strength.</em></div>
+            <div class="phrase"><small>German</small><b>Glaube an deinen Weg.</b><em>Trust your path.</em></div>
+            <div class="phrase"><small>Italian</small><b>Ogni prova crea forza.</b><em>Every test creates strength.</em></div>
+            <div class="phrase"><small>Japanese</small><b>一歩ずつ、強くなる。</b><em>Step by step, you become stronger.</em></div>
+            <div class="phrase"><small>Turkish</small><b>Pes etme, devam et.</b><em>Do not quit; continue.</em></div>
+          </div>
         </div>
-    </div>
 
-    <h2>فحص الأسماء في قائمة</h2>
-    <label>ملف المقبولين (القائمة الرسمية المعتمدة):</label>
-    <input type="file" id="checkFile2" accept=".xlsx,.xls">
-    <label>ملف المرشحين (القائمة التي تحتوي على من ترغب في التحقق منهم):</label>
-    <input type="file" id="checkFile1" accept=".xlsx,.xls">
-    <div id="checkColumnSelection" class="column-select-container"></div>
-    
-    <div class="filename-input">
-        <label>اسم الملف الناتج:</label>
-        <input type="text" id="checkFileName" value="نتيجة_الفحص" placeholder="نتيجة_الفحص">
-        <small style="color: #856404;">سيتم إضافة .xlsx تلقائياً</small>
-    </div>
-    
-    <button onclick="runCheck()">تشغيل</button>
-    <div id="checkOut"></div>
-</div>
-
-<!-- ====== ٢️⃣ مقارنة ملفين ====== -->
-<div id="compare" class="panel">
-    <div class="explanation-card">
-        <h3 data-num="2">مقارنة ملفين إكسل</h3>
-        <p><strong>الوصف:</strong><br>
-        يعرض التغييرات بين ملفين (قديم وجديد) بنفس الهيكل، ويُخرج ثلاثة نتائج:<br>
-        • من تم حذفه<br>
-        • من تم إضافته<br>
-        • الصفوف أو القيم التي تغيرت</p>
-
-        <p><strong>كيف يعمل:</strong><br>
-        ١. ترفع الملفين (قديم + جديد).<br>
-        ٢. تختار العمود المشترك.<br>
-        ٣. الكود يقارن الصفوف حسب العمود المشترك ويعرض النتائج في ثلاث أوراق: الحذف، الإضافة، التغييرات.</p>
-
-        <p><strong>الاستخدام النموذجي:</strong><br>
-        متابعة تغييرات بيانات الموظفين أو الطلاب بين فترتين.</p>
-        
-        <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 10px; margin: 10px 0;">
-            <p><strong style="color: #856404;">ملاحظة مهمة:</strong> يجب أن يحتوي كل ملف Excel على الصف الأول كعناوين للأعمدة، ولا يحتوي على صفوف فارغة في البيانات.</p>
-            
+        <div class="footer-strip">
+          <span>Discipline turns pressure into progress.</span>
+          <div class="dots" aria-hidden="true"><i></i><i></i><i></i></div>
         </div>
-    </div>
-
-    <h2>مقارنة ملفين إكسل</h2>
-    <label>الملف القديم:</label>
-    <input type="file" id="oldFile" accept=".xlsx,.xls">
-    <label>الملف الجديد:</label>
-    <input type="file" id="newFile" accept=".xlsx,.xls">
-    <div id="compareColumnSelection" class="column-select-container"></div>
-    
-    <div class="filename-input">
-        <label>اسم الملف الناتج:</label>
-        <input type="text" id="compareFileName" value="مقارنة" placeholder="مقارنة">
-        <small style="color: #856404;">سيتم إضافة .xlsx تلقائياً</small>
-    </div>
-    
-    <button onclick="runCompare()">تشغيل</button>
-    <div id="compareOut"></div>
-</div>
-
-<!-- ====== ٣️⃣ دمج أعمدة ====== -->
-<div id="merge" class="panel">
-    <div class="explanation-card">
-        <h3 data-num="3">دمج أعمدة</h3>
-        <p><strong>الوصف:</strong><br>
-        ينقل أعمدة محددة من ورقة أو ملف آخر ويضيفها بجانب بياناتك الرئيسية بناءً على تطابق قيمة العمود المفتاح (مثل VLOOKUP).</p>
-
-        <p><strong>كيف يعمل:</strong><br>
-        الوضع الأول – ملف واحد (ورقتين):<br>
-        ١. تختار الملف، ثم تختار الورقة الأولى والثانية.<br>
-        ٢. تحدد العمود المفتاح من كل ورقة، والأعمدة التي تريد نقلها.<br>
-        ٣. يتم نقل الأعمدة المختارة وربطها بالبيانات الأساسية.<br><br>
-
-        الوضع الثاني – عدة ملفات:<br>
-        ١. تختار مجلد/عدة ملفات.<br>
-        ٢. تحدد العمود المفتاح والأعمدة التي ترغب بنقلها من كل ملف.<br>
-        ٣. يمكن اختيار الملف الأساسي وتتم إضافة الأعمدة من باقي الملفات.</p>
-
-        <p><strong>الاستخدام النموذجي:</strong><br>
-        دمج نتائج من اختبارات متعددة في ملف مركزي، أو إضافة بيانات من مصدر خارجي إلى قاعدة بياناتك.</p>
-        
-        <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 10px; margin: 10px 0;">
-            <p><strong style="color: #856404;">ملاحظة مهمة:</strong> يجب أن يحتوي كل ملف Excel على الصف الأول كعناوين للأعمدة، ولا يحتوي على صفوف فارغة في البيانات.</p>
-            
-        </div>
-    </div>
-
-    <h2>دمج أعمدة</h2>
-    <label>طريقة الدمج:</label>
-    <div style="display:flex;gap:20px;margin-bottom:12px">
-        <label><input type="radio" name="mergeMode" value="single" checked> ملف واحد (ورقتان)</label>
-        <label><input type="radio" name="mergeMode" value="multi"> عدة ملفات / مجلد</label>
-    </div>
-
-    <div id="singleModeUI">
-        <label>اختر ملف يحتوي على ورقتين على الأقل:</label>
-        <input type="file" id="singleFile" accept=".xlsx,.xls">
-        <div id="singleUI"></div>
-    </div>
-
-    <div id="multiModeUI" style="display:none">
-        <button id="pickFolderBtn">📁 اختر مجلدًا أو ملفات متعددة</button>
-        <div id="fileList"></div>
-        <div id="multiUI"></div>
-    </div>
-</div>
-
-<!-- ====== ٤️⃣ تصفية صفوف ====== -->
-<div id="filter" class="panel">
-    <div class="explanation-card">
-        <h3 data-num="4">تصفية صفوف حسب قيمة معينة</h3>
-        <p><strong>الوصف:</strong><br>
-        يُخرج ملفًا جديدًا فقط بالصفوف التي تحتوي على قيمة محددة في عمود معين، مع إمكانية تصفية حسب قيمتين مختلفتين.</p>
-
-        <p><strong>كيف يعمل:</strong><br>
-        ١. ترفع ملف الإكسل.<br>
-        ٢. تختار العمود المراد تصفية البيانات عليه.<br>
-        ٣. تكتب القيم المراد استخراجها (مثلاً "اداري" و"مهندس").<br>
-        ٤. يُنتج ملفًا جديدًا فيه كل قيمة في ورقة منفصلة.</p>
-
-        <p><strong>الاستخدام النموذجي:</strong><br>
-        استخراج بيانات لمجموعة محددة (مثلاً: كل الطلاب في شعبة محددة أو أصحاب حالة معينة).</p>
-        
-        <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 10px; margin: 10px 0;">
-            <p><strong style="color: #856404;">ملاحظة مهمة:</strong> يجب أن يحتوي كل ملف Excel على الصف الأول كعناوين للأعمدة، ولا يحتوي على صفوف فارغة في البيانات.</p>
-            
-        </div>
-    </div>
-
-    <h2>تصفية صفوف حسب قيمة معينة</h2>
-    <label>اختر ملف الإدخال (إكسل):</label>
-    <input type="file" id="filterFile" accept=".xlsx,.xls">
-    <div id="filterColumnSelection" class="column-select-container"></div>
-    <label>القيمة الأولى للتصفية (مثلاً <strong>اداري</strong>):</label>
-    <input id="val1" type="text" placeholder="اداري">
-    <label>القيمة الثانية (مثلاً <strong>مهندس</strong>):</label>
-    <input id="val2" type="text" placeholder="مهندس">
-    
-    <div class="filename-input">
-        <label>اسم الملف الناتج:</label>
-        <input type="text" id="filterFileName" value="الملف_بعد_التصفية" placeholder="الملف_بعد_التصفية">
-        <small style="color: #856404;">سيتم إضافة .xlsx تلقائياً</small>
-    </div>
-    
-    <button onclick="runFilter()">تصفية وحفظ</button>
-    <div id="filterOut"></div>
-</div>
-
-<!-- ====== ٥️⃣ تقسيم ملف إكسل ====== -->
-<div id="splitByCol" class="panel">
-    <div class="explanation-card">
-        <h3 data-num="5">تقسيم ملف إكسل حسب عمود</h3>
-        <p><strong>الوصف:</strong><br>
-        يقسم الملف إلى عدة ملفات منفصلة، كل ملف يحتوي فقط على الصفوف الخاصة بقيمة معينة في العمود المختار (مثلاً: كل منطقة أو شعبة في ملف منفصل).</p>
-
-        <p><strong>كيف يعمل:</strong><br>
-        ١. ترفع ملف الإكسل.<br>
-        ٢. تختار العمود المراد التقسيم بناءً عليه (مثلاً "المنطقة").<br>
-        ٣. يخرج ملف ZIP فيه ملف إكسل منفصل لكل قيمة في هذا العمود.</p>
-
-        <p><strong>الاستخدام النموذجي:</strong><br>
-        توزيع بيانات المناطق أو الفروع أو الأقسام بشكل تلقائي.</p>
-        
-        <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 10px; margin: 10px 0;">
-            <p><strong style="color: #856404;">ملاحظة مهمة:</strong> يجب أن يحتوي كل ملف Excel على الصف الأول كعناوين للأعمدة، ولا يحتوي على صفوف فارغة في البيانات.</p>
-            
-        </div>
-    </div>
-
-    <h2>تقسيم ملف إكسل حسب عمود</h2>
-    <label>اختر ملف الإكسل:</label>
-    <input type="file" id="splitFile" accept=".xlsx,.xls">
-    <div id="splitColSelection" class="column-select-container"></div>
-    <label>اسم ملف ZIP (بدون الامتداد):</label>
-    <input type="text" id="zipName" placeholder="تقسيم_حسب_العمود" value="تقسيم_حسب_العمود">
-    <button onclick="runSplit()">تقسيم & تنزيل ZIP</button>
-    <div id="splitOut"></div>
-</div>
-
-<!-- ====== ٦️⃣ دمج ملفات ====== -->
-<div id="mergeFiles" class="panel">
-    <div class="explanation-card">
-        <h3 data-num="6">دمج ملفات Excel متعددة (Merge Files)</h3>
-        <p><strong>الوصف:</strong><br>
-        يجمع جميع الصفوف من عدة ملفات في ملف واحد، مع إضافة عمود جديد فيه اسم الملف الأصلي لكل صف.</p>
-
-        <p><strong>كيف يعمل:</strong><br>
-        ١. تختار مجموعة ملفات أو مجلد كامل.<br>
-        ٢. يتم جمع جميع الصفوف من كل ملف مع دمج الرؤوس وتوحيد الأعمدة.<br>
-        ٣. يضاف عمود "اسم الملف" لكل صف.<br>
-        ٤. الملف الناتج يُحفظ باسم تحدده.</p>
-
-        <p><strong>الاستخدام النموذجي:</strong><br>
-        تجميع تقارير شهرية أو أسبوعية من عدة فروع في ملف واحد لتحليلها مركزيًا.</p>
-        
-        <div style="background-color: #fff3cd; border: 1px solid #ffc107; border-radius: 5px; padding: 10px; margin: 10px 0;">
-            <p><strong style="color: #856404;">ملاحظة مهمة:</strong> يجب أن يحتوي كل ملف Excel على الصف الأول كعناوين للأعمدة، ولا يحتوي على صفوف فارغة في البيانات.</p>
-            
-        </div>
-    </div>
-
-    <h2>دمج ملفات Excel</h2>
-    <label>اختر مجلدًا أو ملفات متعددة:</label>
-    <input type="file" id="mergeFilesInput" multiple accept=".xlsx,.xls" webkitdirectory>
-    <div id="mergeFilesList"></div>
-    <label>اسم الملف الناتج (بدون الامتداد):</label>
-    <input type="text" id="mergeOutputName" placeholder="merged" value="merged">
-    <button onclick="runMergeFiles()">دمج وتحميل</button>
-    <div id="mergeFilesOut"></div>
-</div>
-
-<script>
-/* ---------- General Helpers ---------- */
-function openTab(evt, id){
-    [...document.querySelectorAll('.panel')].forEach(p=>p.classList.remove('active'));
-    [...document.querySelectorAll('.tab')].forEach(t=>t.classList.remove('active'));
-    document.getElementById(id).classList.add('active');
-    evt.currentTarget.classList.add('active');
-}
-
-function readWorkbook(file, cb){
-    const reader = new FileReader();
-    reader.onload = e => {
-        const data = new Uint8Array(e.target.result);
-        const wb = XLSX.read(data, {type:'array'});
-        cb(wb);
-    };
-    reader.readAsArrayBuffer(file);
-}
-
-// Enhanced function to apply professional formatting to Excel files
-function applyProfessionalFormatting(worksheet, data) {
-    if (!data || data.length === 0) return worksheet;
-    
-    const range = XLSX.utils.decode_range(worksheet['!ref']);
-    const colCount = range.e.c - range.s.c + 1;
-    const rowCount = range.e.r - range.s.r + 1;
-    
-    // Initialize worksheet properties if they don't exist
-    if (!worksheet['!rows']) worksheet['!rows'] = [];
-    if (!worksheet['!cols']) worksheet['!cols'] = [];
-    
-    // Set row heights
-    for (let r = 0; r <= range.e.r; r++) {
-        if (!worksheet['!rows'][r]) worksheet['!rows'][r] = {};
-        
-        // Header row (first row) gets height 25, data rows get 22
-        worksheet['!rows'][r].hpt = r === 0 ? 25 : 22;
-    }
-    
-    // Apply formatting to each cell
-    for (let r = range.s.r; r <= range.e.r; r++) {
-        for (let c = range.s.c; c <= range.e.c; c++) {
-            const cellAddress = XLSX.utils.encode_cell({r: r, c: c});
-            const cell = worksheet[cellAddress];
-            
-            if (!cell) continue;
-            
-            // Initialize cell style
-            if (!cell.s) cell.s = {};
-            
-            // Font formatting
-            cell.s.font = {
-                name: 'Arial',
-                sz: r === 0 ? 18 : 16, // Header: 18pt, Data: 16pt
-                bold: true,
-                color: { rgb: '000000' }
-            };
-            
-            // Alignment
-            cell.s.alignment = {
-                horizontal: 'center',
-                vertical: 'center',
-                wrapText: true
-            };
-            
-            // Borders - all sides medium black
-            cell.s.border = {
-                top: { style: 'medium', color: { rgb: '000000' } },
-                right: { style: 'medium', color: { rgb: '000000' } },
-                bottom: { style: 'medium', color: { rgb: '000000' } },
-                left: { style: 'medium', color: { rgb: '000000' } }
-            };
-            
-            // Header row background color (light blue)
-            if (r === 0) {
-                cell.s.fill = {
-                    fgColor: { rgb: 'E6F3FF' },
-                    patternType: 'solid'
-                };
-            }
-        }
-    }
-    
-    // Set column widths to auto-fit content
-    for (let c = 0; c < colCount; c++) {
-        if (!worksheet['!cols'][c]) worksheet['!cols'][c] = {};
-        worksheet['!cols'][c].wch = 20; // Default width
-    }
-    
-    return worksheet;
-}
-
-function downloadWb(wb, name){
-    // Apply professional formatting to all sheets
-    Object.keys(wb.Sheets).forEach(sheetName => {
-        const ws = wb.Sheets[sheetName];
-        const data = XLSX.utils.sheet_to_json(ws, {header: 1});
-        applyProfessionalFormatting(ws, data);
-    });
-    
-    const blob = XLSX.write(wb, {bookType:'xlsx', type:'binary'});
-    const buf = new ArrayBuffer(blob.length);
-    const view = new Uint8Array(buf);
-    for(let i=0;i<blob.length;i++) view[i] = blob.charCodeAt(i) & 0xFF;
-    saveAs(new Blob([buf],{type:'application/octet-stream'}), name);
-}
-
-function sanitizeColumns(data){
-    if(!data || data.length===0) return data;
-    const firstKeys = Object.keys(data[0]);
-    const trimMap = {};
-    firstKeys.forEach(k=> trimMap[k] = k.trim());
-    return data.map(row=>{
-        const nr={};
-        for(const k in row) nr[trimMap[k]] = row[k];
-        return nr;
-    });
-}
-
-/* ---------- Check ---------- */
-let check_file1_df=null, check_file2_df=null;
-function createColumnSelect(id,label,df){
-    if(!df || df.length===0){
-        return `<div class="column-select-group"><label>${label}</label><select id="${id}" disabled><option>لا توجد أعمدة</option></select></div>`;
-    }
-    const opts = Object.keys(df[0]).map(c=>`<option value="${c}">${c}</option>`).join('');
-    return `<div class="column-select-group"><label>${label}</label><select id="${id}">${opts}</select></div>`;
-}
-function populateCheckDropdowns(){
-    const cont=document.getElementById('checkColumnSelection');
-    cont.innerHTML=`
-        <label>اختيار أعمدة رقم الهوية للمقارنة:</label>
-	${createColumnSelect('checkCol2','العمود من ملف البرنامج:',check_file2_df)}
-        ${createColumnSelect('checkCol1','العمود من ملف المرشحين:',check_file1_df)}`;        
-}
-document.getElementById('checkFile1').addEventListener('change', e=>{
-    const file=e.target.files[0];
-    if(file) readWorkbook(file,wb=>{check_file1_df=sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''})); populateCheckDropdowns();});
-});
-document.getElementById('checkFile2').addEventListener('change', e=>{
-    const file=e.target.files[0];
-    if(file) readWorkbook(file,wb=>{check_file2_df=sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''})); populateCheckDropdowns();});
-});
-async function runCheck(){
-    const f1=document.getElementById('checkFile1').files[0];
-    const f2=document.getElementById('checkFile2').files[0];
-    const col1=document.getElementById('checkCol1').value;
-    const col2=document.getElementById('checkCol2').value;
-    const fileName = document.getElementById('checkFileName').value.trim() || 'نتيجة_الفحص';
-    
-    if(!f1||!f2||!col1||!col2){alert('يرجى اختيار الملفين وتحديد الأعمدة.');return;}
-    
-    // التأكد من وجود البيانات
-    if(!check_file1_df || !check_file2_df || !Array.isArray(check_file1_df) || !Array.isArray(check_file2_df)){
-        alert('خطأ: لم يتم تحميل البيانات بشكل صحيح. يرجى إعادة اختيار الملفات.');
-        return;
-    }
-    
-    if(check_file1_df.length === 0 || check_file2_df.length === 0){
-        alert('خطأ: أحد الملفين فارغ. يرجى التأكد من وجود بيانات في الملفين.');
-        return;
-    }
-    
-    try {
-        const df1=check_file1_df, df2=check_file2_df;
-        const ids=new Set(df1.map(r=>String(r[col1]||'').trim()));
-        const added=df2.filter(r=>ids.has(String(r[col2]||'').trim()));
-        const notAdded=df1.filter(r=>!df2.some(row=>String(row[col2]||'').trim()==String(r[col1]||'').trim()));
-        
-        // التأكد من وجود بيانات للتصدير
-        const addedData = added.length > 0 ? [Object.keys(added[0]), ...added.map(obj => Object.values(obj))] : [['لا توجد بيانات']];
-        const notAddedData = notAdded.length > 0 ? [Object.keys(notAdded[0]), ...notAdded.map(obj => Object.values(obj))] : [['لا توجد بيانات']];
-        
-        await downloadExcelJSFile({ 
-            'موجودين': addedData, 
-            'الغير موجودين': notAddedData 
-        }, fileName);
-        
-        document.getElementById('checkOut').innerHTML='<div class="success">✅ تم التنزيل بنجاح - ملف منسق احترافياً</div>';
-    } catch (error) {
-        console.error('خطأ في معالجة البيانات:', error);
-        alert('خطأ في معالجة البيانات: ' + error.message);
-        document.getElementById('checkOut').innerHTML='<div class="error">❌ حدث خطأ أثناء المعالجة</div>';
-    }
-}
-
-/* ---------- Compare ---------- */
-let compare_old_df=null, compare_new_df=null;
-function populateCompareDropdowns(){
-    const cont=document.getElementById('compareColumnSelection');
-    cont.innerHTML=`
-        <label>اختيار العمود المشترك:</label>
-        ${createColumnSelect('keyColOld','العمود من الملف القديم:',compare_old_df)}
-        ${createColumnSelect('keyColNew','العمود من الملف الجديد:',compare_new_df)}`;
-}
-document.getElementById('oldFile').addEventListener('change', e=>{
-    const file=e.target.files[0];
-    if(file) readWorkbook(file,wb=>{compare_old_df=sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''})); populateCompareDropdowns();});
-});
-document.getElementById('newFile').addEventListener('change', e=>{
-    const file=e.target.files[0];
-    if(file) readWorkbook(file,wb=>{compare_new_df=sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[wb.SheetNames[0]],{defval:''})); populateCompareDropdowns();});
-});
-async function runCompare(){
-    const keyOld=document.getElementById('keyColOld').value;
-    const keyNew=document.getElementById('keyColNew').value;
-    const fileName = document.getElementById('compareFileName').value.trim() || 'مقارنة';
-    
-    if(!compare_old_df||!compare_new_df||!keyOld||!keyNew){alert('يرجى تحميل الملفين واختيار الأعمدة.');return;}
-    const old_data=compare_old_df, n_data=compare_new_df;
-    const keysOld=new Set(old_data.map(r=>String(r[keyOld]).trim()));
-    const keysNew=new Set(n_data.map(r=>String(r[keyNew]).trim()));
-    const dropped=old_data.filter(r=>!keysNew.has(String(r[keyOld]).trim()));
-    const added=n_data.filter(r=>!keysOld.has(String(r[keyNew]).trim()));
-    const common=[...keysOld].filter(k=>keysNew.has(k));
-    
-    // Get all columns from new data to maintain original order
-    const allNewCols = Object.keys(n_data[0] || {});
-    const changes = [];
-    const changedCellsInfo = []; // To track which cells should be highlighted
-    
-    common.forEach(k=>{
-        const o=old_data.find(r=>String(r[keyOld]).trim()===k);
-        const ne=n_data.find(r=>String(r[keyNew]).trim()===k);
-        
-        const rowData = {};
-        const changedCells = {};
-        let hasChanges = false;
-        
-        // Process all columns in original order
-        allNewCols.forEach(col => {
-            const newVal = String(ne[col] ?? '').trim();
-            
-            if (col === keyNew) {
-                // Key column - always use new value
-                rowData[col] = newVal;
-            } else {
-                // Find corresponding old column (might have different name but same position/content)
-                const oldVal = String(o[col] ?? '').trim();
-                
-                if (oldVal !== newVal) {
-                    // Column changed - show old → new format
-                    // Detect if content is primarily Arabic to choose appropriate arrow
-                    const arabicRegex = /[\u0600-\u06FF]/;
-                    const isArabicContent = arabicRegex.test(oldVal) || arabicRegex.test(newVal);
-                    
-                    if (isArabicContent) {
-                        // For Arabic content, use left arrow to maintain readability
-                        rowData[col] = `${oldVal || 'غير موجود'} ← ${newVal || 'غير موجود'}`;
-                    } else {
-                        // For English/Numbers, use right arrow for logical flow
-                        rowData[col] = `${oldVal || 'غير موجود'} → ${newVal || 'غير موجود'}`;
-                    }
-                    
-                    changedCells[col] = true;
-                    hasChanges = true;
-                } else {
-                    // Column didn't change - show new value
-                    rowData[col] = newVal;
-                }
-            }
-        });
-        
-        // Only add row if it has changes
-        if (hasChanges) {
-            changes.push(rowData);
-            changedCellsInfo.push(changedCells);
-        }
-    });
-    
-    // Prepare data for Excel generation with styling information
-    const differenceSheetData = {
-        headers: allNewCols,
-        rows: changes,
-        changedCells: changedCellsInfo
-    };
-    
-    downloadExcelJSFileWithStyling({ 
-        'الاختلاف': differenceSheetData, 
-        'المحذوف': [Object.keys(dropped[0]||{}), ...dropped.map(obj => Object.values(obj))], 
-        'المضاف': [Object.keys(added[0]||{}), ...added.map(obj => Object.values(obj))] 
-    }, fileName);
-    document.getElementById('compareOut').innerHTML='<div class="success">✅ تم التنزيل بنجاح - ملف منسق احترافياً</div>';
-}
-
-/* ---------- Filter ---------- */
-let filter_df = null;
-document.getElementById('filterFile').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) { filter_df = null; return; }
-    readWorkbook(file, wb => {
-        const sheetName = wb.SheetNames[0];
-        filter_df = sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' }));
-        populateFilterDropdown();
-    });
-});
-function populateFilterDropdown() {
-    const cont = document.getElementById('filterColumnSelection');
-    if (!filter_df || filter_df.length === 0) {
-        cont.innerHTML = '<div class="error">لا توجد أعمدة لتحميلها.</div>';
-        return;
-    }
-    const cols = Object.keys(filter_df[0]);
-    cont.innerHTML = `
-        <label>اختر العمود الذي ستُصفّى عليه الصفوف:</label>
-        <select id="filterCol">${cols.map(c => `<option value="${c}">${c}</option>`).join('')}</select>`;
-}
-async function runFilter() {
-    if (!filter_df || filter_df.length === 0) { alert('الرجاء اختيار ملف إكسل أولاً.'); return; }
-    const col = document.getElementById('filterCol').value.trim();
-    const v1  = document.getElementById('val1').value.trim();
-    const v2  = document.getElementById('val2').value.trim();
-    const fileName = document.getElementById('filterFileName').value.trim() || 'الملف_بعد_التصفية';
-    
-    if (!col || !v1 || !v2) { alert('يرجى اختيار العمود وكتابة القيمتين.'); return; }
-    const df1 = filter_df.filter(r => String(r[col]).trim() === v1);
-    const df2 = filter_df.filter(r => String(r[col]).trim() === v2);
-    const sheets = {};
-    if (df1.length) sheets[v1] = [Object.keys(df1[0]), ...df1.map(obj => Object.values(obj))];
-    if (df2.length) sheets[v2] = [Object.keys(df2[0]), ...df2.map(obj => Object.values(obj))];
-    downloadExcelJSFile(sheets, fileName);
-    document.getElementById('filterOut').innerHTML = '<div class="success">✅ تم التنزيل بنجاح - ملف منسق احترافياً</div>';
-}
-
-/* ---------- MERGE – NEW WIZARD ---------- */
-const modeRadios = document.querySelectorAll('input[name="mergeMode"]');
-modeRadios.forEach(r => r.addEventListener('change', toggleMergeMode));
-function toggleMergeMode() {
-    const mode = document.querySelector('input[name="mergeMode"]:checked').value;
-    document.getElementById('singleModeUI').style.display = mode === 'single' ? 'block' : 'none';
-    document.getElementById('multiModeUI').style.display   = mode === 'multi'  ? 'block' : 'none';
-    if (mode === 'multi') initMultiMode();
-}
-
-/* ---------- SINGLE FILE ---------- */
-document.getElementById('singleFile').addEventListener('change', e=>{
-    const file=e.target.files[0];
-    if(!file) return;
-    readWorkbook(file, wb=>{
-        if(wb.SheetNames.length<2){alert('الملف يحتاج ورقتين على الأقل');return;}
-        const [s1,s2]=wb.SheetNames;
-        let df1=sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[s1],{defval:''}));
-        let df2=sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[s2],{defval:''}));
-        const div=document.getElementById('singleUI');
-        div.innerHTML=`
-            <label>العمود المفتاح من الورقة الأولى:</label>
-            <select id="k1">${Object.keys(df1[0]).map(c=>`<option>${c}</option>`).join('')}</select>
-            <label>العمود المفتاح من الورقة الثانية:</label>
-            <select id="k2">${Object.keys(df2[0]).map(c=>`<option>${c}</option>`).join('')}</select>
-            <label>الأعمدة لنسخها (Ctrl/Cmd لاختيار متعدد):</label>
-            <select id="v2" multiple size="5">${Object.keys(df2[0]).map(c=>`<option>${c}</option>`).join('')}</select>
-            <div class="filename-input">
-                <label>اسم الملف الناتج:</label>
-                <input type="text" id="singleMergeFileName" value="singleFile_merged" placeholder="singleFile_merged">
-                <small style="color: #856404;">سيتم إضافة .xlsx تلقائياً</small>
-            </div>
-            <button onclick="runSingleMerge('${s1}','${s2}')">دمج وحفظ</button>`;
-    });
-});
-async function runSingleMerge(s1,s2){
-    const file=document.getElementById('singleFile').files[0];
-    const k1=document.getElementById('k1').value;
-    const k2=document.getElementById('k2').value;
-    const v2=Array.from(document.getElementById('v2').selectedOptions).map(o=>o.value);
-    const fileName = document.getElementById('singleMergeFileName').value.trim() || 'singleFile_merged';
-    
-    if(!k1||!k2||v2.length===0){alert('يرجى اختيار الأعمدة.');return;}
-    readWorkbook(file, wb=>{
-        let df1=sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[s1],{defval:''}));
-        let df2=sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[s2],{defval:''}));
-        const merged=mergeByKey(df1,k1,df2,k2,v2);
-        const header = Object.keys(merged[0]||{});
-        const rows = [header, ...merged.map(obj => header.map(k => obj[k] ?? ''))];
-        downloadExcelJSFile({ 'merged': rows }, fileName);
-        document.getElementById('singleUI').innerHTML += '<div class="success">✅ تم الدمج والتنزيل بنجاح - ملف منسق احترافياً</div>';
-    });
-}
-
-/* ---------- MULTI-FILE ---------- */
-let multiFiles = [];
-let baseFileIdx = 0;
-const pickBtn = document.getElementById('pickFolderBtn');
-async function initMultiMode() {
-    pickBtn.onclick = async () => {
-        let files = [];
-        if ('showDirectoryPicker' in window) {
-            try {
-                const dirHandle = await showDirectoryPicker();
-                for await (const entry of dirHandle.values())
-                    if (entry.kind === 'file' && /\.xlsx?$/i.test(entry.name))
-                        files.push(await entry.getFile());
-            } catch {/* user cancel */}
-        } else {
-            const inp = document.createElement('input');
-            inp.type = 'file'; inp.multiple = true; inp.accept = '.xlsx,.xls';
-            inp.onchange = () => { files = [...inp.files]; };
-            inp.click();
-            await new Promise(r => inp.onchange = () => { files = [...inp.files]; r(); });
-        }
-        if (files.length === 0) return;
-        multiFiles = [];
-        for (const f of files) {
-            await new Promise(res => readWorkbook(f, wb => {
-                multiFiles.push({file: f, wb, sheets: wb.SheetNames});
-                res();
-            }));
-        }
-        listFilesForReview();
-    };
-}
-function listFilesForReview() {
-    const listDiv = document.getElementById('fileList');
-    listDiv.innerHTML = '<h3>الملفات المختارة</h3>';
-    multiFiles.forEach((f, i) => {
-        const div=document.createElement('div');
-        div.innerHTML=`
-            <label><input type="radio" name="baseFile" value="${i}" ${i===0?'checked':''}> ملف أساسي</label>
-            <span>${f.file.name}</span>`;
-        listDiv.appendChild(div);
-    });
-    buildMultiUI();
-}
-function buildMultiUI() {
-    const container = document.getElementById('multiUI');
-    container.innerHTML = '<h3>اختيارات الدمج</h3>';
-    multiFiles.forEach((f, idx) => {
-        const div=document.createElement('div');
-        div.style.cssText='border:1px solid var(--gray);border-radius:10px;padding:10px;margin:8px 0';
-        const sheetSel=document.createElement('select');
-        f.sheets.forEach(s=>sheetSel.appendChild(new Option(s,s)));
-        sheetSel.value=f.sheets[0];
-        const keySel=document.createElement('select');
-        const colsSel=document.createElement('select'); colsSel.multiple=true; colsSel.size=4;
-
-        const loadCols=()=>{
-            const sh=f.wb.Sheets[sheetSel.value];
-            const json=sanitizeColumns(XLSX.utils.sheet_to_json(sh,{defval:''}));
-            if(!json.length) return;
-            const cols=Object.keys(json[0]);
-            [keySel,colsSel].forEach(s=>s.innerHTML='');
-            cols.forEach(c=>{keySel.appendChild(new Option(c,c)); colsSel.appendChild(new Option(c,c));});
-            keySel.selectedIndex=0; colsSel.querySelectorAll('option').forEach(o=>o.selected=true);
-            f.selectedSheet=sheetSel.value; f.keyCol=keySel.value; f.colsToCopy=[...colsSel.selectedOptions].map(o=>o.value);
-        };
-        sheetSel.onchange=loadCols; keySel.onchange=()=>f.keyCol=keySel.value; colsSel.onchange=()=>f.colsToCopy=[...colsSel.selectedOptions].map(o=>o.value);
-        div.innerHTML=`<strong>${f.file.name}</strong><br>`;
-        div.append('ورقة:',sheetSel,' مفتاح:',keySel,' أعمدة:',colsSel);
-        container.appendChild(div);
-        f.selectedSheet=f.sheets[0]; loadCols();
-    });
-    
-    // Add filename input for multi-file merge
-    const filenameDiv = document.createElement('div');
-    filenameDiv.className = 'filename-input';
-    filenameDiv.innerHTML = `
-        <label>اسم الملف الناتج:</label>
-        <input type="text" id="multiMergeFileName" value="multiFiles_merged" placeholder="multiFiles_merged">
-        <small style="color: #856404;">سيتم إضافة .xlsx تلقائياً</small>
-    `;
-    container.appendChild(filenameDiv);
-    
-    const btn=document.createElement('button'); btn.textContent='دمج وحفظ'; btn.onclick=runMultiMerge;
-    container.appendChild(btn);
-}
-async function runMultiMerge() {
-    baseFileIdx = +document.querySelector('input[name="baseFile"]:checked').value;
-    const base=multiFiles[baseFileIdx];
-    const fileName = document.getElementById('multiMergeFileName').value.trim() || 'multiFiles_merged';
-    
-    if(!base){alert('يرجى اختيار ملف أساسي.');return;}
-    let baseJson=sanitizeColumns(XLSX.utils.sheet_to_json(base.wb.Sheets[base.selectedSheet],{defval:''}));
-    for (let i=0;i<multiFiles.length;i++){
-        if(i===baseFileIdx) continue;
-        const src=multiFiles[i];
-        if(!src.keyCol||!src.colsToCopy.length){alert(`يرجى اختيار مفتاح وأعمدة لملف ${src.file.name}`);return;}
-        const srcJson=sanitizeColumns(XLSX.utils.sheet_to_json(src.wb.Sheets[src.selectedSheet],{defval:''}));
-        baseJson=mergeByKey(baseJson,base.keyCol,srcJson,src.keyCol,src.colsToCopy);
-    }
-    const header = Object.keys(baseJson[0]||{});
-    const rows = [header, ...baseJson.map(obj => header.map(k => obj[k] ?? ''))];
-    downloadExcelJSFile({ 'merged': rows }, fileName);
-    document.getElementById('multiUI').innerHTML += '<div class="success">✅ تم الدمج والتنزيل بنجاح - ملف منسق احترافياً</div>';
-}
-function mergeByKey(baseDf,baseKey,srcDf,srcKey,colsToCopy){
-    const map={};
-    srcDf.forEach(r=>{const k=String(r[srcKey]).trim();if(!map[k])map[k]=[];map[k].push(r);});
-    const merged=[];
-    baseDf.forEach(bRow=>{
-        const key=String(bRow[baseKey]).trim();
-        if(map[key]){
-            map[key].forEach(sRow=>{
-                const newRow={...bRow};
-                colsToCopy.forEach(c=>newRow[c]=sRow[c]??'');
-                merged.push(newRow);
-            });
-        }else{
-            const newRow={...bRow};
-            colsToCopy.forEach(c=>newRow[c]='');
-            merged.push(newRow);
-        }
-    });
-    return merged;
-}
-toggleMergeMode();
-
-/* ---------- Split by Column ---------- */
-let split_df = null;
-document.getElementById('splitFile').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) { split_df = null; return; }
-    readWorkbook(file, wb => {
-        const sheetName = wb.SheetNames[0];
-        split_df = sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' }));
-        populateSplitDropdown();
-    });
-});
-function populateSplitDropdown() {
-    const cont = document.getElementById('splitColSelection');
-    if (!split_df || split_df.length === 0) {
-        cont.innerHTML = '<div class="error">لا توجد أعمدة لعرضها.</div>';
-        return;
-    }
-    const cols = Object.keys(split_df[0]);
-    cont.innerHTML = `
-        <label>اختر العمود الذي تريد التقسيم عليه:</label>
-        <select id="splitCol">${cols.map(c => `<option value="${c}">${c}</option>`).join('')}</select>`;
-}
-async function runSplit() {
-    if (!split_df || split_df.length === 0) {
-        alert('الرجاء اختيار ملف إكسل أولاً.'); return;
-    }
-    const col = document.getElementById('splitCol').value.trim();
-    const zipName = (document.getElementById('zipName').value.trim() || 'تقسيم_حسب_العمود') + '.zip';
-    if (!col) { alert('الرجاء اختيار عمود التقسيم.'); return; }
-
-    const groups = {};
-    const header = Object.keys(split_df[0]);
-    split_df.forEach(row => {
-        const val = String(row[col] ?? '').trim();
-        if (!groups[val]) groups[val] = [header];
-        groups[val].push(header.map(h => row[h] ?? ''));
-    });
-
-    const zip = new JSZip();
-    for (const [value, rows] of Object.entries(groups)) {
-        // Create Excel file using ExcelJS for better formatting
-        const workbook = new ExcelJS.Workbook();
-        const worksheet = workbook.addWorksheet('Sheet1');
-        
-        // Add data rows
-        rows.forEach(row => worksheet.addRow(row));
-        
-        // Apply formatting
-        formatExcelJSWorksheet(worksheet);
-        
-        // Generate Excel buffer
-        const buffer = await workbook.xlsx.writeBuffer();
-        zip.file(`${value}.xlsx`, buffer);
-    }
-    const blob = await zip.generateAsync({ type: 'blob' });
-    saveAs(blob, zipName);
-    document.getElementById('splitOut').innerHTML = '<div class="success">✅ تم تنزيل ملف ZIP بنجاح - جميع الملفات منسقة احترافياً</div>';
-}
-
-/* ---------- Merge Files ---------- */
-let mergeFilesList = [];
-document.getElementById('mergeFilesInput').addEventListener('change', async (e) => {
-    const files = Array.from(e.target.files);
-    if (files.length === 0) return;
-    mergeFilesList = [];
-    for (const file of files) {
-        if (/\.xlsx?$/i.test(file.name)) {
-            await new Promise(res => readWorkbook(file, wb => {
-                mergeFilesList.push({ file, wb });
-                res();
-            }));
-        }
-    }
-    const listDiv = document.getElementById('mergeFilesList');
-    listDiv.innerHTML = '<h3>الملفات المختارة:</h3>';
-    mergeFilesList.forEach(f => {
-        const div = document.createElement('div');
-        div.textContent = f.file.name;
-        listDiv.appendChild(div);
-    });
-});
-async function runMergeFiles() {
-    if (mergeFilesList.length === 0) {
-        alert('يرجى اختيار ملفات إكسل أولاً.'); return;
-    }
-    const outputName = (document.getElementById('mergeOutputName').value.trim() || 'merged') + '.xlsx';
-    const allRows = [];
-    let headers = [];
-    mergeFilesList.forEach(({ file, wb }) => {
-        const sheetName = wb.SheetNames[0];
-        const json = sanitizeColumns(XLSX.utils.sheet_to_json(wb.Sheets[sheetName], { defval: '' }));
-        if (json.length === 0) return;
-        const fileHeaders = Object.keys(json[0]);
-        fileHeaders.forEach(h => { if (!headers.includes(h)) headers.push(h); });
-        json.forEach(row => {
-            const newRow = { ...row, 'اسم الملف': file.name };
-            allRows.push(newRow);
-        });
-    });
-    if (allRows.length === 0) { alert('لا توجد بيانات لدمجها.'); return; }
-    const finalHeaders = [...headers, 'اسم الملف'];
-    const aoa = [finalHeaders];
-    allRows.forEach(row => {
-        const rowData = finalHeaders.map(h => row[h] ?? '');
-        aoa.push(rowData);
-    });
-    const wb = new ExcelJS.Workbook();
-    const ws = wb.addWorksheet('الملف المدمج');
-    aoa.forEach(r => ws.addRow(r));
-    formatExcelJSWorksheet(ws);
-    const buffer = await wb.xlsx.writeBuffer();
-    saveAs(new Blob([buffer], {type: 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'}), outputName);
-    document.getElementById('mergeFilesOut').innerHTML = '<div class="success">✅ تم دمج الملفات وتحميلها بنجاح - ملف منسق احترافياً</div>';
-}
-
-</script>
+      </div>
+    </section>
+  </main>
 </body>
 </html>
