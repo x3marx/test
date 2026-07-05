@@ -1,0 +1,752 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101828">
+<title>نظام تدريب بنك الأسئلة</title>
+<style>
+:root{
+  --bg:#0b1020;--card:#121a2c;--card2:#172033;--line:#26324a;--text:#f5f7fb;--muted:#aab6c9;
+  --brand:#6ee7b7;--brand2:#38bdf8;--good:#34d399;--bad:#fb7185;--warn:#fbbf24;--radius:22px;--tap:48px;
+  --shadow:0 18px 60px rgba(0,0,0,.34)
+}
+*{box-sizing:border-box}
+html,body{margin:0;min-height:100%;background:radial-gradient(circle at top left,rgba(56,189,248,.18),transparent 34rem),radial-gradient(circle at bottom right,rgba(110,231,183,.13),transparent 34rem),var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial,sans-serif;-webkit-font-smoothing:antialiased}
+body{padding:16px;padding-bottom:calc(94px + env(safe-area-inset-bottom));overflow-x:hidden}
+button,input,select{font:inherit}
+button{cursor:pointer;-webkit-tap-highlight-color:transparent}
+.app{max-width:1160px;margin:auto}
+.hero{display:block;margin-bottom:10px}
+.box,.panel,.card{background:rgba(18,26,44,.88);border:1px solid rgba(255,255,255,.1);border-radius:var(--radius);box-shadow:var(--shadow);backdrop-filter:blur(16px)}
+.box{padding:18px}
+.compactHero{padding:12px 14px;overflow:hidden}
+.heroRow{display:block}
+h1{margin:0 0 10px;font-size:clamp(1.25rem,4.5vw,2rem);letter-spacing:-.03em;line-height:1.25;text-align:center}
+.sub{margin:0;color:var(--muted);line-height:1.8;font-size:.98rem}
+.compactMetrics{display:grid;grid-template-columns:repeat(8,minmax(0,1fr));gap:6px;align-items:stretch;max-width:100%}
+.formsMini{display:none!important}
+.pills{display:flex;flex-wrap:wrap;gap:8px;margin-top:12px}
+.pill,.metricChip{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:999px;color:var(--text);font-size:.78rem;min-width:0;text-align:center}
+.pill{padding:7px 12px}.metricChip{padding:6px 8px;line-height:1.15;overflow:hidden;text-overflow:ellipsis}
+.pill strong,.metricChip strong{color:var(--brand);font-weight:900}
+.metricChip .label{color:var(--muted);font-size:.72rem;margin-inline-end:3px}
+.metricChip.status{grid-column:span 2}.metricChip.status strong{color:var(--brand)}.simpleMetric{display:inline-flex;align-items:center;justify-content:center;gap:5px}.metricIcon{line-height:1;font-size:.9rem}
+.metricChip.good strong{color:var(--good)}
+.metricChip.bad strong{color:var(--bad)}
+.metricChip.warn strong{color:var(--warn)}
+.actionsTop{display:flex;gap:8px;align-items:stretch;flex-wrap:wrap;justify-content:flex-start}
+.btn{min-height:var(--tap);border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.07);color:var(--text);padding:10px 14px;display:inline-flex;align-items:center;justify-content:center;gap:8px;transition:.15s transform,.15s border-color,.15s background}
+.btn:hover{transform:translateY(-1px);border-color:rgba(110,231,183,.55)}
+.btn.primary{background:linear-gradient(135deg,rgba(110,231,183,.22),rgba(56,189,248,.18));border-color:rgba(110,231,183,.5)}
+.btn.good{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.12)}
+.btn.bad{border-color:rgba(251,113,133,.55);background:rgba(251,113,133,.11)}
+.btn.warn{border-color:rgba(251,191,36,.55);background:rgba(251,191,36,.11)}
+.grid{display:grid;grid-template-columns:330px 1fr;gap:14px;align-items:start}
+.panel{padding:14px;position:sticky;top:14px}
+.sectionTitle{font-weight:900;margin:4px 0 10px;color:#dbeafe}
+.field{display:grid;gap:6px;margin-bottom:10px}
+label{color:var(--muted);font-size:.86rem}
+select,input{width:100%;min-height:46px;border-radius:14px;border:1px solid var(--line);background:#0e1627;color:var(--text);padding:9px 12px;outline:none}
+select:focus,input:focus{border-color:var(--brand2)}
+.miniStats{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin:12px 0}
+.stat{border:1px solid var(--line);background:rgba(255,255,255,.05);border-radius:16px;padding:10px}
+.stat b{display:block;font-size:1.18rem;color:var(--brand)}
+.stat span{color:var(--muted);font-size:.82rem}
+.navList{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;max-height:310px;overflow:auto;padding-inline-end:2px}
+.qchip{min-height:38px;border-radius:12px;border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--text);font-size:.83rem}
+.qchip.active{border-color:var(--brand);background:rgba(110,231,183,.16)}
+.qchip.done{box-shadow:inset 0 -3px 0 rgba(56,189,248,.8)}
+.qchip.ok{box-shadow:inset 0 -3px 0 rgba(52,211,153,.9)}
+.qchip.no{box-shadow:inset 0 -3px 0 rgba(251,113,133,.9)}
+.card{padding:18px;min-height:560px}
+.meta{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.metaInfo{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+.metaRates{display:flex;flex-wrap:wrap;gap:8px;align-items:center;justify-content:flex-start;direction:ltr}
+.metricBadge{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:999px;padding:7px 11px;color:var(--brand);font-size:.88rem;font-weight:900;min-width:70px;text-align:center}
+.badge{border:1px solid var(--line);background:rgba(255,255,255,.06);border-radius:999px;padding:7px 11px;color:#dbeafe;font-size:.88rem}
+.badge.good{border-color:rgba(52,211,153,.5);color:#bbf7d0}
+.question{font-size:clamp(1.08rem,2.6vw,1.42rem);line-height:2;margin:12px 0 18px;font-weight:800}
+.options{display:grid;gap:10px}
+.option{width:100%;text-align:right;align-items:flex-start;justify-content:flex-start;line-height:1.75;padding:13px 14px;border-radius:18px;border:1px solid var(--line);background:rgba(255,255,255,.055);color:var(--text);display:flex;gap:11px}
+.option .letter{flex:0 0 34px;height:34px;border-radius:12px;display:inline-flex;align-items:center;justify-content:center;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.08);font-weight:900}
+.option.selected{border-color:var(--brand2);background:rgba(56,189,248,.13)}
+.option.correct{border-color:rgba(52,211,153,.72);background:rgba(52,211,153,.14)}
+.option.wrong{border-color:rgba(251,113,133,.72);background:rgba(251,113,133,.13)}
+.feedback{display:none;margin-top:14px;border-radius:18px;padding:13px 14px;line-height:1.8;border:1px solid var(--line);background:rgba(255,255,255,.055)}
+.feedback.show{display:block}
+.feedback.ok{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.11)}
+.feedback.no{border-color:rgba(251,113,133,.55);background:rgba(251,113,133,.11)}
+.cardActions{display:flex;flex-wrap:wrap;gap:8px;margin-top:16px}
+.quickControls{display:grid;grid-template-columns:1fr;gap:8px;margin:12px 0}.quickControls .btn{justify-content:space-between}.quickControls b{min-width:30px;height:30px;border-radius:999px;background:rgba(255,255,255,.1);display:inline-flex;align-items:center;justify-content:center;color:var(--brand)}
+.timerBox{border:1px solid var(--line);background:rgba(255,255,255,.05);border-radius:18px;padding:10px 12px;margin:6px 0 14px}.timerHead{display:flex;align-items:center;justify-content:space-between;gap:10px;color:#dbeafe;font-weight:800}.timerText{direction:rtl;color:var(--warn);font-variant-numeric:tabular-nums}.timerBar{height:9px;border-radius:999px;background:rgba(255,255,255,.09);overflow:hidden;margin-top:9px}.timerFill{display:block;height:100%;width:100%;border-radius:999px;background:linear-gradient(90deg,var(--bad),var(--warn),var(--brand));transition:width .25s linear}.timerDone .timerText{color:var(--bad)}
+body.phoneView .app{max-width:460px}body.phoneView{padding:10px;padding-bottom:calc(86px + env(safe-area-inset-bottom))}body.phoneView .hero{grid-template-columns:1fr}body.phoneView .grid{grid-template-columns:1fr}body.phoneView .panel{position:static}body.phoneView .card{min-height:auto;padding:15px}body.phoneView .navList{display:flex;overflow:auto;max-height:none;padding-bottom:4px}body.phoneView .qchip{min-width:48px}body.phoneView .actionsTop{display:none}body.phoneView .bottomBar{display:flex}body.phoneView .bottomBar .btn{flex:1;padding:9px 8px}body.phoneView .question{font-size:1.12rem;line-height:1.9}body.phoneView .option{padding:12px 13px}
+.bottomBar{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(11,16,32,.82);border-top:1px solid rgba(255,255,255,.1);backdrop-filter:blur(18px);padding:10px calc(12px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));display:none;gap:8px}
+.empty{padding:28px;text-align:center;color:var(--muted);line-height:1.8}
+.kbd{font-family:ui-monospace,Consolas,monospace;direction:ltr;unicode-bidi:bidi-override}
+@media(max-width:860px){
+  body{padding:10px;padding-bottom:calc(86px + env(safe-area-inset-bottom))}
+  .compactHero{padding:10px}
+  h1{margin-bottom:8px;font-size:1.35rem}
+  .compactMetrics{width:100%;grid-template-columns:repeat(4,minmax(0,1fr));gap:5px}
+  .metricChip{font-size:.72rem;padding:6px 5px}
+  .metricChip .label{display:block;margin:0 0 2px;font-size:.68rem}
+  .grid{grid-template-columns:1fr}
+  .panel{position:static}
+  .card{min-height:auto;padding:15px}
+  .navList{display:flex;overflow:auto;max-height:none;padding-bottom:4px}
+  .qchip{min-width:48px}
+  .actionsTop{display:none}
+  .bottomBar{display:flex}
+  .bottomBar .btn{flex:1;padding:9px 8px}
+}
+@media(max-width:430px){.miniStats{grid-template-columns:1fr 1fr}.pill{font-size:.82rem}.question{line-height:1.9}.compactMetrics{grid-template-columns:repeat(2,minmax(0,1fr))}.metricChip.status{grid-column:1 / -1}}
+@media(prefers-reduced-motion:reduce){*{transition:none!important;scroll-behavior:auto!important}}
+
+.uploadMini{border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:18px;padding:10px;margin-bottom:14px;display:grid;gap:9px}
+.uploadBtn{width:100%;font-weight:900}
+.importStatus{border:1px solid rgba(255,255,255,.08);background:rgba(0,0,0,.12);border-radius:14px;padding:10px;color:var(--muted);font-size:.86rem;line-height:1.7}
+.importStatus.good{border-color:rgba(52,211,153,.55);background:rgba(52,211,153,.10);color:#bbf7d0}
+.importStatus.bad{border-color:rgba(251,113,133,.55);background:rgba(251,113,133,.10);color:#fecdd3}
+.emptyUpload{max-width:720px;margin:auto;text-align:center;line-height:1.9;padding:18px}
+.emptyUpload h2{margin:0 0 8px;color:#eafff6}
+.emptyUpload p{color:var(--muted);margin:0 0 14px}
+.templateHint{margin-top:14px;border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:18px;padding:12px;color:var(--muted);font-size:.86rem;line-height:1.8;text-align:right}
+
+@media(max-width:560px){.meta{align-items:stretch;flex-direction:column}.metaInfo,.metaRates{justify-content:flex-start}.metricBadge{min-width:auto;padding:6px 10px}}
+
+.excelUrlBox{display:grid;gap:8px;margin-top:12px}
+.excelUrlRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+.excelUrlRow input{flex:1;min-width:210px}
+.excelHint{color:var(--muted);font-size:.82rem;line-height:1.7;margin:0}
+@media(max-width:860px){
+  .excelUrlRow{display:grid;grid-template-columns:1fr}
+  .excelUrlRow input,.excelUrlRow button{width:100%}
+}
+
+</style>
+<script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
+/* Excel URL loader added */
+async function readExcelFromArrayBuffer(arrayBuffer, sourceName){
+  if (typeof XLSX === "undefined") {
+    throw new Error("مكتبة قراءة Excel غير محملة. تأكد من اتصال الإنترنت أو استخدم نسخة Offline.");
+  }
+  const workbook = XLSX.read(arrayBuffer, {type:"array"});
+  const firstSheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json(sheet, {defval:""});
+  if (!rows.length) throw new Error("ملف Excel لا يحتوي على أسئلة.");
+
+  // Use the page's own importer if available.
+  if (typeof importRows === "function") {
+    importRows(rows, sourceName || "Excel");
+    return;
+  }
+  if (typeof loadQuestionsFromRows === "function") {
+    loadQuestionsFromRows(rows, sourceName || "Excel");
+    return;
+  }
+  if (typeof buildQuestionsFromRows === "function") {
+    QUESTIONS = buildQuestionsFromRows(rows);
+    if (typeof afterExcelLoaded === "function") afterExcelLoaded(sourceName || "Excel");
+    else if (typeof render === "function") render();
+    return;
+  }
+
+  // Generic fallback for the current template columns.
+  const pick = (row, names) => {
+    for (const n of names) {
+      if (row[n] !== undefined && String(row[n]).trim() !== "") return row[n];
+    }
+    return "";
+  };
+  const qs = rows.map((row, idx) => {
+    const form = String(pick(row, ["Form","form","النموذج","Model"]) || "form1").trim();
+    const formTitle = String(pick(row, ["Form Title","formTitle","FormTitle","عنوان النموذج"]) || form || "النموذج").trim();
+    const id = Number(pick(row, ["Question No.","Question No","QuestionNo","No","ID","رقم السؤال","السؤال"])) || (idx + 1);
+    const lesson = String(pick(row, ["Lesson","lesson","Category","التصنيف","الدرس"]) || "").trim();
+    const question = String(pick(row, ["Question","question","نص السؤال","السؤال"]) || "").trim();
+    const a = String(pick(row, ["Option A","A","الخيار أ","الخيار A"]) || "").trim();
+    const b = String(pick(row, ["Option B","B","الخيار ب","الخيار B"]) || "").trim();
+    const c = String(pick(row, ["Option C","C","الخيار ج","الخيار C"]) || "").trim();
+    const d = String(pick(row, ["Option D","D","الخيار د","الخيار D"]) || "").trim();
+    const answerRaw = pick(row, ["Correct Answer","Answer","correct","الإجابة الصحيحة","الاجابة الصحيحة"]);
+    const answer = typeof normalizeAnswer === "function" ? normalizeAnswer(answerRaw) : String(answerRaw || "").trim().toUpperCase();
+    return {
+      id, form, formTitle, lesson, question, answer,
+      options:[
+        {key:"A",letter:"أ",text:a},
+        {key:"B",letter:"ب",text:b},
+        {key:"C",letter:"ج",text:c},
+        {key:"D",letter:"د",text:d}
+      ]
+    };
+  }).filter(q => q.question && q.answer && q.options.every(o => o.text));
+
+  if (!qs.length) throw new Error("لم يتم العثور على أسئلة صالحة في Excel.");
+  QUESTIONS = qs;
+
+  if (typeof onQuestionsLoaded === "function") onQuestionsLoaded(sourceName || "Excel");
+  else {
+    const status = document.getElementById("status");
+    if (status) {
+      status.className = "status good";
+      status.textContent = "تم تحميل " + QUESTIONS.length + " سؤال من " + (sourceName || "Excel");
+    }
+    const loadState = document.getElementById("loadState");
+    if (loadState) loadState.textContent = "تم تحميل Excel";
+    const totalPill = document.getElementById("totalPill");
+    if (totalPill) totalPill.textContent = QUESTIONS.length;
+    if (typeof rebuildFormFilter === "function") rebuildFormFilter();
+    if (typeof rebuildLessonFilter === "function") rebuildLessonFilter();
+    if (typeof saveImportedQuestions === "function") saveImportedQuestions();
+    if (typeof render === "function") render();
+    if (typeof renderQuestion === "function") renderQuestion();
+  }
+}
+
+async function loadExcelFromUrl(){
+  const input = document.getElementById("excelUrl");
+  const status = document.getElementById("status");
+  const url = input ? input.value.trim() : "";
+  if (!url) {
+    if (status) {
+      status.className = "status";
+      status.textContent = "يرجى إدخال رابط Excel أولاً.";
+    }
+    return;
+  }
+  try {
+    if (status) {
+      status.className = "status";
+      status.textContent = "جاري تحميل ملف Excel من الرابط...";
+    }
+    const res = await fetch(url, {cache:"no-store"});
+    if (!res.ok) throw new Error("تعذر تحميل الرابط. رمز الاستجابة: " + res.status);
+    const buffer = await res.arrayBuffer();
+    await readExcelFromArrayBuffer(buffer, url.split("/").pop() || "Excel URL");
+  } catch (err) {
+    if (status) {
+      status.className = "status bad";
+      status.textContent = "تعذر تحميل Excel من الرابط: " + (err && err.message ? err.message : err);
+    } else {
+      alert("تعذر تحميل Excel من الرابط: " + (err && err.message ? err.message : err));
+    }
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  const btn = document.getElementById("loadExcelUrlBtn");
+  const input = document.getElementById("excelUrl");
+  if (btn) btn.addEventListener("click", loadExcelFromUrl);
+  if (input) input.addEventListener("keydown", function(e){
+    if (e.key === "Enter") loadExcelFromUrl();
+  });
+});
+
+
+/* Safe file upload reader added */
+document.addEventListener("DOMContentLoaded", function(){
+  const fileInput = document.getElementById("excelUpload");
+  if (!fileInput || fileInput.dataset.urlPatchBound === "1") return;
+  fileInput.dataset.urlPatchBound = "1";
+  fileInput.addEventListener("change", async function(e){
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    // If the original page already handled this event, this second handler will reload the same content safely.
+    try {
+      const buffer = await file.arrayBuffer();
+      await readExcelFromArrayBuffer(buffer, file.name);
+    } catch(err) {
+      const status = document.getElementById("status");
+      if (status && !/تم تحميل|تم اختيار|سؤال/.test(status.textContent || "")) {
+        status.className = "status bad";
+        status.textContent = "تعذر قراءة ملف Excel: " + (err && err.message ? err.message : err);
+      }
+    }
+  });
+});
+
+</script>
+</head>
+<body>
+<div class="app">
+  <header class="hero">
+    <div class="box compactHero">
+      <div class="heroRow">
+        <h1>نظام تدريب بنك الأسئلة</h1>
+      </div>
+    </div>
+  </header>
+
+  <main class="grid">
+    <aside class="panel">
+      <div class="sectionTitle">تحميل ملف الأسئلة</div>
+      <div class="uploadMini">
+        <input id="excelUpload" type="file" accept=".xlsx,.xls" hidden>
+
+          <div class="excelUrlBox">
+            <label for="excelUrl">أو حمّل Excel من رابط مباشر</label>
+            <div class="excelUrlRow">
+              <input id="excelUrl" type="url" inputmode="url" placeholder="https://example.com/questions.xlsx">
+              <button class="btn primary" id="loadExcelUrlBtn" type="button">تحميل من الرابط</button>
+            </div>
+            <p class="excelHint">يفضل أن يكون الرابط مباشرًا لملف .xlsx، وأن يسمح الموقع بالتحميل من المتصفح.</p>
+          </div>
+
+        <label class="btn primary uploadBtn" for="excelUpload">رفع ملف Excel</label>
+        <div id="importStatus" class="importStatus">لم يتم تحميل أي ملف بعد.</div>
+      </div>
+      <div class="sectionTitle">التحكم</div>
+      <div class="field">
+        <label for="formFilter">اختر النموذج</label>
+        <select id="formFilter">
+          <option value="all">كل النماذج</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="lessonFilter">الدرس</label>
+        <select id="lessonFilter">
+          <option value="all">كل الدروس</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="modeFilter">طريقة العرض</label>
+        <select id="modeFilter">
+          <option value="all">كل الأسئلة</option>
+          <option value="unanswered">غير المجابة</option>
+          <option value="wrong">الأخطاء فقط</option>
+          <option value="starred">المراجعة لاحقاً</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="searchBox">بحث داخل السؤال أو الخيارات</label>
+        <input id="searchBox" type="search" placeholder="اكتب كلمة للبحث...">
+      </div>
+      <div class="quickControls" aria-label="اختصارات التدريب">
+        <button class="btn bad" id="wrongPracticeBtn">تدريب الأخطاء <b id="wrongQuickCount">0</b></button>
+        <button class="btn warn" id="reviewPracticeBtn">أسئلة المراجعة لاحقاً <b id="reviewQuickCount">0</b></button>
+        <button class="btn" id="allPracticeBtn">عرض كل الأسئلة</button>
+      </div>
+      <div class="cardActions" style="margin-top:0;margin-bottom:12px">
+        <button class="btn" id="prevBtnSide">السابق</button>
+        <button class="btn primary" id="nextBtnSide">التالي</button>
+      </div>
+      <div class="sectionTitle">قائمة الأسئلة</div>
+      <div id="questionNav" class="navList"></div>
+    </aside>
+
+    <section id="quizCard" class="card"></section>
+  </main>
+</div>
+
+<nav class="bottomBar">
+  <button class="btn" id="prevBtnBottom">السابق</button>
+  <button class="btn primary" id="nextBtnBottom">التالي</button>
+  <button class="btn" id="showBtnBottom">الإجابة</button>
+  <button class="btn" id="randomBtnBottom">عشوائي</button>
+</nav>
+
+<script>
+let QUESTIONS=[];
+const STORE_KEY="arabic_test_bank_all_forms_v2";
+const AR={A:"أ",B:"ب",C:"ج",D:"د"};
+let FORM_TITLE={};
+let state={answers:{},stars:{}};
+let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",timerKey:"",timerLeft:60,timerId:null};
+
+try{state=Object.assign(state,JSON.parse(localStorage.getItem(STORE_KEY)||"{}"));}catch(e){}
+const $=id=>document.getElementById(id);
+const key=q=>q.form+":"+q.id;
+const norm=s=>(s||"").toString().replace(/[إأآا]/g,"ا").replace(/[ىي]/g,"ي").replace(/ة/g,"ه").replace(/\s+/g," ").trim().toLowerCase();
+function save(){localStorage.setItem(STORE_KEY,JSON.stringify(state));}
+function answered(q){return !!state.answers[key(q)];}
+function isCorrect(q){return state.answers[key(q)]?.correct===true;}
+function isWrong(q){return state.answers[key(q)]?.correct===false;}
+function isStarred(q){return !!state.stars[key(q)];}
+function baseList(){
+  let list=QUESTIONS.filter(q=>view.form==="all"||q.form===view.form);
+  if(view.lesson!=="all") list=list.filter(q=>(q.lesson||"")===view.lesson);
+  if(view.mode==="unanswered") list=list.filter(q=>!answered(q));
+  if(view.mode==="wrong"){
+    if(view.retry&&view.retryKeys.length){const retrySet=new Set(view.retryKeys); list=list.filter(q=>retrySet.has(key(q)));}
+    else list=list.filter(q=>isWrong(q));
+  }
+  if(view.mode==="starred") list=list.filter(q=>isStarred(q));
+  const t=norm(view.search);
+  if(t) list=list.filter(q=>norm(q.question+" "+q.options.map(o=>o.text).join(" ")).includes(t));
+  return list;
+}
+function currentList(){return baseList();}
+function current(){return currentList()[view.index];}
+function clampIndex(){const list=currentList(); if(view.index<0)view.index=0; if(view.index>=list.length)view.index=Math.max(0,list.length-1);}
+function setText(id,val){const el=$(id); if(el) el.textContent=val;}
+function stats(){
+  const list=currentList();
+  const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
+  const done=scope.filter(answered).length, ok=scope.filter(isCorrect).length, no=scope.filter(isWrong).length, review=scope.filter(isStarred).length;
+  const answeredRecords=scope.map(q=>state.answers[key(q)]).filter(Boolean);
+  const correctPct=done?Math.round(ok/done*100):0;
+  const timed=answeredRecords.map(r=>Number(r.elapsed)).filter(v=>Number.isFinite(v)&&v>=0);
+  const avg=timed.length?Math.round(timed.reduce((a,b)=>a+b,0)/timed.length):0;
+  setText("countShown",list.length); setText("countDone",done); setText("countCorrect",ok); setText("correctRate",correctPct+"%"); setText("avgTime",avg+"ث"); setText("countWrong",no); setText("countReview",review); setText("wrongQuickCount",no); setText("reviewQuickCount",review); setText("totalPill",QUESTIONS.length);
+}
+function cardMetrics(){
+  const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
+  const done=scope.filter(answered).length;
+  const ok=scope.filter(isCorrect).length;
+  const correctPct=done?Math.round(ok/done*100):0;
+  const latest=scope.map(q=>state.answers[key(q)]).filter(Boolean).sort((a,b)=>(Number(b.ts)||0)-(Number(a.ts)||0))[0];
+  const lastElapsed=latest&&Number.isFinite(Number(latest.elapsed))?Math.round(Number(latest.elapsed)):0;
+  return {correctPct,lastElapsed,hasLast:!!latest};
+}
+function renderNav(){
+  const nav=$("questionNav"), list=currentList(), cur=current();
+  nav.innerHTML="";
+  if(!list.length){nav.innerHTML='<div class="empty">لا توجد أسئلة حسب الفلتر الحالي.</div>';return;}
+  const frag=document.createDocumentFragment();
+  list.forEach((q,i)=>{
+    const b=document.createElement("button");
+    b.className="qchip"+(cur&&key(q)===key(cur)?" active":"")+(isCorrect(q)?" ok":isWrong(q)?" no":answered(q)?" done":"");
+    b.textContent=q.id;
+    b.title=FORM_TITLE[q.form]+" - سؤال "+q.id;
+    b.onclick=()=>{view.index=i;view.forceShow=false;render();};
+    frag.appendChild(b);
+  });
+  nav.appendChild(frag);
+}
+function renderCard(){
+  const card=$("quizCard"), q=current();
+  if(!q){
+    if(!QUESTIONS.length){card.innerHTML='<div class="emptyUpload"><h2>لا توجد أسئلة محمّلة حالياً</h2><p>ارفع ملف Excel الخاص بالأسئلة للبدء. بدون الملف لن تظهر الأسئلة أو الإجابات.</p><label class="btn primary" for="excelUpload">رفع ملف Excel</label><div class="templateHint">الأعمدة المطلوبة: Form, Form Title, Question No., Lesson, Question, Option A, Option B, Option C, Option D, Correct Answer. ويمكن كتابة الإجابة الصحيحة كـ A/B/C/D أو أ/ب/ج/د.</div></div>';}
+    else{card.innerHTML='<div class="empty"><h2>لا توجد أسئلة</h2><p>غيّر النموذج أو طريقة العرض أو البحث.</p></div>';}
+    return;
+  }
+  const k=key(q);
+  const ans=(view.retry&&view.mode==="wrong")?(view.retryAnswers[k]||null):state.answers[k];
+  const show=view.forceShow||!!ans;
+  const correctOpt=q.options.find(o=>o.key===q.answer);
+  const parts=[];
+  const metrics=cardMetrics();
+  parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${FORM_TITLE[q.form]}</span><span class="badge">سؤال ${q.id}</span>${q.lesson?`<span class="badge">${q.lesson}</span>`:""}${isStarred(q)?'<span class="badge good">للمراجعة لاحقاً</span>':""}${view.retry&&view.mode==="wrong"?'<span class="badge">تدريب الأخطاء</span>':""}</div><div class="metaRates"><span class="metricBadge">✅ ${metrics.correctPct}%</span><span class="metricBadge">⏱ ${metrics.hasLast?metrics.lastElapsed+"ث":"—"}</span></div></div>`);
+  parts.push(`<div class="timerBox" id="timerBox"><div class="timerHead"><span>مؤقت السؤال</span><span class="timerText" id="timerText">60 ثانية</span></div><div class="timerBar"><i class="timerFill" id="timerFill"></i></div></div>`);
+  parts.push(`<div class="question">${escapeHtml(q.question)}</div>`);
+  parts.push('<div class="options">');
+  q.options.forEach(o=>{
+    let cls="option";
+    if(ans&&ans.selected===o.key) cls+=" selected";
+    if(show&&o.key===q.answer) cls+=" correct";
+    if(show&&ans&&ans.selected===o.key&&o.key!==q.answer) cls+=" wrong";
+    parts.push(`<button class="${cls}" data-pick="${o.key}"><span class="letter">${o.letter}</span><span>${escapeHtml(o.text)}</span></button>`);
+  });
+  parts.push('</div>');
+  // Removed the answer feedback banner; option colors now show correct/wrong status.
+  parts.push(`<div class="cardActions"><button class="btn" id="prevInCard">السابق</button><button class="btn primary" id="nextInCard">التالي</button><button class="btn" id="showInCard">إظهار الإجابة</button><button class="btn warn" id="starInCard">${isStarred(q)?'إزالة من المراجعة':'مراجعة لاحقاً'}</button></div>`);
+  card.innerHTML=parts.join("");
+  card.querySelectorAll("[data-pick]").forEach(btn=>btn.onclick=()=>pick(btn.dataset.pick));
+  $("prevInCard").onclick=prev; $("nextInCard").onclick=next; $("showInCard").onclick=showAnswer; $("starInCard").onclick=toggleStar;
+}
+function escapeHtml(s){return (s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
+function render(){clampIndex();stats();renderNav();renderCard();ensureTimer();}
+function pick(selected){
+  const q=current(); if(!q)return;
+  const elapsed=Math.max(0,Math.min(60,60-Number(view.timerLeft||0)));
+  const k=key(q), record={selected,correct:selected===q.answer,elapsed,ts:Date.now()};
+  if(view.retry&&view.mode==="wrong") view.retryAnswers[k]=record;
+  state.answers[k]=record;
+  view.forceShow=true; save(); render();
+}
+function showAnswer(){view.forceShow=true;render();}
+function toggleStar(){const q=current(); if(!q)return; const k=key(q); state.stars[k]?delete state.stars[k]:state.stars[k]=true; save(); render();}
+function next(){const list=currentList(); if(!list.length)return; view.index=(view.index+1)%list.length; view.forceShow=false; render();}
+function prev(){const list=currentList(); if(!list.length)return; view.index=(view.index-1+list.length)%list.length; view.forceShow=false; render();}
+function randomQ(){const list=currentList(); if(!list.length)return; view.index=Math.floor(Math.random()*list.length); view.forceShow=false; render();}
+function resetProgress(){
+  if(!confirm("هل تريد تصفير التقدم للنموذج المعروض؟"))return;
+  const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
+  scope.forEach(q=>{delete state.answers[key(q)];delete state.stars[key(q)];});
+  view.retry=false; view.retryKeys=[]; view.retryAnswers={};
+  save();view.forceShow=false;render();
+}
+function setMode(mode){view.mode=mode;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};const f=$("modeFilter");if(f)f.value=mode;render();}
+function practiceWrong(){
+  const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
+  view.retryKeys=scope.filter(isWrong).map(key);
+  view.retryAnswers={}; view.retry=true; view.mode="wrong"; view.index=0; view.forceShow=false;
+  const f=$("modeFilter");if(f)f.value="wrong";
+  render();
+}
+function showReview(){setMode("starred");}
+function showAll(){setMode("all");}
+function applyLayout(){
+  document.body.classList.toggle("phoneView",view.layout==="phone");
+  const b=$("phoneViewBtn"); if(b)b.textContent=view.layout==="phone"?"واجهة الكمبيوتر":"واجهة iPhone";
+}
+function toggleLayout(){view.layout=view.layout==="phone"?"desktop":"phone";localStorage.setItem(STORE_KEY+"_layout",view.layout);applyLayout();}
+function ensureTimer(){
+  const q=current();
+  if(!q){clearInterval(view.timerId);view.timerId=null;view.timerKey="";return;}
+  const k=key(q);
+  if(view.timerKey!==k){view.timerKey=k;view.timerLeft=60;}
+  updateTimer();
+  if(!view.timerId){view.timerId=setInterval(()=>{if(view.timerLeft>0){view.timerLeft-=1;updateTimer();}},1000);}
+}
+function updateTimer(){
+  const txt=$("timerText"), fill=$("timerFill"), box=$("timerBox");
+  if(!txt||!fill)return;
+  const left=Math.max(0,view.timerLeft);
+  txt.textContent=left>0?left+" ثانية":"انتهى الوقت";
+  fill.style.width=(left/60*100)+"%";
+  if(box)box.classList.toggle("timerDone",left===0);
+}
+
+function cleanHeader(value){return String(value||"").toLowerCase().replace(/[إأآا]/g,"ا").replace(/[ىي]/g,"ي").replace(/ة/g,"ه").replace(/[\s_\-\.]+/g," ").trim();}
+function getVal(row,names){
+  const wanted=names.map(cleanHeader);
+  for(const k of Object.keys(row)){if(wanted.includes(cleanHeader(k)))return row[k];}
+  return "";
+}
+function normalizeAnswer(value){
+  const v=String(value||"").trim().toUpperCase();
+  const map={"A":"A","B":"B","C":"C","D":"D","1":"A","2":"B","3":"C","4":"D","أ":"A","ا":"A","إ":"A","آ":"A","ب":"B","ج":"C","د":"D"};
+  return map[v]||"";
+}
+function normalizeFormId(value,title){
+  let v=String(value||"").trim();
+  if(!v&&title)v=String(title||"").trim();
+  if(!v)return "form1";
+  const m=v.match(/(\d+)/);
+  if(m)return "form"+m[1];
+  v=v.toLowerCase().replace(/\s+/g,"_").replace(/[^a-z0-9_\u0600-\u06FF]/g,"");
+  return v||"form1";
+}
+function importStatus(text,type){
+  const el=$("importStatus");
+  if(el){el.textContent=text;el.className="importStatus"+(type?" "+type:"");}
+  setText("loadState",QUESTIONS.length?"تم تحميل Excel":"بانتظار ملف Excel");
+}
+function buildLessonOptions(){
+  const lessonSelect=$("lessonFilter");
+  if(!lessonSelect)return;
+  const selected=view.lesson||"all";
+  const lessons=[...new Set(QUESTIONS
+    .filter(q=>view.form==="all"||q.form===view.form)
+    .map(q=>(q.lesson||"").trim())
+    .filter(Boolean))].sort((a,b)=>a.localeCompare(b,"ar"));
+  lessonSelect.innerHTML='<option value="all">كل الدروس</option>'+lessons.map(l=>`<option value="${escapeHtml(l)}">${escapeHtml(l)}</option>`).join("");
+  lessonSelect.value=lessons.includes(selected)?selected:"all";
+  view.lesson=lessonSelect.value;
+}
+function buildDynamicControls(){
+  const select=$("formFilter");
+  if(select){
+    const forms=[...new Set(QUESTIONS.map(q=>q.form))];
+    select.innerHTML='<option value="all">كل النماذج</option>'+forms.map(f=>`<option value="${escapeHtml(f)}">${escapeHtml(FORM_TITLE[f]||f)}</option>`).join("");
+    select.value=view.form||"all";
+  }
+  buildLessonOptions();
+  setText("loadState",QUESTIONS.length?"تم تحميل Excel":"بانتظار ملف Excel");
+  setText("totalPill",QUESTIONS.length);
+}
+function parseWorkbookRows(rows){
+  const parsed=[];
+  const titles={};
+  rows.forEach((row,idx)=>{
+    const qText=String(getVal(row,["Question","السؤال","نص السؤال","Question Text"])||"").trim();
+    if(!qText)return;
+    const formTitle=String(getVal(row,["Form Title","عنوان النموذج","اسم النموذج","النموذج"])||"").trim();
+    const form=normalizeFormId(getVal(row,["Form","form","رقم النموذج","كود النموذج"]),formTitle);
+    const idRaw=getVal(row,["Question No.","Question No","Question Number","No","ID","رقم السؤال","رقم"]);
+    const id=String(idRaw||idx+1).trim();
+    const lesson=String(getVal(row,["Lesson","Category","تصنيف السؤال","الدرس","التصنيف"])||"").trim();
+    const optA=String(getVal(row,["Option A","A","الخيار أ","خيار أ","الاختيار أ","Option 1"])||"").trim();
+    const optB=String(getVal(row,["Option B","B","الخيار ب","خيار ب","الاختيار ب","Option 2"])||"").trim();
+    const optC=String(getVal(row,["Option C","C","الخيار ج","خيار ج","الاختيار ج","Option 3"])||"").trim();
+    const optD=String(getVal(row,["Option D","D","الخيار د","خيار د","الاختيار د","Option 4"])||"").trim();
+    const answer=normalizeAnswer(getVal(row,["Correct Answer","Answer","Correct","الإجابة الصحيحة","الاجابة الصحيحة","الإجابة","الاجابة"]));
+    if(!optA||!optB||!optC||!optD||!answer)return;
+    titles[form]=formTitle||form;
+    parsed.push({id,form,formTitle:titles[form],lesson,answer,question:qText,options:[
+      {key:"A",letter:"أ",text:optA},{key:"B",letter:"ب",text:optB},{key:"C",letter:"ج",text:optC},{key:"D",letter:"د",text:optD}
+    ]});
+  });
+  return {questions:parsed,titles};
+}
+async function handleExcelUpload(file){
+  if(!file)return;
+  if(typeof XLSX==="undefined"){importStatus("تعذر تحميل مكتبة قراءة Excel. تأكد من وجود اتصال إنترنت أول مرة أو استخدم نسخة مدمج فيها المكتبة.","bad");return;}
+  try{
+    importStatus("جاري قراءة الملف: "+file.name,"good");
+    const data=await file.arrayBuffer();
+    const wb=XLSX.read(data,{type:"array"});
+    const sheetName=wb.SheetNames.find(n=>/question|template|اسئ|أسئ/i.test(n))||wb.SheetNames[0];
+    const rows=XLSX.utils.sheet_to_json(wb.Sheets[sheetName],{defval:""});
+    const result=parseWorkbookRows(rows);
+    if(!result.questions.length){importStatus("لم أجد أسئلة صالحة. تأكد من أسماء الأعمدة ومن وجود الخيارات والإجابة الصحيحة.","bad");return;}
+    QUESTIONS=result.questions;
+    FORM_TITLE=result.titles;
+    state={answers:{},stars:{}};
+    view.form="all"; view.lesson="all"; view.mode="all"; view.search=""; view.index=0; view.forceShow=false; view.retry=false; view.retryKeys=[]; view.retryAnswers={};
+    localStorage.removeItem(STORE_KEY);
+    buildDynamicControls();
+    importStatus("تم تحميل "+QUESTIONS.length+" سؤال من الملف: "+file.name,"good");
+    render();
+  }catch(err){console.error(err);importStatus("حدث خطأ أثناء قراءة Excel: "+(err.message||err),"bad");}
+}
+const excelInput=$("excelUpload");
+if(excelInput)excelInput.addEventListener("change",e=>handleExcelUpload(e.target.files&&e.target.files[0]));
+buildDynamicControls();
+
+$("formFilter").addEventListener("change",e=>{view.form=e.target.value;view.lesson="all";buildLessonOptions();view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
+$("lessonFilter").addEventListener("change",e=>{view.lesson=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
+$("modeFilter").addEventListener("change",e=>{view.mode=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
+$("searchBox").addEventListener("input",e=>{view.search=e.target.value;view.index=0;view.forceShow=false;render();});
+[["prevBtnSide",prev],["nextBtnSide",next],["prevBtnBottom",prev],["nextBtnBottom",next],["randomBtnBottom",randomQ],["showBtnBottom",showAnswer],["wrongPracticeBtn",practiceWrong],["reviewPracticeBtn",showReview],["allPracticeBtn",showAll]].forEach(([id,fn])=>{const el=$(id); if(el)el.onclick=fn;});
+document.addEventListener("keydown",e=>{if(e.key==="ArrowRight")prev(); if(e.key==="ArrowLeft")next(); if(e.key===" "){e.preventDefault();showAnswer();}});
+applyLayout();
+render();
+
+/* Excel URL loader added */
+async function readExcelFromArrayBuffer(arrayBuffer, sourceName){
+  if (typeof XLSX === "undefined") {
+    throw new Error("مكتبة قراءة Excel غير محملة. تأكد من اتصال الإنترنت أو استخدم نسخة Offline.");
+  }
+  const workbook = XLSX.read(arrayBuffer, {type:"array"});
+  const firstSheetName = workbook.SheetNames[0];
+  const sheet = workbook.Sheets[firstSheetName];
+  const rows = XLSX.utils.sheet_to_json(sheet, {defval:""});
+  if (!rows.length) throw new Error("ملف Excel لا يحتوي على أسئلة.");
+
+  // Use the page's own importer if available.
+  if (typeof importRows === "function") {
+    importRows(rows, sourceName || "Excel");
+    return;
+  }
+  if (typeof loadQuestionsFromRows === "function") {
+    loadQuestionsFromRows(rows, sourceName || "Excel");
+    return;
+  }
+  if (typeof buildQuestionsFromRows === "function") {
+    QUESTIONS = buildQuestionsFromRows(rows);
+    if (typeof afterExcelLoaded === "function") afterExcelLoaded(sourceName || "Excel");
+    else if (typeof render === "function") render();
+    return;
+  }
+
+  // Generic fallback for the current template columns.
+  const pick = (row, names) => {
+    for (const n of names) {
+      if (row[n] !== undefined && String(row[n]).trim() !== "") return row[n];
+    }
+    return "";
+  };
+  const qs = rows.map((row, idx) => {
+    const form = String(pick(row, ["Form","form","النموذج","Model"]) || "form1").trim();
+    const formTitle = String(pick(row, ["Form Title","formTitle","FormTitle","عنوان النموذج"]) || form || "النموذج").trim();
+    const id = Number(pick(row, ["Question No.","Question No","QuestionNo","No","ID","رقم السؤال","السؤال"])) || (idx + 1);
+    const lesson = String(pick(row, ["Lesson","lesson","Category","التصنيف","الدرس"]) || "").trim();
+    const question = String(pick(row, ["Question","question","نص السؤال","السؤال"]) || "").trim();
+    const a = String(pick(row, ["Option A","A","الخيار أ","الخيار A"]) || "").trim();
+    const b = String(pick(row, ["Option B","B","الخيار ب","الخيار B"]) || "").trim();
+    const c = String(pick(row, ["Option C","C","الخيار ج","الخيار C"]) || "").trim();
+    const d = String(pick(row, ["Option D","D","الخيار د","الخيار D"]) || "").trim();
+    const answerRaw = pick(row, ["Correct Answer","Answer","correct","الإجابة الصحيحة","الاجابة الصحيحة"]);
+    const answer = typeof normalizeAnswer === "function" ? normalizeAnswer(answerRaw) : String(answerRaw || "").trim().toUpperCase();
+    return {
+      id, form, formTitle, lesson, question, answer,
+      options:[
+        {key:"A",letter:"أ",text:a},
+        {key:"B",letter:"ب",text:b},
+        {key:"C",letter:"ج",text:c},
+        {key:"D",letter:"د",text:d}
+      ]
+    };
+  }).filter(q => q.question && q.answer && q.options.every(o => o.text));
+
+  if (!qs.length) throw new Error("لم يتم العثور على أسئلة صالحة في Excel.");
+  QUESTIONS = qs;
+
+  if (typeof onQuestionsLoaded === "function") onQuestionsLoaded(sourceName || "Excel");
+  else {
+    const status = document.getElementById("status");
+    if (status) {
+      status.className = "status good";
+      status.textContent = "تم تحميل " + QUESTIONS.length + " سؤال من " + (sourceName || "Excel");
+    }
+    const loadState = document.getElementById("loadState");
+    if (loadState) loadState.textContent = "تم تحميل Excel";
+    const totalPill = document.getElementById("totalPill");
+    if (totalPill) totalPill.textContent = QUESTIONS.length;
+    if (typeof rebuildFormFilter === "function") rebuildFormFilter();
+    if (typeof rebuildLessonFilter === "function") rebuildLessonFilter();
+    if (typeof saveImportedQuestions === "function") saveImportedQuestions();
+    if (typeof render === "function") render();
+    if (typeof renderQuestion === "function") renderQuestion();
+  }
+}
+
+async function loadExcelFromUrl(){
+  const input = document.getElementById("excelUrl");
+  const status = document.getElementById("status");
+  const url = input ? input.value.trim() : "";
+  if (!url) {
+    if (status) {
+      status.className = "status";
+      status.textContent = "يرجى إدخال رابط Excel أولاً.";
+    }
+    return;
+  }
+  try {
+    if (status) {
+      status.className = "status";
+      status.textContent = "جاري تحميل ملف Excel من الرابط...";
+    }
+    const res = await fetch(url, {cache:"no-store"});
+    if (!res.ok) throw new Error("تعذر تحميل الرابط. رمز الاستجابة: " + res.status);
+    const buffer = await res.arrayBuffer();
+    await readExcelFromArrayBuffer(buffer, url.split("/").pop() || "Excel URL");
+  } catch (err) {
+    if (status) {
+      status.className = "status bad";
+      status.textContent = "تعذر تحميل Excel من الرابط: " + (err && err.message ? err.message : err);
+    } else {
+      alert("تعذر تحميل Excel من الرابط: " + (err && err.message ? err.message : err));
+    }
+  }
+}
+
+document.addEventListener("DOMContentLoaded", function(){
+  const btn = document.getElementById("loadExcelUrlBtn");
+  const input = document.getElementById("excelUrl");
+  if (btn) btn.addEventListener("click", loadExcelFromUrl);
+  if (input) input.addEventListener("keydown", function(e){
+    if (e.key === "Enter") loadExcelFromUrl();
+  });
+});
+
+
+/* Safe file upload reader added */
+document.addEventListener("DOMContentLoaded", function(){
+  const fileInput = document.getElementById("excelUpload");
+  if (!fileInput || fileInput.dataset.urlPatchBound === "1") return;
+  fileInput.dataset.urlPatchBound = "1";
+  fileInput.addEventListener("change", async function(e){
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    // If the original page already handled this event, this second handler will reload the same content safely.
+    try {
+      const buffer = await file.arrayBuffer();
+      await readExcelFromArrayBuffer(buffer, file.name);
+    } catch(err) {
+      const status = document.getElementById("status");
+      if (status && !/تم تحميل|تم اختيار|سؤال/.test(status.textContent || "")) {
+        status.className = "status bad";
+        status.textContent = "تعذر قراءة ملف Excel: " + (err && err.message ? err.message : err);
+      }
+    }
+  });
+});
+
+</script>
+</body>
+</html>
