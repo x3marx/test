@@ -124,6 +124,24 @@ body.phoneView .app{max-width:460px}body.phoneView{padding:10px;padding-bottom:c
   .excelUrlRow input,.excelUrlRow button{width:100%}
 }
 
+
+/* Exam mode */
+.examStartBtn{border-color:rgba(110,231,183,.7)!important;background:linear-gradient(135deg,rgba(110,231,183,.22),rgba(56,189,248,.18))!important;font-weight:900}
+.examTop{position:sticky;top:0;z-index:4;margin:-4px -4px 12px;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(14,22,39,.96);backdrop-filter:blur(14px);display:grid;gap:8px}
+.examHeaderLine{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.examTimer{font-size:1.1rem;font-weight:900;color:var(--warn);font-variant-numeric:tabular-nums}
+.examProgress{color:#dbeafe;font-weight:900}.examProgress b{color:var(--brand)}
+.examReviewFlag{border-color:rgba(251,191,36,.65)!important;background:rgba(251,191,36,.15)!important}
+.examOption.selected{border-color:var(--brand2);background:rgba(56,189,248,.16)}
+.examOption.correct,.examOption.wrong{background:rgba(255,255,255,.055);border-color:var(--line)}
+.examActions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}
+.examResultBox{border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:20px;padding:14px;margin:10px 0;line-height:1.8}
+.examScore{font-size:1.8rem;font-weight:900;color:var(--brand);text-align:center;margin:8px 0}.examScore small{display:block;color:var(--muted);font-size:.9rem;font-weight:600}
+.examLessonTable{width:100%;border-collapse:collapse;margin-top:10px;overflow:hidden;border-radius:14px;font-size:.92rem}.examLessonTable th,.examLessonTable td{border:1px solid rgba(255,255,255,.1);padding:8px;text-align:center}.examLessonTable th{background:rgba(255,255,255,.07);color:#dbeafe}.weakLesson{color:var(--bad);font-weight:900}.okLesson{color:var(--good);font-weight:900}.examNavHint{color:var(--muted);font-size:.82rem;line-height:1.6}
+.qchip.review{outline:2px solid rgba(251,191,36,.8);outline-offset:-2px}
+.qchip.answeredExam{box-shadow:inset 0 -3px 0 rgba(56,189,248,.8)}
+@media(max-width:860px){.examActions{grid-template-columns:1fr 1fr}.examTop{position:static}.examTimer{font-size:1rem}.examLessonTable{font-size:.8rem}.examLessonTable th,.examLessonTable td{padding:6px 4px}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
 /* Excel URL loader added */
@@ -327,6 +345,7 @@ document.addEventListener("DOMContentLoaded", function(){
         <button class="btn bad" id="wrongPracticeBtn">تدريب الأخطاء <b id="wrongQuickCount">0</b></button>
         <button class="btn warn" id="reviewPracticeBtn">أسئلة المراجعة لاحقاً <b id="reviewQuickCount">0</b></button>
         <button class="btn" id="allPracticeBtn">عرض كل الأسئلة</button>
+        <button class="btn examStartBtn" id="startExamBtn">اختبار 125 سؤال</button>
       </div>
       <div class="cardActions" style="margin-top:0;margin-bottom:12px">
         <button class="btn" id="prevBtnSide">السابق</button>
@@ -354,6 +373,7 @@ const AR={A:"أ",B:"ب",C:"ج",D:"د"};
 let FORM_TITLE={};
 let state={answers:{},stars:{}};
 let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",timerKey:"",timerLeft:60,timerId:null};
+let exam={active:false,finished:false,questions:[],index:0,answers:{},review:{},startedAt:0,duration:150*60,timerId:null,endedAt:0};
 
 try{state=Object.assign(state,JSON.parse(localStorage.getItem(STORE_KEY)||"{}"));}catch(e){}
 const $=id=>document.getElementById(id);
@@ -447,8 +467,91 @@ function renderCard(){
   $("prevInCard").onclick=prev; $("nextInCard").onclick=next; $("showInCard").onclick=showAnswer; $("starInCard").onclick=toggleStar;
 }
 function escapeHtml(s){return (s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
-function render(){clampIndex();stats();renderNav();renderCard();ensureTimer();}
+
+function lessonKeyName(s){return norm(s||"").replace(/\s+/g," ");}
+const EXAM_BLUEPRINT=[
+  {lesson:"الدرس الأول",count:10},
+  {lesson:"الدرس الثاني والثالث",count:30},
+  {lesson:"الدرس الرابع",count:14},
+  {lesson:"الدرس الخامس",count:11},
+  {lesson:"الدرس السادس",count:16},
+  {lesson:"الدرس السابع",count:16},
+  {lesson:"الدرس الأخير",count:28}
+];
+function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function examQuestionKey(q){return q.form+":"+q.id+":"+q.__examSeq;}
+function secondsToClock(sec){sec=Math.max(0,Math.floor(sec));const m=Math.floor(sec/60),ss=sec%60;return String(m).padStart(2,"0")+":"+String(ss).padStart(2,"0");}
+function startExam(){
+  if(!QUESTIONS.length){alert("ارفع ملف Excel أولاً ثم ابدأ الاختبار.");return;}
+  const missing=[]; const picked=[];
+  EXAM_BLUEPRINT.forEach(rule=>{
+    const target=lessonKeyName(rule.lesson);
+    const pool=QUESTIONS.filter(q=>lessonKeyName(q.lesson)===target);
+    if(pool.length<rule.count) missing.push(rule.lesson+" المطلوب "+rule.count+" والمتاح "+pool.length);
+    picked.push(...shuffleArray(pool).slice(0,rule.count));
+  });
+  if(missing.length){alert("لا يمكن بدء الاختبار بسبب نقص الأسئلة في بعض الدروس:\n"+missing.join("\n"));return;}
+  const qs=shuffleArray(picked).map((q,i)=>Object.assign({},q,{__examSeq:i+1,__examOptions:shuffleArray(q.options)}));
+  exam={active:true,finished:false,questions:qs,index:0,answers:{},review:{},startedAt:Date.now(),duration:150*60,timerId:null,endedAt:0};
+  clearInterval(view.timerId);view.timerId=null;
+  render();
+}
+function examRemaining(){if(!exam.active)return 0;return Math.max(0,exam.duration-Math.floor((Date.now()-exam.startedAt)/1000));}
+function ensureExamTimer(){
+  if(!exam.active||exam.finished){clearInterval(exam.timerId);exam.timerId=null;return;}
+  updateExamTimer();
+  if(!exam.timerId){exam.timerId=setInterval(()=>{updateExamTimer();if(examRemaining()<=0)finishExam(true);},1000);}
+}
+function updateExamTimer(){const el=$("examTimer");if(el)el.textContent="⏱ "+secondsToClock(examRemaining());}
+function renderExamNav(){
+  const nav=$("questionNav"); if(!nav)return; nav.innerHTML="";
+  const frag=document.createDocumentFragment();
+  exam.questions.forEach((q,i)=>{const k=examQuestionKey(q);const b=document.createElement("button");b.className="qchip"+(i===exam.index?" active":"")+(exam.answers[k]?" answeredExam":"")+(exam.review[k]?" review":"");b.textContent=i+1;b.title="اختبار - سؤال "+(i+1);b.onclick=()=>{exam.index=i;render();};frag.appendChild(b);});
+  nav.appendChild(frag);
+}
+function renderExamCard(){
+  const card=$("quizCard"); if(!card)return;
+  if(exam.finished){renderExamResults();return;}
+  const q=exam.questions[exam.index]; if(!q){card.innerHTML='<div class="empty">لا توجد أسئلة في الاختبار.</div>';return;}
+  const k=examQuestionKey(q), selected=exam.answers[k]?.selected;
+  const parts=[];
+  parts.push(`<div class="examTop"><div class="examHeaderLine"><div class="examProgress">اختبار 125 سؤال — <b>${exam.index+1}</b> / ${exam.questions.length}</div><div class="examTimer" id="examTimer">⏱ ${secondsToClock(examRemaining())}</div></div><div class="examNavHint">لن تظهر الإجابات الصحيحة إلا بعد انتهاء الاختبار.</div></div>`);
+  parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span><span class="badge">سؤال ${escapeHtml(String(q.id))}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}${exam.review[k]?'<span class="badge good">للمراجعة لاحقاً</span>':""}</div></div>`);
+  parts.push(`<div class="question">${escapeHtml(q.question)}</div><div class="options">`);
+  (q.__examOptions||q.options).forEach(o=>{let cls="option examOption"+(selected===o.key?" selected":"");parts.push(`<button class="${cls}" data-exam-pick="${o.key}"><span class="letter">${escapeHtml(o.letter)}</span><span>${escapeHtml(o.text)}</span></button>`);});
+  parts.push(`</div><div class="examActions"><button class="btn" id="examPrevBtn">السابق</button><button class="btn primary" id="examNextBtn">التالي</button><button class="btn warn ${exam.review[k]?"examReviewFlag":""}" id="examReviewBtn">${exam.review[k]?"إزالة المراجعة":"مراجعة لاحقاً"}</button><button class="btn bad" id="examFinishBtn">إنهاء الاختبار</button></div>`);
+  card.innerHTML=parts.join("");
+  card.querySelectorAll("[data-exam-pick]").forEach(btn=>btn.onclick=()=>examPick(btn.dataset.examPick));
+  $("examPrevBtn").onclick=examPrev; $("examNextBtn").onclick=examNext; $("examReviewBtn").onclick=toggleExamReview; $("examFinishBtn").onclick=()=>finishExam(false);
+  updateExamTimer();
+}
+function examPick(selected){const q=exam.questions[exam.index];if(!q)return;exam.answers[examQuestionKey(q)]={selected,ts:Date.now()};render();}
+function examNext(){if(!exam.active||exam.finished)return;exam.index=(exam.index+1)%exam.questions.length;render();}
+function examPrev(){if(!exam.active||exam.finished)return;exam.index=(exam.index-1+exam.questions.length)%exam.questions.length;render();}
+function toggleExamReview(){const q=exam.questions[exam.index];if(!q)return;const k=examQuestionKey(q);exam.review[k]?delete exam.review[k]:exam.review[k]=true;render();}
+function finishExam(auto){
+  if(!exam.active||exam.finished)return;
+  if(!auto){const answeredCount=Object.keys(exam.answers).length;if(!confirm("هل تريد إنهاء الاختبار الآن؟\nتمت الإجابة على "+answeredCount+" من "+exam.questions.length+" سؤال."))return;}
+  exam.finished=true;exam.endedAt=Date.now();clearInterval(exam.timerId);exam.timerId=null;render();
+}
+function examResultsData(){
+  const lessonMap={}; let correct=0;
+  exam.questions.forEach(q=>{const lesson=q.lesson||"بدون درس";const ans=exam.answers[examQuestionKey(q)];const ok=!!ans&&ans.selected===q.answer;if(ok)correct++;if(!lessonMap[lesson])lessonMap[lesson]={total:0,correct:0,wrong:0,unanswered:0};lessonMap[lesson].total++;if(ok)lessonMap[lesson].correct++;else if(ans)lessonMap[lesson].wrong++;else lessonMap[lesson].unanswered++;});
+  return {correct,total:exam.questions.length,lessons:lessonMap};
+}
+function renderExamResults(){
+  const card=$("quizCard"), data=examResultsData(); const pct=data.total?Math.round(data.correct/data.total*100):0;
+  const rows=Object.entries(data.lessons).map(([lesson,r])=>{const lpct=r.total?Math.round(r.correct/r.total*100):0;return {lesson,...r,pct:lpct};}).sort((a,b)=>a.pct-b.pct);
+  const weakest=rows.slice(0,3).map(r=>r.lesson+" ("+r.pct+"%)").join("، ");
+  const table=rows.map(r=>`<tr><td>${escapeHtml(r.lesson)}</td><td>${r.total}</td><td class="okLesson">${r.correct}</td><td>${r.unanswered}</td><td class="${r.pct<70?'weakLesson':'okLesson'}">${r.pct}%</td></tr>`).join("");
+  card.innerHTML=`<div class="examResultBox"><h2 style="margin:0;text-align:center">نتيجة الاختبار</h2><div class="examScore">${pct}%<small>${data.correct} من ${data.total}</small></div><p style="text-align:center;color:var(--muted);margin:6px 0">أضعف الدروس: ${escapeHtml(weakest||"لا يوجد")}</p><table class="examLessonTable"><thead><tr><th>الدرس</th><th>الأسئلة</th><th>صحيح</th><th>غير مجاب</th><th>النسبة</th></tr></thead><tbody>${table}</tbody></table><div class="examActions"><button class="btn primary" id="newExamBtn">اختبار جديد</button><button class="btn" id="backStudyBtn">العودة للمذاكرة</button></div></div>`;
+  $("newExamBtn").onclick=startExam; $("backStudyBtn").onclick=exitExam;
+}
+function exitExam(){exam.active=false;exam.finished=false;exam.questions=[];exam.answers={};exam.review={};clearInterval(exam.timerId);exam.timerId=null;render();}
+
+function render(){if(exam.active){stats();renderExamNav();renderExamCard();ensureExamTimer();return;}clampIndex();stats();renderNav();renderCard();ensureTimer();}
 function pick(selected){
+  if(exam.active&&!exam.finished){examPick(selected);return;}
   const q=current(); if(!q)return;
   const elapsed=Math.max(0,Math.min(60,60-Number(view.timerLeft||0)));
   const k=key(q), record={selected,correct:selected===q.answer,elapsed,ts:Date.now()};
@@ -456,11 +559,11 @@ function pick(selected){
   state.answers[k]=record;
   view.forceShow=true; save(); render();
 }
-function showAnswer(){view.forceShow=true;render();}
+function showAnswer(){if(exam.active&&!exam.finished){alert("الإجابات الصحيحة تظهر بعد انتهاء الاختبار فقط.");return;}view.forceShow=true;render();}
 function toggleStar(){const q=current(); if(!q)return; const k=key(q); state.stars[k]?delete state.stars[k]:state.stars[k]=true; save(); render();}
-function next(){const list=currentList(); if(!list.length)return; view.index=(view.index+1)%list.length; view.forceShow=false; render();}
-function prev(){const list=currentList(); if(!list.length)return; view.index=(view.index-1+list.length)%list.length; view.forceShow=false; render();}
-function randomQ(){const list=currentList(); if(!list.length)return; view.index=Math.floor(Math.random()*list.length); view.forceShow=false; render();}
+function next(){if(exam.active&&!exam.finished){examNext();return;}const list=currentList(); if(!list.length)return; view.index=(view.index+1)%list.length; view.forceShow=false; render();}
+function prev(){if(exam.active&&!exam.finished){examPrev();return;}const list=currentList(); if(!list.length)return; view.index=(view.index-1+list.length)%list.length; view.forceShow=false; render();}
+function randomQ(){if(exam.active&&!exam.finished)return;const list=currentList(); if(!list.length)return; view.index=Math.floor(Math.random()*list.length); view.forceShow=false; render();}
 function resetProgress(){
   if(!confirm("هل تريد تصفير التقدم للنموذج المعروض؟"))return;
   const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
@@ -601,7 +704,7 @@ $("formFilter").addEventListener("change",e=>{view.form=e.target.value;view.less
 $("lessonFilter").addEventListener("change",e=>{view.lesson=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
 $("modeFilter").addEventListener("change",e=>{view.mode=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
 $("searchBox").addEventListener("input",e=>{view.search=e.target.value;view.index=0;view.forceShow=false;render();});
-[["prevBtnSide",prev],["nextBtnSide",next],["prevBtnBottom",prev],["nextBtnBottom",next],["randomBtnBottom",randomQ],["showBtnBottom",showAnswer],["wrongPracticeBtn",practiceWrong],["reviewPracticeBtn",showReview],["allPracticeBtn",showAll]].forEach(([id,fn])=>{const el=$(id); if(el)el.onclick=fn;});
+[["prevBtnSide",prev],["nextBtnSide",next],["prevBtnBottom",prev],["nextBtnBottom",next],["randomBtnBottom",randomQ],["showBtnBottom",showAnswer],["wrongPracticeBtn",practiceWrong],["reviewPracticeBtn",showReview],["allPracticeBtn",showAll],["startExamBtn",startExam]].forEach(([id,fn])=>{const el=$(id); if(el)el.onclick=fn;});
 document.addEventListener("keydown",e=>{if(e.key==="ArrowRight")prev(); if(e.key==="ArrowLeft")next(); if(e.key===" "){e.preventDefault();showAnswer();}});
 applyLayout();
 render();
