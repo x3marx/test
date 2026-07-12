@@ -2,9 +2,9 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <meta name="theme-color" content="#101828">
-<title>نظام تدريب بنك الأسئلة</title>
+<title>نظام تدريب بنك الأسئلة - iPhone</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2c;--card2:#172033;--line:#26324a;--text:#f5f7fb;--muted:#aab6c9;
@@ -163,6 +163,157 @@ body.phoneView .app{max-width:460px}body.phoneView{padding:10px;padding-bottom:c
 .examReviewJump{grid-column:1 / -1}
 @media(max-width:860px){.examTools{grid-template-columns:1fr}}
 
+
+/* Dedicated iPhone layout: fixed viewport in study, exam, results, and mistake review */
+html,body{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important}
+body.iphoneOnly{margin:0!important;padding:8px!important;padding-bottom:calc(92px + env(safe-area-inset-bottom))!important;-webkit-text-size-adjust:100%!important;touch-action:manipulation}
+body.iphoneOnly .app{width:100%!important;max-width:480px!important;min-width:0!important;margin:0 auto!important;overflow-x:hidden!important}
+body.iphoneOnly .hero{display:block!important;margin-bottom:8px!important}
+body.iphoneOnly .compactHero{padding:10px 12px!important;border-radius:18px!important}
+body.iphoneOnly h1{font-size:1.28rem!important;line-height:1.3!important;margin:0!important;text-align:center!important;white-space:normal!important}
+body.iphoneOnly .grid{width:100%!important;max-width:100%!important;min-width:0!important;display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:10px!important;overflow-x:hidden!important}
+body.iphoneOnly .panel{position:static!important;width:100%!important;max-width:100%!important;min-width:0!important;padding:12px!important;border-radius:18px!important;overflow-x:hidden!important}
+body.iphoneOnly .card,body.iphoneOnly #quizCard{width:100%!important;max-width:100%!important;min-width:0!important;margin:0!important;padding:12px!important;min-height:auto!important;border-radius:18px!important;overflow-x:hidden!important}
+body.iphoneOnly .uploadMini{padding:9px!important;margin-bottom:10px!important;border-radius:16px!important}
+body.iphoneOnly select,body.iphoneOnly input{width:100%!important;max-width:100%!important;min-width:0!important;font-size:16px!important}
+body.iphoneOnly .excelUrlRow{display:grid!important;grid-template-columns:minmax(0,1fr)!important}
+body.iphoneOnly .quickControls{gap:7px!important;margin:9px 0!important}
+body.iphoneOnly .quickControls .btn{width:100%!important;min-height:48px!important}
+body.iphoneOnly .navList{display:flex!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;overflow-y:hidden!important;gap:6px!important;max-height:none!important;-webkit-overflow-scrolling:touch!important}
+body.iphoneOnly .qchip{flex:0 0 46px!important;width:46px!important;min-width:46px!important;max-width:46px!important;min-height:40px!important}
+body.iphoneOnly .meta{display:flex!important;flex-direction:column!important;align-items:stretch!important;gap:8px!important}
+body.iphoneOnly .metaInfo,body.iphoneOnly .metaRates{display:flex!important;flex-wrap:wrap!important;gap:6px!important;min-width:0!important}
+body.iphoneOnly .badge,body.iphoneOnly .metricBadge{max-width:100%!important;min-width:0!important;white-space:normal!important;overflow-wrap:anywhere!important;font-size:.78rem!important;padding:6px 9px!important}
+body.iphoneOnly .question{font-size:1.06rem!important;line-height:1.85!important;margin:9px 0 12px!important;max-width:100%!important;overflow-wrap:anywhere!important}
+body.iphoneOnly .options{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;width:100%!important;max-width:100%!important}
+body.iphoneOnly .option{width:100%!important;max-width:100%!important;min-width:0!important;padding:12px!important;font-size:.98rem!important;line-height:1.65!important;overflow-wrap:anywhere!important;white-space:normal!important}
+body.iphoneOnly .option span:last-child{min-width:0!important;max-width:100%!important;overflow-wrap:anywhere!important}
+body.iphoneOnly .cardActions,body.iphoneOnly .examActions,body.iphoneOnly .examTools{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:8px!important;width:100%!important;max-width:100%!important}
+body.iphoneOnly .cardActions .btn,body.iphoneOnly .examActions .btn,body.iphoneOnly .examTools .btn{width:100%!important;max-width:100%!important;min-width:0!important}
+body.iphoneOnly .bottomBar{display:flex!important;gap:6px!important;width:100vw!important;max-width:100vw!important;left:0!important;right:0!important;overflow:hidden!important;padding:8px calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left))!important}
+body.iphoneOnly .bottomBar .btn{flex:1 1 0!important;min-width:0!important;width:auto!important;font-size:.8rem!important;padding:8px 4px!important}
+body.iphoneOnly .examTop{position:static!important;width:100%!important;max-width:100%!important;min-width:0!important;margin:0 0 10px!important;overflow:hidden!important}
+body.iphoneOnly .examHeaderLine{display:grid!important;grid-template-columns:minmax(0,1fr)!important;gap:6px!important;text-align:center!important}
+body.iphoneOnly .examTimer,body.iphoneOnly .examProgress,body.iphoneOnly .examNavHint{max-width:100%!important;white-space:normal!important;overflow-wrap:anywhere!important;text-align:center!important}
+body.iphoneOnly .examResultBox,body.iphoneOnly .examMistakes,body.iphoneOnly .examMistakeItem,body.iphoneOnly .examReviewSummary{width:100%!important;max-width:100%!important;min-width:0!important;overflow-x:hidden!important}
+body.iphoneOnly .examLessonTable{display:block!important;width:100%!important;max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch!important}
+body.iphoneOnly.examMode .panel{display:none!important}
+body.iphoneOnly.examMode .grid{grid-template-columns:minmax(0,1fr)!important}
+body.iphoneOnly.examMode .bottomBar{display:none!important}
+body.iphoneOnly *{box-sizing:border-box!important}
+@media(max-width:390px){body.iphoneOnly h1{font-size:1.18rem!important}body.iphoneOnly .option{font-size:.94rem!important}}
+
+
+/* FINAL iPhone exam viewport and size lock */
+html,body{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  overflow-x:clip!important;
+}
+body.iphoneOnly{
+  width:100dvw!important;
+  max-width:100dvw!important;
+  min-width:0!important;
+  margin:0!important;
+  padding:8px!important;
+  padding-bottom:calc(88px + env(safe-area-inset-bottom))!important;
+  position:relative!important;
+}
+body.iphoneOnly .app{
+  width:calc(100dvw - 16px)!important;
+  max-width:calc(100dvw - 16px)!important;
+  min-width:0!important;
+  margin:0 auto!important;
+  padding:0!important;
+  overflow-x:clip!important;
+  contain:inline-size!important;
+}
+body.iphoneOnly .hero,
+body.iphoneOnly .grid,
+body.iphoneOnly .panel,
+body.iphoneOnly #quizCard,
+body.iphoneOnly .card,
+body.iphoneOnly .box,
+body.iphoneOnly .examTop,
+body.iphoneOnly .examResultBox,
+body.iphoneOnly .examMistakeReview,
+body.iphoneOnly .examMistakes,
+body.iphoneOnly .examMistake,
+body.iphoneOnly .examTools,
+body.iphoneOnly .examActions{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  margin-inline:0!important;
+  box-sizing:border-box!important;
+}
+body.iphoneOnly.examActive .panel{display:none!important}
+body.iphoneOnly.examActive .grid{grid-template-columns:minmax(0,1fr)!important;gap:0!important}
+body.iphoneOnly.examActive .bottomBar{display:none!important}
+body.iphoneOnly.examActive #quizCard{padding:12px!important}
+body.iphoneOnly .examHeaderLine{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:6px!important;
+}
+body.iphoneOnly .examTimer,
+body.iphoneOnly .examProgress,
+body.iphoneOnly .examNavHint{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+  text-align:center!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+body.iphoneOnly .examActions,
+body.iphoneOnly .examTools{
+  display:grid!important;
+  grid-template-columns:minmax(0,1fr)!important;
+  gap:8px!important;
+}
+body.iphoneOnly .examActions .btn,
+body.iphoneOnly .examTools .btn{
+  width:100%!important;
+  max-width:100%!important;
+  min-width:0!important;
+}
+body.iphoneOnly .question,
+body.iphoneOnly .option,
+body.iphoneOnly .option span,
+body.iphoneOnly .badge,
+body.iphoneOnly .metricBadge,
+body.iphoneOnly .examAnswerLine,
+body.iphoneOnly .examMistakeQuestion{
+  max-width:100%!important;
+  min-width:0!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+  word-break:normal!important;
+}
+body.iphoneOnly .examLessonTable{
+  width:100%!important;
+  max-width:100%!important;
+  table-layout:fixed!important;
+  display:table!important;
+  font-size:.72rem!important;
+}
+body.iphoneOnly .examLessonTable th,
+body.iphoneOnly .examLessonTable td{
+  padding:5px 2px!important;
+  white-space:normal!important;
+  overflow-wrap:anywhere!important;
+}
+body.iphoneOnly .bottomBar{
+  width:auto!important;
+  max-width:none!important;
+  inset-inline:0!important;
+  left:0!important;
+  right:0!important;
+}
+body.iphoneOnly *{box-sizing:border-box!important}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
 /* Excel URL loader added */
@@ -308,7 +459,7 @@ document.addEventListener("DOMContentLoaded", function(){
 
 </script>
 </head>
-<body>
+<body class="phoneView iphoneOnly">
 <div class="app">
   <header class="hero">
     <div class="box compactHero">
@@ -371,10 +522,6 @@ document.addEventListener("DOMContentLoaded", function(){
         <button class="btn" id="exportExamMistakesBtn">تصدير أخطاء الاختبار إلى Excel</button>
         <button class="btn examStartBtn" id="startExamBtn">اختبار جميع الأسئلة</button>
       </div>
-      <div class="cardActions" style="margin-top:0;margin-bottom:12px">
-        <button class="btn" id="prevBtnSide">السابق</button>
-        <button class="btn primary" id="nextBtnSide">التالي</button>
-      </div>
       <div class="sectionTitle">قائمة الأسئلة</div>
       <div id="questionNav" class="navList"></div>
     </aside>
@@ -396,7 +543,7 @@ const STORE_KEY="arabic_test_bank_all_forms_v2";
 const AR={A:"أ",B:"ب",C:"ج",D:"د"};
 let FORM_TITLE={};
 let state={answers:{},stars:{},examMistakeKeys:[]};
-let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},examMistakeOrder:[],examMistakeOptionOrder:{},layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",timerKey:"",timerLeft:60,timerId:null};
+let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},examMistakeOrder:[],examMistakeOptionOrder:{},layout:"phone",timerKey:"",timerLeft:60,timerId:null};
 let exam={active:false,finished:false,questions:[],index:0,answers:{},review:{},startedAt:0,duration:0,timerId:null,endedAt:0};
 
 try{state=Object.assign(state,JSON.parse(localStorage.getItem(STORE_KEY)||"{}"));}catch(e){}
@@ -518,6 +665,7 @@ function startExam(){
   if(!QUESTIONS.length){alert("ارفع ملف Excel أولاً ثم ابدأ الاختبار.");return;}
   const qs=shuffleArray(QUESTIONS).map((q,i)=>Object.assign({},q,{__examSeq:i+1,__examOptions:shuffleArray(q.options)}));
   exam={active:true,finished:false,questions:qs,index:0,answers:{},review:{},startedAt:Date.now(),duration:qs.length*60,timerId:null,endedAt:0};
+  document.body.classList.add("examActive");
   clearInterval(view.timerId);view.timerId=null;
   render();
 }
@@ -593,6 +741,7 @@ function renderMistakeReview(){
 }
 
 function startExamMistakePractice(){
+  document.body.classList.remove("examActive");
   const keys=[...new Set(state.examMistakeKeys||[])].filter(k=>QUESTIONS.some(q=>key(q)===k));
   if(!keys.length){alert("لا توجد أخطاء محفوظة من آخر اختبار.");return;}
   view.mode="examMistakes"; view.index=0; view.forceShow=false; view.retry=false;
@@ -641,9 +790,9 @@ function renderExamResults(){
   $("exportMistakesResultBtn").onclick=exportExamMistakes;
   $("newExamBtn").onclick=startExam; $("backStudyBtn").onclick=exitExam;
 }
-function exitExam(){exam.active=false;exam.finished=false;exam.questions=[];exam.answers={};exam.review={};clearInterval(exam.timerId);exam.timerId=null;render();}
+function exitExam(){document.body.classList.remove("examActive");exam.active=false;exam.finished=false;exam.questions=[];exam.answers={};exam.review={};clearInterval(exam.timerId);exam.timerId=null;render();}
 
-function render(){if(exam.active){stats();renderExamNav();renderExamCard();ensureExamTimer();return;}clampIndex();stats();renderNav();renderCard();ensureTimer();}
+function render(){if(exam.active){stats();renderExamNav();renderExamCard();ensureExamTimer();setTimeout(lockIphoneViewport,0);return;}clampIndex();stats();renderNav();renderCard();ensureTimer();setTimeout(lockIphoneViewport,0);}
 function pick(selected){
   if(exam.active&&!exam.finished){examPick(selected);return;}
   const q=current(); if(!q)return;
@@ -675,11 +824,8 @@ function practiceWrong(){
 }
 function showReview(){setMode("starred");}
 function showAll(){setMode("all");}
-function applyLayout(){
-  document.body.classList.toggle("phoneView",view.layout==="phone");
-  const b=$("phoneViewBtn"); if(b)b.textContent=view.layout==="phone"?"واجهة الكمبيوتر":"واجهة iPhone";
-}
-function toggleLayout(){view.layout=view.layout==="phone"?"desktop":"phone";localStorage.setItem(STORE_KEY+"_layout",view.layout);applyLayout();}
+function applyLayout(){view.layout="phone";document.body.classList.add("phoneView","iphoneOnly");}
+function toggleLayout(){applyLayout();}
 function ensureTimer(){
   const q=current();
   if(!q){clearInterval(view.timerId);view.timerId=null;view.timerKey="";return;}
@@ -798,7 +944,7 @@ $("formFilter").addEventListener("change",e=>{view.form=e.target.value;view.less
 $("lessonFilter").addEventListener("change",e=>{view.lesson=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
 $("modeFilter").addEventListener("change",e=>{if(e.target.value==="examMistakes"){startExamMistakePractice();return;}view.mode=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};view.examMistakeOrder=[];view.examMistakeOptionOrder={};render();});
 $("searchBox").addEventListener("input",e=>{view.search=e.target.value;view.index=0;view.forceShow=false;render();});
-[["prevBtnSide",prev],["nextBtnSide",next],["prevBtnBottom",prev],["nextBtnBottom",next],["randomBtnBottom",randomQ],["showBtnBottom",showAnswer],["wrongPracticeBtn",practiceWrong],["reviewPracticeBtn",showReview],["allPracticeBtn",showAll],["examMistakePracticeBtn",startExamMistakePractice],["exportExamMistakesBtn",exportExamMistakes],["startExamBtn",startExam]].forEach(([id,fn])=>{const el=$(id); if(el)el.onclick=fn;});
+[["prevBtnBottom",prev],["nextBtnBottom",next],["randomBtnBottom",randomQ],["showBtnBottom",showAnswer],["wrongPracticeBtn",practiceWrong],["reviewPracticeBtn",showReview],["allPracticeBtn",showAll],["examMistakePracticeBtn",startExamMistakePractice],["exportExamMistakesBtn",exportExamMistakes],["startExamBtn",startExam]].forEach(([id,fn])=>{const el=$(id); if(el)el.onclick=fn;});
 document.addEventListener("keydown",e=>{if(e.key==="ArrowRight")prev(); if(e.key==="ArrowLeft")next(); if(e.key===" "){e.preventDefault();showAnswer();}});
 applyLayout();
 render();
@@ -943,6 +1089,41 @@ document.addEventListener("DOMContentLoaded", function(){
     }
   });
 });
+
+
+/* iPhone fixed viewport lock */
+function lockIphoneViewport(){
+  document.body.classList.add("phoneView","iphoneOnly");
+  document.documentElement.style.overflowX="hidden";
+  document.body.style.overflowX="hidden";
+  const app=document.querySelector(".app"),grid=document.querySelector(".grid"),card=document.getElementById("quizCard");
+  if(app){app.style.width="100%";app.style.maxWidth="480px";app.style.minWidth="0";app.style.margin="0 auto";app.style.overflowX="hidden";}
+  if(grid){grid.style.width="100%";grid.style.maxWidth="100%";grid.style.minWidth="0";grid.style.gridTemplateColumns="minmax(0,1fr)";grid.style.overflowX="hidden";}
+  if(card){card.style.width="100%";card.style.maxWidth="100%";card.style.minWidth="0";card.style.overflowX="hidden";}
+}
+document.addEventListener("DOMContentLoaded",lockIphoneViewport);
+window.addEventListener("load",lockIphoneViewport);
+window.addEventListener("resize",lockIphoneViewport);
+document.addEventListener("click",()=>setTimeout(lockIphoneViewport,30),true);
+document.addEventListener("change",()=>setTimeout(lockIphoneViewport,50),true);
+
+
+/* Stable iPhone viewport guard */
+function stabilizeIphoneViewport(){
+  document.documentElement.style.overflowX="clip";
+  document.body.style.overflowX="clip";
+  const app=document.querySelector(".app");
+  if(app){
+    app.style.width="calc(100dvw - 16px)";
+    app.style.maxWidth="calc(100dvw - 16px)";
+    app.style.minWidth="0";
+  }
+  window.scrollTo({left:0,top:window.scrollY,behavior:"instant"});
+}
+document.addEventListener("DOMContentLoaded",stabilizeIphoneViewport);
+window.addEventListener("resize",stabilizeIphoneViewport);
+document.addEventListener("click",()=>setTimeout(stabilizeIphoneViewport,20),true);
+document.addEventListener("change",()=>setTimeout(stabilizeIphoneViewport,40),true);
 
 </script>
 </body>
