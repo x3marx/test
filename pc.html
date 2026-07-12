@@ -142,6 +142,20 @@ body.phoneView .app{max-width:460px}body.phoneView{padding:10px;padding-bottom:c
 .qchip.answeredExam{box-shadow:inset 0 -3px 0 rgba(56,189,248,.8)}
 @media(max-width:860px){.examActions{grid-template-columns:1fr 1fr}.examTop{position:static}.examTimer{font-size:1rem}.examLessonTable{font-size:.8rem}.examLessonTable th,.examLessonTable td{padding:6px 4px}}
 
+
+/* Exam mistake review */
+.examMistakes{display:grid;gap:12px;margin-top:14px}
+.examMistake{border:1px solid rgba(251,113,133,.45);background:rgba(251,113,133,.08);border-radius:18px;padding:14px;line-height:1.75}
+.examMistake.unanswered{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.08)}
+.examMistakeHead{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.examMistakeQuestion{font-weight:900;color:#f8fafc;margin:8px 0 10px}
+.examAnswerLine{border-radius:13px;padding:9px 11px;margin-top:7px;border:1px solid var(--line);background:rgba(255,255,255,.045)}
+.examAnswerLine.user{border-color:rgba(251,113,133,.45);color:#fecdd3}
+.examAnswerLine.correct{border-color:rgba(52,211,153,.45);color:#bbf7d0}
+.examReviewSummary{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.examReviewToggle{width:100%;margin-top:10px}
+@media(max-width:860px){.examMistake{padding:11px}.examMistakeHead{gap:5px}.examAnswerLine{font-size:.9rem}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
 /* Excel URL loader added */
@@ -531,12 +545,38 @@ function examResultsData(){
   exam.questions.forEach(q=>{const lesson=q.lesson||"بدون درس";const ans=exam.answers[examQuestionKey(q)];const ok=!!ans&&ans.selected===q.answer;if(ok)correct++;if(!lessonMap[lesson])lessonMap[lesson]={total:0,correct:0,wrong:0,unanswered:0};lessonMap[lesson].total++;if(ok)lessonMap[lesson].correct++;else if(ans)lessonMap[lesson].wrong++;else lessonMap[lesson].unanswered++;});
   return {correct,total:exam.questions.length,lessons:lessonMap};
 }
+function examMistakeRows(){
+  return exam.questions.map((q,i)=>{
+    const ans=exam.answers[examQuestionKey(q)];
+    const selected=ans?.selected||"";
+    const correct=selected===q.answer;
+    return {q,index:i,selected,correct,unanswered:!selected};
+  }).filter(r=>!r.correct);
+}
+function answerText(q,keyValue){
+  if(!keyValue)return "لم تتم الإجابة";
+  const o=(q.__examOptions||q.options||[]).find(x=>x.key===keyValue)||(q.options||[]).find(x=>x.key===keyValue);
+  return (AR[keyValue]||keyValue)+(o?" - "+o.text:"");
+}
+function renderMistakeReview(){
+  const box=$("examMistakeReview"); if(!box)return;
+  const mistakes=examMistakeRows();
+  if(!mistakes.length){box.innerHTML='<div class="examResultBox" style="text-align:center;color:var(--good)">ممتاز، لا توجد إجابات خاطئة أو أسئلة غير مجابة.</div>';return;}
+  box.innerHTML='<div class="examMistakes">'+mistakes.map((r,n)=>{
+    const q=r.q;
+    return `<div class="examMistake ${r.unanswered?'unanswered':''}"><div class="examMistakeHead"><span class="badge">الخطأ ${n+1}</span><span class="badge">سؤال الاختبار ${r.index+1}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}<span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span></div><div class="examMistakeQuestion">${escapeHtml(q.question)}</div><div class="examAnswerLine user"><strong>إجابتك:</strong> ${escapeHtml(answerText(q,r.selected))}</div><div class="examAnswerLine correct"><strong>الإجابة الصحيحة:</strong> ${escapeHtml(answerText(q,q.answer))}</div></div>`;
+  }).join("")+'</div>';
+}
 function renderExamResults(){
   const card=$("quizCard"), data=examResultsData(); const pct=data.total?Math.round(data.correct/data.total*100):0;
   const rows=Object.entries(data.lessons).map(([lesson,r])=>{const lpct=r.total?Math.round(r.correct/r.total*100):0;return {lesson,...r,pct:lpct};}).sort((a,b)=>a.pct-b.pct);
   const weakest=rows.slice(0,3).map(r=>r.lesson+" ("+r.pct+"%)").join("، ");
+  const mistakes=examMistakeRows();
+  const wrongCount=mistakes.filter(r=>!r.unanswered).length;
+  const unansweredCount=mistakes.filter(r=>r.unanswered).length;
   const table=rows.map(r=>`<tr><td>${escapeHtml(r.lesson)}</td><td>${r.total}</td><td class="okLesson">${r.correct}</td><td>${r.unanswered}</td><td class="${r.pct<70?'weakLesson':'okLesson'}">${r.pct}%</td></tr>`).join("");
-  card.innerHTML=`<div class="examResultBox"><h2 style="margin:0;text-align:center">نتيجة الاختبار</h2><div class="examScore">${pct}%<small>${data.correct} من ${data.total}</small></div><p style="text-align:center;color:var(--muted);margin:6px 0">أضعف الدروس: ${escapeHtml(weakest||"لا يوجد")}</p><table class="examLessonTable"><thead><tr><th>الدرس</th><th>الأسئلة</th><th>صحيح</th><th>غير مجاب</th><th>النسبة</th></tr></thead><tbody>${table}</tbody></table><div class="examActions"><button class="btn primary" id="newExamBtn">اختبار جديد</button><button class="btn" id="backStudyBtn">العودة للمذاكرة</button></div></div>`;
+  card.innerHTML=`<div class="examResultBox"><h2 style="margin:0;text-align:center">نتيجة الاختبار</h2><div class="examScore">${pct}%<small>${data.correct} من ${data.total}</small></div><div class="examReviewSummary"><span class="badge">إجابات خاطئة: ${wrongCount}</span><span class="badge">غير مجابة: ${unansweredCount}</span></div><p style="text-align:center;color:var(--muted);margin:6px 0">أضعف الدروس: ${escapeHtml(weakest||"لا يوجد")}</p><table class="examLessonTable"><thead><tr><th>الدرس</th><th>الأسئلة</th><th>صحيح</th><th>غير مجاب</th><th>النسبة</th></tr></thead><tbody>${table}</tbody></table><button class="btn bad examReviewToggle" id="reviewMistakesBtn">مراجعة الأخطاء (${mistakes.length})</button><div id="examMistakeReview"></div><div class="examActions"><button class="btn primary" id="newExamBtn">اختبار جديد</button><button class="btn" id="backStudyBtn">العودة للمذاكرة</button></div></div>`;
+  $("reviewMistakesBtn").onclick=()=>{const box=$("examMistakeReview");if(box.innerHTML){box.innerHTML="";$("reviewMistakesBtn").textContent=`مراجعة الأخطاء (${mistakes.length})`;}else{renderMistakeReview();$("reviewMistakesBtn").textContent="إخفاء مراجعة الأخطاء";box.scrollIntoView({behavior:"smooth",block:"start"});}};
   $("newExamBtn").onclick=startExam; $("backStudyBtn").onclick=exitExam;
 }
 function exitExam(){exam.active=false;exam.finished=false;exam.questions=[];exam.answers={};exam.review={};clearInterval(exam.timerId);exam.timerId=null;render();}
