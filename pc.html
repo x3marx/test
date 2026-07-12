@@ -156,6 +156,13 @@ body.phoneView .app{max-width:460px}body.phoneView{padding:10px;padding-bottom:c
 .examReviewToggle{width:100%;margin-top:10px}
 @media(max-width:860px){.examMistake{padding:11px}.examMistakeHead{gap:5px}.examAnswerLine{font-size:.9rem}}
 
+
+/* Exam mistake training + export + review navigation */
+.examTools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.examTools .btn{width:100%}
+.examReviewJump{grid-column:1 / -1}
+@media(max-width:860px){.examTools{grid-template-columns:1fr}}
+
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
 /* Excel URL loader added */
@@ -349,6 +356,7 @@ document.addEventListener("DOMContentLoaded", function(){
           <option value="unanswered">غير المجابة</option>
           <option value="wrong">الأخطاء فقط</option>
           <option value="starred">المراجعة لاحقاً</option>
+          <option value="examMistakes">أخطاء آخر اختبار</option>
         </select>
       </div>
       <div class="field">
@@ -359,6 +367,8 @@ document.addEventListener("DOMContentLoaded", function(){
         <button class="btn bad" id="wrongPracticeBtn">تدريب الأخطاء <b id="wrongQuickCount">0</b></button>
         <button class="btn warn" id="reviewPracticeBtn">أسئلة المراجعة لاحقاً <b id="reviewQuickCount">0</b></button>
         <button class="btn" id="allPracticeBtn">عرض كل الأسئلة</button>
+        <button class="btn bad" id="examMistakePracticeBtn">تدريب أخطاء الاختبار <b id="examMistakeQuickCount">0</b></button>
+        <button class="btn" id="exportExamMistakesBtn">تصدير أخطاء الاختبار إلى Excel</button>
         <button class="btn examStartBtn" id="startExamBtn">اختبار جميع الأسئلة</button>
       </div>
       <div class="cardActions" style="margin-top:0;margin-bottom:12px">
@@ -385,8 +395,8 @@ let QUESTIONS=[];
 const STORE_KEY="arabic_test_bank_all_forms_v2";
 const AR={A:"أ",B:"ب",C:"ج",D:"د"};
 let FORM_TITLE={};
-let state={answers:{},stars:{}};
-let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",timerKey:"",timerLeft:60,timerId:null};
+let state={answers:{},stars:{},examMistakeKeys:[]};
+let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},examMistakeOrder:[],examMistakeOptionOrder:{},layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",timerKey:"",timerLeft:60,timerId:null};
 let exam={active:false,finished:false,questions:[],index:0,answers:{},review:{},startedAt:0,duration:0,timerId:null,endedAt:0};
 
 try{state=Object.assign(state,JSON.parse(localStorage.getItem(STORE_KEY)||"{}"));}catch(e){}
@@ -407,6 +417,14 @@ function baseList(){
     else list=list.filter(q=>isWrong(q));
   }
   if(view.mode==="starred") list=list.filter(q=>isStarred(q));
+  if(view.mode==="examMistakes"){
+    const mistakeSet=new Set(state.examMistakeKeys||[]);
+    list=list.filter(q=>mistakeSet.has(key(q)));
+    if(view.examMistakeOrder&&view.examMistakeOrder.length){
+      const order=new Map(view.examMistakeOrder.map((k,i)=>[k,i]));
+      list.sort((a,b)=>(order.get(key(a))??999999)-(order.get(key(b))??999999));
+    }
+  }
   const t=norm(view.search);
   if(t) list=list.filter(q=>norm(q.question+" "+q.options.map(o=>o.text).join(" ")).includes(t));
   return list;
@@ -423,7 +441,7 @@ function stats(){
   const correctPct=done?Math.round(ok/done*100):0;
   const timed=answeredRecords.map(r=>Number(r.elapsed)).filter(v=>Number.isFinite(v)&&v>=0);
   const avg=timed.length?Math.round(timed.reduce((a,b)=>a+b,0)/timed.length):0;
-  setText("countShown",list.length); setText("countDone",done); setText("countCorrect",ok); setText("correctRate",correctPct+"%"); setText("avgTime",avg+"ث"); setText("countWrong",no); setText("countReview",review); setText("wrongQuickCount",no); setText("reviewQuickCount",review); setText("totalPill",QUESTIONS.length);
+  setText("examMistakeQuickCount",(state.examMistakeKeys||[]).length); setText("countShown",list.length); setText("countDone",done); setText("countCorrect",ok); setText("correctRate",correctPct+"%"); setText("avgTime",avg+"ث"); setText("countWrong",no); setText("countReview",review); setText("wrongQuickCount",no); setText("reviewQuickCount",review); setText("totalPill",QUESTIONS.length);
 }
 function cardMetrics(){
   const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
@@ -462,11 +480,12 @@ function renderCard(){
   const correctOpt=q.options.find(o=>o.key===q.answer);
   const parts=[];
   const metrics=cardMetrics();
-  parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${FORM_TITLE[q.form]}</span><span class="badge">سؤال ${q.id}</span>${q.lesson?`<span class="badge">${q.lesson}</span>`:""}${isStarred(q)?'<span class="badge good">للمراجعة لاحقاً</span>':""}${view.retry&&view.mode==="wrong"?'<span class="badge">تدريب الأخطاء</span>':""}</div><div class="metaRates"><span class="metricBadge">✅ ${metrics.correctPct}%</span><span class="metricBadge">⏱ ${metrics.hasLast?metrics.lastElapsed+"ث":"—"}</span></div></div>`);
+  parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${FORM_TITLE[q.form]}</span><span class="badge">سؤال ${q.id}</span>${q.lesson?`<span class="badge">${q.lesson}</span>`:""}${isStarred(q)?'<span class="badge good">للمراجعة لاحقاً</span>':""}${view.retry&&view.mode==="wrong"?'<span class="badge">تدريب الأخطاء</span>':""}${view.mode==="examMistakes"?'<span class="badge">تدريب أخطاء الاختبار</span>':""}</div><div class="metaRates"><span class="metricBadge">✅ ${metrics.correctPct}%</span><span class="metricBadge">⏱ ${metrics.hasLast?metrics.lastElapsed+"ث":"—"}</span></div></div>`);
   parts.push(`<div class="timerBox" id="timerBox"><div class="timerHead"><span>مؤقت السؤال</span><span class="timerText" id="timerText">60 ثانية</span></div><div class="timerBar"><i class="timerFill" id="timerFill"></i></div></div>`);
   parts.push(`<div class="question">${escapeHtml(q.question)}</div>`);
   parts.push('<div class="options">');
-  q.options.forEach(o=>{
+  const displayOptions=(view.mode==="examMistakes"&&view.examMistakeOptionOrder[k])?view.examMistakeOptionOrder[k]:q.options;
+  displayOptions.forEach(o=>{
     let cls="option";
     if(ans&&ans.selected===o.key) cls+=" selected";
     if(show&&o.key===q.answer) cls+=" correct";
@@ -525,20 +544,25 @@ function renderExamCard(){
   parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span><span class="badge">سؤال ${escapeHtml(String(q.id))}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}${exam.review[k]?'<span class="badge good">للمراجعة لاحقاً</span>':""}</div></div>`);
   parts.push(`<div class="question">${escapeHtml(q.question)}</div><div class="options">`);
   (q.__examOptions||q.options).forEach(o=>{let cls="option examOption"+(selected===o.key?" selected":"");parts.push(`<button class="${cls}" data-exam-pick="${o.key}"><span class="letter">${escapeHtml(o.letter)}</span><span>${escapeHtml(o.text)}</span></button>`);});
-  parts.push(`</div><div class="examActions"><button class="btn" id="examPrevBtn">السابق</button><button class="btn primary" id="examNextBtn">التالي</button><button class="btn warn ${exam.review[k]?"examReviewFlag":""}" id="examReviewBtn">${exam.review[k]?"إزالة المراجعة":"مراجعة لاحقاً"}</button><button class="btn bad" id="examFinishBtn">إنهاء الاختبار</button></div>`);
+  const reviewCount=Object.keys(exam.review).length;
+  parts.push(`</div><div class="examActions"><button class="btn" id="examPrevBtn">السابق</button><button class="btn primary" id="examNextBtn">التالي</button><button class="btn warn ${exam.review[k]?"examReviewFlag":""}" id="examReviewBtn">${exam.review[k]?"إزالة المراجعة":"مراجعة لاحقاً"}</button><button class="btn examReviewJump" id="examNextReviewBtn">الانتقال للمراجعة التالية (${reviewCount})</button><button class="btn bad" id="examFinishBtn">إنهاء الاختبار</button></div>`);
   card.innerHTML=parts.join("");
   card.querySelectorAll("[data-exam-pick]").forEach(btn=>btn.onclick=()=>examPick(btn.dataset.examPick));
-  $("examPrevBtn").onclick=examPrev; $("examNextBtn").onclick=examNext; $("examReviewBtn").onclick=toggleExamReview; $("examFinishBtn").onclick=()=>finishExam(false);
+  $("examPrevBtn").onclick=examPrev; $("examNextBtn").onclick=examNext; $("examReviewBtn").onclick=toggleExamReview; $("examNextReviewBtn").onclick=jumpToNextExamReview; $("examFinishBtn").onclick=()=>finishExam(false);
   updateExamTimer();
 }
 function examPick(selected){const q=exam.questions[exam.index];if(!q)return;exam.answers[examQuestionKey(q)]={selected,ts:Date.now()};render();}
 function examNext(){if(!exam.active||exam.finished)return;exam.index=(exam.index+1)%exam.questions.length;render();}
 function examPrev(){if(!exam.active||exam.finished)return;exam.index=(exam.index-1+exam.questions.length)%exam.questions.length;render();}
 function toggleExamReview(){const q=exam.questions[exam.index];if(!q)return;const k=examQuestionKey(q);exam.review[k]?delete exam.review[k]:exam.review[k]=true;render();}
+function jumpToNextExamReview(){const marked=exam.questions.map((q,i)=>({q,i,k:examQuestionKey(q)})).filter(x=>exam.review[x.k]);if(!marked.length){alert("لا توجد أسئلة معلّمة للمراجعة حالياً.");return;}const next=marked.find(x=>x.i>exam.index)||marked[0];exam.index=next.i;render();}
 function finishExam(auto){
   if(!exam.active||exam.finished)return;
   if(!auto){const answeredCount=Object.keys(exam.answers).length;if(!confirm("هل تريد إنهاء الاختبار الآن؟\nتمت الإجابة على "+answeredCount+" من "+exam.questions.length+" سؤال."))return;}
-  exam.finished=true;exam.endedAt=Date.now();clearInterval(exam.timerId);exam.timerId=null;render();
+  exam.finished=true;exam.endedAt=Date.now();
+  state.examMistakeKeys=examMistakeRows().map(r=>key(r.q));
+  save();
+  clearInterval(exam.timerId);exam.timerId=null;render();
 }
 function examResultsData(){
   const lessonMap={}; let correct=0;
@@ -567,6 +591,42 @@ function renderMistakeReview(){
     return `<div class="examMistake ${r.unanswered?'unanswered':''}"><div class="examMistakeHead"><span class="badge">الخطأ ${n+1}</span><span class="badge">سؤال الاختبار ${r.index+1}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}<span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span></div><div class="examMistakeQuestion">${escapeHtml(q.question)}</div><div class="examAnswerLine user"><strong>إجابتك:</strong> ${escapeHtml(answerText(q,r.selected))}</div><div class="examAnswerLine correct"><strong>الإجابة الصحيحة:</strong> ${escapeHtml(answerText(q,q.answer))}</div></div>`;
   }).join("")+'</div>';
 }
+
+function startExamMistakePractice(){
+  const keys=[...new Set(state.examMistakeKeys||[])].filter(k=>QUESTIONS.some(q=>key(q)===k));
+  if(!keys.length){alert("لا توجد أخطاء محفوظة من آخر اختبار.");return;}
+  view.mode="examMistakes"; view.index=0; view.forceShow=false; view.retry=false;
+  view.examMistakeOrder=shuffleArray(keys); view.examMistakeOptionOrder={};
+  QUESTIONS.filter(q=>keys.includes(key(q))).forEach(q=>{view.examMistakeOptionOrder[key(q)]=shuffleArray(q.options);});
+  const f=$("modeFilter"); if(f)f.value="examMistakes";
+  render();
+}
+function examMistakeQuestions(){
+  const set=new Set(state.examMistakeKeys||[]);
+  return QUESTIONS.filter(q=>set.has(key(q)));
+}
+function exportExamMistakes(){
+  const list=examMistakeQuestions();
+  if(!list.length){alert("لا توجد أخطاء محفوظة من آخر اختبار لتصديرها.");return;}
+  if(typeof XLSX==="undefined"){alert("مكتبة Excel غير متاحة حالياً.");return;}
+  const rows=list.map(q=>({
+    "Form":q.form,
+    "Form Title":q.formTitle||FORM_TITLE[q.form]||q.form,
+    "Question No.":q.id,
+    "Lesson":q.lesson||"",
+    "Question":q.question,
+    "Option A":q.options.find(o=>o.key==="A")?.text||"",
+    "Option B":q.options.find(o=>o.key==="B")?.text||"",
+    "Option C":q.options.find(o=>o.key==="C")?.text||"",
+    "Option D":q.options.find(o=>o.key==="D")?.text||"",
+    "Correct Answer":q.answer
+  }));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=[{wch:12},{wch:22},{wch:14},{wch:22},{wch:60},{wch:38},{wch:38},{wch:38},{wch:38},{wch:16}];
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Exam Mistakes");
+  XLSX.writeFile(wb,"exam-mistakes.xlsx");
+}
+
 function renderExamResults(){
   const card=$("quizCard"), data=examResultsData(); const pct=data.total?Math.round(data.correct/data.total*100):0;
   const rows=Object.entries(data.lessons).map(([lesson,r])=>{const lpct=r.total?Math.round(r.correct/r.total*100):0;return {lesson,...r,pct:lpct};}).sort((a,b)=>a.pct-b.pct);
@@ -575,8 +635,10 @@ function renderExamResults(){
   const wrongCount=mistakes.filter(r=>!r.unanswered).length;
   const unansweredCount=mistakes.filter(r=>r.unanswered).length;
   const table=rows.map(r=>`<tr><td>${escapeHtml(r.lesson)}</td><td>${r.total}</td><td class="okLesson">${r.correct}</td><td>${r.unanswered}</td><td class="${r.pct<70?'weakLesson':'okLesson'}">${r.pct}%</td></tr>`).join("");
-  card.innerHTML=`<div class="examResultBox"><h2 style="margin:0;text-align:center">نتيجة الاختبار</h2><div class="examScore">${pct}%<small>${data.correct} من ${data.total}</small></div><div class="examReviewSummary"><span class="badge">إجابات خاطئة: ${wrongCount}</span><span class="badge">غير مجابة: ${unansweredCount}</span></div><p style="text-align:center;color:var(--muted);margin:6px 0">أضعف الدروس: ${escapeHtml(weakest||"لا يوجد")}</p><table class="examLessonTable"><thead><tr><th>الدرس</th><th>الأسئلة</th><th>صحيح</th><th>غير مجاب</th><th>النسبة</th></tr></thead><tbody>${table}</tbody></table><button class="btn bad examReviewToggle" id="reviewMistakesBtn">مراجعة الأخطاء (${mistakes.length})</button><div id="examMistakeReview"></div><div class="examActions"><button class="btn primary" id="newExamBtn">اختبار جديد</button><button class="btn" id="backStudyBtn">العودة للمذاكرة</button></div></div>`;
+  card.innerHTML=`<div class="examResultBox"><h2 style="margin:0;text-align:center">نتيجة الاختبار</h2><div class="examScore">${pct}%<small>${data.correct} من ${data.total}</small></div><div class="examReviewSummary"><span class="badge">إجابات خاطئة: ${wrongCount}</span><span class="badge">غير مجابة: ${unansweredCount}</span></div><p style="text-align:center;color:var(--muted);margin:6px 0">أضعف الدروس: ${escapeHtml(weakest||"لا يوجد")}</p><table class="examLessonTable"><thead><tr><th>الدرس</th><th>الأسئلة</th><th>صحيح</th><th>غير مجاب</th><th>النسبة</th></tr></thead><tbody>${table}</tbody></table><button class="btn bad examReviewToggle" id="reviewMistakesBtn">مراجعة الأخطاء (${mistakes.length})</button><div class="examTools"><button class="btn primary" id="practiceMistakesBtn">التدرب على الأخطاء</button><button class="btn" id="exportMistakesResultBtn">تصدير الأخطاء إلى Excel</button></div><div id="examMistakeReview"></div><div class="examActions"><button class="btn primary" id="newExamBtn">اختبار جديد</button><button class="btn" id="backStudyBtn">العودة للمذاكرة</button></div></div>`;
   $("reviewMistakesBtn").onclick=()=>{const box=$("examMistakeReview");if(box.innerHTML){box.innerHTML="";$("reviewMistakesBtn").textContent=`مراجعة الأخطاء (${mistakes.length})`;}else{renderMistakeReview();$("reviewMistakesBtn").textContent="إخفاء مراجعة الأخطاء";box.scrollIntoView({behavior:"smooth",block:"start"});}};
+  $("practiceMistakesBtn").onclick=()=>{exitExam();startExamMistakePractice();};
+  $("exportMistakesResultBtn").onclick=exportExamMistakes;
   $("newExamBtn").onclick=startExam; $("backStudyBtn").onclick=exitExam;
 }
 function exitExam(){exam.active=false;exam.finished=false;exam.questions=[];exam.answers={};exam.review={};clearInterval(exam.timerId);exam.timerId=null;render();}
@@ -603,7 +665,7 @@ function resetProgress(){
   view.retry=false; view.retryKeys=[]; view.retryAnswers={};
   save();view.forceShow=false;render();
 }
-function setMode(mode){view.mode=mode;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};const f=$("modeFilter");if(f)f.value=mode;render();}
+function setMode(mode){view.mode=mode;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};if(mode!=="examMistakes"){view.examMistakeOrder=[];view.examMistakeOptionOrder={};}const f=$("modeFilter");if(f)f.value=mode;render();}
 function practiceWrong(){
   const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
   view.retryKeys=scope.filter(isWrong).map(key);
@@ -734,9 +796,9 @@ buildDynamicControls();
 
 $("formFilter").addEventListener("change",e=>{view.form=e.target.value;view.lesson="all";buildLessonOptions();view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
 $("lessonFilter").addEventListener("change",e=>{view.lesson=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
-$("modeFilter").addEventListener("change",e=>{view.mode=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
+$("modeFilter").addEventListener("change",e=>{if(e.target.value==="examMistakes"){startExamMistakePractice();return;}view.mode=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};view.examMistakeOrder=[];view.examMistakeOptionOrder={};render();});
 $("searchBox").addEventListener("input",e=>{view.search=e.target.value;view.index=0;view.forceShow=false;render();});
-[["prevBtnSide",prev],["nextBtnSide",next],["prevBtnBottom",prev],["nextBtnBottom",next],["randomBtnBottom",randomQ],["showBtnBottom",showAnswer],["wrongPracticeBtn",practiceWrong],["reviewPracticeBtn",showReview],["allPracticeBtn",showAll],["startExamBtn",startExam]].forEach(([id,fn])=>{const el=$(id); if(el)el.onclick=fn;});
+[["prevBtnSide",prev],["nextBtnSide",next],["prevBtnBottom",prev],["nextBtnBottom",next],["randomBtnBottom",randomQ],["showBtnBottom",showAnswer],["wrongPracticeBtn",practiceWrong],["reviewPracticeBtn",showReview],["allPracticeBtn",showAll],["examMistakePracticeBtn",startExamMistakePractice],["exportExamMistakesBtn",exportExamMistakes],["startExamBtn",startExam]].forEach(([id,fn])=>{const el=$(id); if(el)el.onclick=fn;});
 document.addEventListener("keydown",e=>{if(e.key==="ArrowRight")prev(); if(e.key==="ArrowLeft")next(); if(e.key===" "){e.preventDefault();showAnswer();}});
 applyLayout();
 render();
