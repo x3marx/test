@@ -4,7 +4,7 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101828">
-<title>نظام تدريب بنك الأسئلة - iPhone</title>
+<title>نظام تدريب بنك الأسئلة</title>
 <style>
 :root{
   --bg:#0b1020;--card:#121a2c;--card2:#172033;--line:#26324a;--text:#f5f7fb;--muted:#aab6c9;
@@ -115,43 +115,6 @@ body.phoneView .app{max-width:460px}body.phoneView{padding:10px;padding-bottom:c
 
 @media(max-width:560px){.meta{align-items:stretch;flex-direction:column}.metaInfo,.metaRates{justify-content:flex-start}.metricBadge{min-width:auto;padding:6px 10px}}
 
-
-/* iPhone dedicated version: always mobile-first, suitable for GitHub Pages + Safari file upload */
-body.iphoneOnly{padding:8px;padding-bottom:calc(92px + env(safe-area-inset-bottom));overflow-x:hidden;touch-action:manipulation}
-body.iphoneOnly .app{max-width:480px;width:100%;margin:0 auto}
-body.iphoneOnly .hero{display:block;margin-bottom:8px}
-body.iphoneOnly .compactHero{padding:10px 12px;border-radius:18px}
-body.iphoneOnly h1{font-size:1.35rem;line-height:1.25;margin:0;text-align:center;white-space:normal}
-body.iphoneOnly .grid{grid-template-columns:1fr;gap:10px}
-body.iphoneOnly .panel{position:static;padding:12px;border-radius:18px}
-body.iphoneOnly .uploadMini{margin-bottom:10px;padding:9px;border-radius:16px}
-body.iphoneOnly .uploadBtn{min-height:52px;font-size:1rem}
-body.iphoneOnly .field{margin-bottom:8px}
-body.iphoneOnly select,body.iphoneOnly input{min-height:48px;font-size:16px;border-radius:14px}
-body.iphoneOnly .quickControls{gap:7px;margin:9px 0}
-body.iphoneOnly .quickControls .btn{min-height:48px;padding:9px 12px}
-body.iphoneOnly .cardActions{gap:7px;margin-top:10px;margin-bottom:10px}
-body.iphoneOnly .cardActions .btn{flex:1;min-height:48px;padding:9px 8px}
-body.iphoneOnly .navList{display:flex;overflow:auto;max-height:none;padding-bottom:5px;gap:6px;-webkit-overflow-scrolling:touch}
-body.iphoneOnly .qchip{min-width:46px;min-height:40px;border-radius:12px}
-body.iphoneOnly .card{min-height:auto;padding:12px;border-radius:18px}
-body.iphoneOnly .meta{align-items:stretch;flex-direction:column;gap:8px;margin-bottom:10px}
-body.iphoneOnly .metaInfo{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-start}
-body.iphoneOnly .metaRates{display:flex;gap:6px;justify-content:flex-start;direction:ltr}
-body.iphoneOnly .badge,body.iphoneOnly .metricBadge{font-size:.78rem;padding:6px 9px;min-width:auto}
-body.iphoneOnly .timerBox{margin:6px 0 10px;padding:9px 10px;border-radius:15px}
-body.iphoneOnly .question{font-size:1.08rem;line-height:1.85;margin:9px 0 12px}
-body.iphoneOnly .options{gap:8px}
-body.iphoneOnly .option{padding:12px 12px;border-radius:16px;line-height:1.65;font-size:1rem}
-body.iphoneOnly .option .letter{flex:0 0 32px;height:32px;border-radius:11px}
-body.iphoneOnly .bottomBar{display:flex;gap:6px;padding:8px calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left))}
-body.iphoneOnly .bottomBar .btn{flex:1;min-height:48px;padding:8px 6px;font-size:.86rem;border-radius:14px}
-body.iphoneOnly .emptyUpload{padding:10px;line-height:1.8}
-body.iphoneOnly .emptyUpload h2{font-size:1.1rem}
-body.iphoneOnly .templateHint{font-size:.8rem;padding:10px;border-radius:15px}
-@media(max-width:390px){body.iphoneOnly h1{font-size:1.22rem}body.iphoneOnly .option{font-size:.96rem}body.iphoneOnly .bottomBar .btn{font-size:.8rem}.badge,.metricBadge{font-size:.74rem}}
-
-
 .excelUrlBox{display:grid;gap:8px;margin-top:12px}
 .excelUrlRow{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
 .excelUrlRow input{flex:1;min-width:210px}
@@ -162,365 +125,43 @@ body.iphoneOnly .templateHint{font-size:.8rem;padding:10px;border-radius:15px}
 }
 
 
-/* iPhone hard layout lock: prevents page width expansion after Excel import */
-html, body {
-  width: 100% !important;
-  max-width: 100% !important;
-  overflow-x: hidden !important;
-  min-width: 0 !important;
-}
-
-body {
-  margin: 0 !important;
-  padding-inline: 10px !important;
-  -webkit-text-size-adjust: 100%;
-}
-
-.app {
-  width: 100% !important;
-  max-width: 460px !important;
-  min-width: 0 !important;
-  margin-inline: auto !important;
-  overflow-x: hidden !important;
-}
-
-.hero,
-.grid,
-.box,
-.panel,
-.card,
-.uploadBox,
-.emptyState,
-.question,
-.options,
-.option,
-.meta,
-.cardActions,
-.quickControls,
-.field,
-.excelUrlBox,
-.excelUrlRow,
-.navList,
-.timerBox {
-  width: 100% !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  overflow-x: hidden !important;
-}
-
-.hero,
-.grid {
-  display: grid !important;
-  grid-template-columns: minmax(0, 1fr) !important;
-}
-
-.panel {
-  position: static !important;
-}
-
-.actionsTop {
-  display: none !important;
-}
-
-.meta {
-  display: flex !important;
-  flex-wrap: wrap !important;
-  gap: 7px !important;
-  justify-content: space-between !important;
-}
-
-.badge,
-.pill,
-.stat,
-.qchip,
-.emptyChip {
-  max-width: 100% !important;
-  white-space: normal !important;
-  overflow-wrap: anywhere !important;
-}
-
-.question,
-.option,
-.option span,
-.option .text,
-.uploadText,
-.status,
-.excelHint,
-label,
-select,
-input,
-button {
-  overflow-wrap: anywhere !important;
-  word-break: normal !important;
-}
-
-.option {
-  display: flex !important;
-  align-items: flex-start !important;
-}
-
-.option .letter {
-  flex: 0 0 34px !important;
-}
-
-select,
-input,
-button,
-.btn {
-  max-width: 100% !important;
-}
-
-.excelUrlRow {
-  display: grid !important;
-  grid-template-columns: 1fr !important;
-}
-
-.navList {
-  display: flex !important;
-  overflow-x: auto !important;
-  overflow-y: hidden !important;
-  padding-bottom: 4px !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-.qchip {
-  flex: 0 0 auto !important;
-  min-width: 48px !important;
-}
-
-.bottomBar {
-  display: flex !important;
-  max-width: 100vw !important;
-  overflow-x: hidden !important;
-}
-
-.bottomBar .btn {
-  flex: 1 1 0 !important;
-  min-width: 0 !important;
-  padding-inline: 6px !important;
-  font-size: .82rem !important;
-}
-
-table,
-.templateTable {
-  display: block !important;
-  max-width: 100% !important;
-  overflow-x: auto !important;
-  -webkit-overflow-scrolling: touch;
-}
-
-@supports (-webkit-touch-callout: none) {
-  input, select, textarea {
-    font-size: 16px !important;
-  }
-}
+/* Exam mode */
+.examStartBtn{border-color:rgba(110,231,183,.7)!important;background:linear-gradient(135deg,rgba(110,231,183,.22),rgba(56,189,248,.18))!important;font-weight:900}
+.examTop{position:sticky;top:0;z-index:4;margin:-4px -4px 12px;padding:10px;border:1px solid rgba(255,255,255,.1);border-radius:18px;background:rgba(14,22,39,.96);backdrop-filter:blur(14px);display:grid;gap:8px}
+.examHeaderLine{display:flex;align-items:center;justify-content:space-between;gap:8px;flex-wrap:wrap}
+.examTimer{font-size:1.1rem;font-weight:900;color:var(--warn);font-variant-numeric:tabular-nums}
+.examProgress{color:#dbeafe;font-weight:900}.examProgress b{color:var(--brand)}
+.examReviewFlag{border-color:rgba(251,191,36,.65)!important;background:rgba(251,191,36,.15)!important}
+.examOption.selected{border-color:var(--brand2);background:rgba(56,189,248,.16)}
+.examOption.correct,.examOption.wrong{background:rgba(255,255,255,.055);border-color:var(--line)}
+.examActions{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:8px;margin-top:14px}
+.examResultBox{border:1px solid var(--line);background:rgba(255,255,255,.045);border-radius:20px;padding:14px;margin:10px 0;line-height:1.8}
+.examScore{font-size:1.8rem;font-weight:900;color:var(--brand);text-align:center;margin:8px 0}.examScore small{display:block;color:var(--muted);font-size:.9rem;font-weight:600}
+.examLessonTable{width:100%;border-collapse:collapse;margin-top:10px;overflow:hidden;border-radius:14px;font-size:.92rem}.examLessonTable th,.examLessonTable td{border:1px solid rgba(255,255,255,.1);padding:8px;text-align:center}.examLessonTable th{background:rgba(255,255,255,.07);color:#dbeafe}.weakLesson{color:var(--bad);font-weight:900}.okLesson{color:var(--good);font-weight:900}.examNavHint{color:var(--muted);font-size:.82rem;line-height:1.6}
+.qchip.review{outline:2px solid rgba(251,191,36,.8);outline-offset:-2px}
+.qchip.answeredExam{box-shadow:inset 0 -3px 0 rgba(56,189,248,.8)}
+@media(max-width:860px){.examActions{grid-template-columns:1fr 1fr}.examTop{position:static}.examTimer{font-size:1rem}.examLessonTable{font-size:.8rem}.examLessonTable th,.examLessonTable td{padding:6px 4px}}
 
 
-/* FINAL iPhone viewport fix: no horizontal growth after Excel upload */
-html,
-body{
-  width:100% !important;
-  max-width:100% !important;
-  min-width:0 !important;
-  margin:0 !important;
-  overflow-x:hidden !important;
-}
+/* Exam mistake review */
+.examMistakes{display:grid;gap:12px;margin-top:14px}
+.examMistake{border:1px solid rgba(251,113,133,.45);background:rgba(251,113,133,.08);border-radius:18px;padding:14px;line-height:1.75}
+.examMistake.unanswered{border-color:rgba(251,191,36,.5);background:rgba(251,191,36,.08)}
+.examMistakeHead{display:flex;flex-wrap:wrap;gap:7px;margin-bottom:9px}
+.examMistakeQuestion{font-weight:900;color:#f8fafc;margin:8px 0 10px}
+.examAnswerLine{border-radius:13px;padding:9px 11px;margin-top:7px;border:1px solid var(--line);background:rgba(255,255,255,.045)}
+.examAnswerLine.user{border-color:rgba(251,113,133,.45);color:#fecdd3}
+.examAnswerLine.correct{border-color:rgba(52,211,153,.45);color:#bbf7d0}
+.examReviewSummary{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin:10px 0}
+.examReviewToggle{width:100%;margin-top:10px}
+@media(max-width:860px){.examMistake{padding:11px}.examMistakeHead{gap:5px}.examAnswerLine{font-size:.9rem}}
 
-body{
-  padding:0 !important;
-  -webkit-text-size-adjust:100% !important;
-  touch-action:manipulation;
-}
 
-.app{
-  width:100vw !important;
-  max-width:100vw !important;
-  min-width:0 !important;
-  margin:0 !important;
-  padding:8px !important;
-  overflow-x:hidden !important;
-  box-sizing:border-box !important;
-}
-
-.hero,
-.grid,
-.box,
-.panel,
-.card,
-.emptyUpload,
-.uploadBox,
-.emptyState,
-#quizCard{
-  width:100% !important;
-  max-width:100% !important;
-  min-width:0 !important;
-  margin-inline:0 !important;
-  box-sizing:border-box !important;
-}
-
-.hero,
-.grid{
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) !important;
-  gap:8px !important;
-}
-
-.panel{
-  position:static !important;
-  top:auto !important;
-}
-
-.compactHero,
-.box,
-.panel,
-.card{
-  border-radius:16px !important;
-}
-
-h1{
-  font-size:1.18rem !important;
-  line-height:1.25 !important;
-  margin:0 !important;
-  text-align:center !important;
-  white-space:normal !important;
-}
-
-.excelUrlRow,
-.cardActions,
-.quickControls{
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) !important;
-  gap:8px !important;
-}
-
-.excelUrlRow input,
-.excelUrlRow button,
-input,
-select,
-button,
-.btn{
-  width:100% !important;
-  max-width:100% !important;
-  min-width:0 !important;
-  box-sizing:border-box !important;
-}
-
-.meta{
-  width:100% !important;
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) !important;
-  gap:7px !important;
-}
-
-.metaInfo,
-.metaRates{
-  width:100% !important;
-  display:flex !important;
-  flex-wrap:wrap !important;
-  gap:6px !important;
-  justify-content:flex-start !important;
-  min-width:0 !important;
-}
-
-.badge,
-.metricBadge,
-.pill,
-.stat,
-.status,
-.excelHint,
-.question,
-.option,
-.option span,
-.option div,
-label{
-  max-width:100% !important;
-  min-width:0 !important;
-  white-space:normal !important;
-  overflow-wrap:anywhere !important;
-  word-break:normal !important;
-  box-sizing:border-box !important;
-}
-
-.question{
-  font-size:1.02rem !important;
-  line-height:1.75 !important;
-  margin:8px 0 10px !important;
-}
-
-.options{
-  display:grid !important;
-  grid-template-columns:minmax(0,1fr) !important;
-  gap:8px !important;
-}
-
-.option{
-  width:100% !important;
-  display:flex !important;
-  align-items:flex-start !important;
-  gap:8px !important;
-  padding:11px !important;
-  line-height:1.55 !important;
-  font-size:.94rem !important;
-}
-
-.option .letter{
-  flex:0 0 30px !important;
-  width:30px !important;
-  height:30px !important;
-  min-width:30px !important;
-}
-
-.navList{
-  width:100% !important;
-  max-width:100% !important;
-  display:flex !important;
-  gap:6px !important;
-  overflow-x:auto !important;
-  overflow-y:hidden !important;
-  -webkit-overflow-scrolling:touch !important;
-  padding-bottom:4px !important;
-}
-
-.qchip{
-  flex:0 0 42px !important;
-  width:42px !important;
-  min-width:42px !important;
-  max-width:42px !important;
-}
-
-.bottomBar{
-  width:100vw !important;
-  max-width:100vw !important;
-  left:0 !important;
-  right:0 !important;
-  bottom:0 !important;
-  display:flex !important;
-  gap:6px !important;
-  overflow:hidden !important;
-  box-sizing:border-box !important;
-  padding:8px calc(8px + env(safe-area-inset-right)) calc(8px + env(safe-area-inset-bottom)) calc(8px + env(safe-area-inset-left)) !important;
-}
-
-.bottomBar .btn{
-  flex:1 1 0 !important;
-  width:auto !important;
-  min-width:0 !important;
-  font-size:.78rem !important;
-  padding:8px 4px !important;
-}
-
-table,
-.templateTable{
-  display:block !important;
-  width:100% !important;
-  max-width:100% !important;
-  overflow-x:auto !important;
-  -webkit-overflow-scrolling:touch !important;
-}
-
-*{
-  box-sizing:border-box !important;
-}
+/* Exam mistake training + export + review navigation */
+.examTools{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+.examTools .btn{width:100%}
+.examReviewJump{grid-column:1 / -1}
+@media(max-width:860px){.examTools{grid-template-columns:1fr}}
 
 </style>
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js">
@@ -665,68 +306,9 @@ document.addEventListener("DOMContentLoaded", function(){
   });
 });
 
-
-/* iPhone hard layout lock JS */
-(function(){
-  function lockIphoneLayout(){
-    document.documentElement.style.overflowX = "hidden";
-    document.body.style.overflowX = "hidden";
-    document.body.classList.add("iphoneView", "phoneView", "iphoneOnly");
-    const app = document.querySelector(".app");
-    if (app) {
-      app.style.maxWidth = "100vw";
-      app.style.width = "100vw";
-      app.style.overflowX = "hidden";
-    }
-    document.querySelectorAll("*").forEach(function(el){
-      if (el.scrollWidth > window.innerWidth + 8) {
-        el.style.maxWidth = "100%";
-        el.style.overflowWrap = "anywhere";
-      }
-    });
-  }
-  document.addEventListener("DOMContentLoaded", lockIphoneLayout);
-  window.addEventListener("load", lockIphoneLayout);
-  window.addEventListener("resize", lockIphoneLayout);
-  document.addEventListener("change", function(e){
-    if (e.target && (e.target.id === "excelUpload" || e.target.id === "formFilter" || e.target.id === "lessonFilter")) {
-      setTimeout(lockIphoneLayout, 80);
-      setTimeout(lockIphoneLayout, 350);
-    }
-  });
-  const oldSetTimeout = window.setTimeout;
-  window.__lockIphoneLayout = lockIphoneLayout;
-})();
-
-
-/* FINAL viewport scroll guard */
-(function(){
-  function forceNoHorizontalScroll(){
-    document.documentElement.scrollLeft = 0;
-    document.body.scrollLeft = 0;
-    document.documentElement.style.overflowX = "hidden";
-    document.body.style.overflowX = "hidden";
-    document.body.style.padding = "0";
-    const app = document.querySelector(".app");
-    if(app){
-      app.style.width = "100vw";
-      app.style.maxWidth = "100vw";
-      app.style.margin = "0";
-      app.style.padding = "8px";
-      app.style.overflowX = "hidden";
-    }
-  }
-  document.addEventListener("DOMContentLoaded", forceNoHorizontalScroll);
-  window.addEventListener("load", forceNoHorizontalScroll);
-  window.addEventListener("resize", forceNoHorizontalScroll);
-  document.addEventListener("click", function(){ setTimeout(forceNoHorizontalScroll, 30); }, true);
-  document.addEventListener("change", function(){ setTimeout(forceNoHorizontalScroll, 30); setTimeout(forceNoHorizontalScroll, 250); }, true);
-  window.__forceNoHorizontalScroll = forceNoHorizontalScroll;
-})();
-
 </script>
 </head>
-<body class="phoneView iphoneOnly">
+<body>
 <div class="app">
   <header class="hero">
     <div class="box compactHero">
@@ -774,6 +356,7 @@ document.addEventListener("DOMContentLoaded", function(){
           <option value="unanswered">غير المجابة</option>
           <option value="wrong">الأخطاء فقط</option>
           <option value="starred">المراجعة لاحقاً</option>
+          <option value="examMistakes">أخطاء آخر اختبار</option>
         </select>
       </div>
       <div class="field">
@@ -784,6 +367,9 @@ document.addEventListener("DOMContentLoaded", function(){
         <button class="btn bad" id="wrongPracticeBtn">تدريب الأخطاء <b id="wrongQuickCount">0</b></button>
         <button class="btn warn" id="reviewPracticeBtn">أسئلة المراجعة لاحقاً <b id="reviewQuickCount">0</b></button>
         <button class="btn" id="allPracticeBtn">عرض كل الأسئلة</button>
+        <button class="btn bad" id="examMistakePracticeBtn">تدريب أخطاء الاختبار <b id="examMistakeQuickCount">0</b></button>
+        <button class="btn" id="exportExamMistakesBtn">تصدير أخطاء الاختبار إلى Excel</button>
+        <button class="btn examStartBtn" id="startExamBtn">اختبار جميع الأسئلة</button>
       </div>
       <div class="cardActions" style="margin-top:0;margin-bottom:12px">
         <button class="btn" id="prevBtnSide">السابق</button>
@@ -809,8 +395,9 @@ let QUESTIONS=[];
 const STORE_KEY="arabic_test_bank_all_forms_v2";
 const AR={A:"أ",B:"ب",C:"ج",D:"د"};
 let FORM_TITLE={};
-let state={answers:{},stars:{}};
-let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},layout:"phone",timerKey:"",timerLeft:60,timerId:null};
+let state={answers:{},stars:{},examMistakeKeys:[]};
+let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},examMistakeOrder:[],examMistakeOptionOrder:{},layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",timerKey:"",timerLeft:60,timerId:null};
+let exam={active:false,finished:false,questions:[],index:0,answers:{},review:{},startedAt:0,duration:0,timerId:null,endedAt:0};
 
 try{state=Object.assign(state,JSON.parse(localStorage.getItem(STORE_KEY)||"{}"));}catch(e){}
 const $=id=>document.getElementById(id);
@@ -830,6 +417,14 @@ function baseList(){
     else list=list.filter(q=>isWrong(q));
   }
   if(view.mode==="starred") list=list.filter(q=>isStarred(q));
+  if(view.mode==="examMistakes"){
+    const mistakeSet=new Set(state.examMistakeKeys||[]);
+    list=list.filter(q=>mistakeSet.has(key(q)));
+    if(view.examMistakeOrder&&view.examMistakeOrder.length){
+      const order=new Map(view.examMistakeOrder.map((k,i)=>[k,i]));
+      list.sort((a,b)=>(order.get(key(a))??999999)-(order.get(key(b))??999999));
+    }
+  }
   const t=norm(view.search);
   if(t) list=list.filter(q=>norm(q.question+" "+q.options.map(o=>o.text).join(" ")).includes(t));
   return list;
@@ -846,7 +441,7 @@ function stats(){
   const correctPct=done?Math.round(ok/done*100):0;
   const timed=answeredRecords.map(r=>Number(r.elapsed)).filter(v=>Number.isFinite(v)&&v>=0);
   const avg=timed.length?Math.round(timed.reduce((a,b)=>a+b,0)/timed.length):0;
-  setText("countShown",list.length); setText("countDone",done); setText("countCorrect",ok); setText("correctRate",correctPct+"%"); setText("avgTime",avg+"ث"); setText("countWrong",no); setText("countReview",review); setText("wrongQuickCount",no); setText("reviewQuickCount",review); setText("totalPill",QUESTIONS.length);
+  setText("examMistakeQuickCount",(state.examMistakeKeys||[]).length); setText("countShown",list.length); setText("countDone",done); setText("countCorrect",ok); setText("correctRate",correctPct+"%"); setText("avgTime",avg+"ث"); setText("countWrong",no); setText("countReview",review); setText("wrongQuickCount",no); setText("reviewQuickCount",review); setText("totalPill",QUESTIONS.length);
 }
 function cardMetrics(){
   const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
@@ -885,11 +480,12 @@ function renderCard(){
   const correctOpt=q.options.find(o=>o.key===q.answer);
   const parts=[];
   const metrics=cardMetrics();
-  parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${FORM_TITLE[q.form]}</span><span class="badge">سؤال ${q.id}</span>${q.lesson?`<span class="badge">${q.lesson}</span>`:""}${isStarred(q)?'<span class="badge good">للمراجعة لاحقاً</span>':""}${view.retry&&view.mode==="wrong"?'<span class="badge">تدريب الأخطاء</span>':""}</div><div class="metaRates"><span class="metricBadge">✅ ${metrics.correctPct}%</span><span class="metricBadge">⏱ ${metrics.hasLast?metrics.lastElapsed+"ث":"—"}</span></div></div>`);
+  parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${FORM_TITLE[q.form]}</span><span class="badge">سؤال ${q.id}</span>${q.lesson?`<span class="badge">${q.lesson}</span>`:""}${isStarred(q)?'<span class="badge good">للمراجعة لاحقاً</span>':""}${view.retry&&view.mode==="wrong"?'<span class="badge">تدريب الأخطاء</span>':""}${view.mode==="examMistakes"?'<span class="badge">تدريب أخطاء الاختبار</span>':""}</div><div class="metaRates"><span class="metricBadge">✅ ${metrics.correctPct}%</span><span class="metricBadge">⏱ ${metrics.hasLast?metrics.lastElapsed+"ث":"—"}</span></div></div>`);
   parts.push(`<div class="timerBox" id="timerBox"><div class="timerHead"><span>مؤقت السؤال</span><span class="timerText" id="timerText">60 ثانية</span></div><div class="timerBar"><i class="timerFill" id="timerFill"></i></div></div>`);
   parts.push(`<div class="question">${escapeHtml(q.question)}</div>`);
   parts.push('<div class="options">');
-  q.options.forEach(o=>{
+  const displayOptions=(view.mode==="examMistakes"&&view.examMistakeOptionOrder[k])?view.examMistakeOptionOrder[k]:q.options;
+  displayOptions.forEach(o=>{
     let cls="option";
     if(ans&&ans.selected===o.key) cls+=" selected";
     if(show&&o.key===q.answer) cls+=" correct";
@@ -904,8 +500,152 @@ function renderCard(){
   $("prevInCard").onclick=prev; $("nextInCard").onclick=next; $("showInCard").onclick=showAnswer; $("starInCard").onclick=toggleStar;
 }
 function escapeHtml(s){return (s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]));}
-function render(){clampIndex();stats();renderNav();renderCard();ensureTimer();}
+
+function lessonKeyName(s){return norm(s||"").replace(/\s+/g," ");}
+const EXAM_BLUEPRINT=[
+  {lesson:"الدرس الأول",count:10},
+  {lesson:"الدرس الثاني والثالث",count:30},
+  {lesson:"الدرس الرابع",count:14},
+  {lesson:"الدرس الخامس",count:11},
+  {lesson:"الدرس السادس",count:16},
+  {lesson:"الدرس السابع",count:16},
+  {lesson:"الدرس الأخير",count:28}
+];
+function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function examQuestionKey(q){return q.form+":"+q.id+":"+q.__examSeq;}
+function secondsToClock(sec){sec=Math.max(0,Math.floor(sec));const m=Math.floor(sec/60),ss=sec%60;return String(m).padStart(2,"0")+":"+String(ss).padStart(2,"0");}
+function startExam(){
+  if(!QUESTIONS.length){alert("ارفع ملف Excel أولاً ثم ابدأ الاختبار.");return;}
+  const qs=shuffleArray(QUESTIONS).map((q,i)=>Object.assign({},q,{__examSeq:i+1,__examOptions:shuffleArray(q.options)}));
+  exam={active:true,finished:false,questions:qs,index:0,answers:{},review:{},startedAt:Date.now(),duration:qs.length*60,timerId:null,endedAt:0};
+  clearInterval(view.timerId);view.timerId=null;
+  render();
+}
+function examRemaining(){if(!exam.active)return 0;return Math.max(0,exam.duration-Math.floor((Date.now()-exam.startedAt)/1000));}
+function ensureExamTimer(){
+  if(!exam.active||exam.finished){clearInterval(exam.timerId);exam.timerId=null;return;}
+  updateExamTimer();
+  if(!exam.timerId){exam.timerId=setInterval(()=>{updateExamTimer();if(examRemaining()<=0)finishExam(true);},1000);}
+}
+function updateExamTimer(){const el=$("examTimer");if(el)el.textContent="⏱ "+secondsToClock(examRemaining());}
+function renderExamNav(){
+  const nav=$("questionNav"); if(!nav)return; nav.innerHTML="";
+  const frag=document.createDocumentFragment();
+  exam.questions.forEach((q,i)=>{const k=examQuestionKey(q);const b=document.createElement("button");b.className="qchip"+(i===exam.index?" active":"")+(exam.answers[k]?" answeredExam":"")+(exam.review[k]?" review":"");b.textContent=i+1;b.title="اختبار - سؤال "+(i+1);b.onclick=()=>{exam.index=i;render();};frag.appendChild(b);});
+  nav.appendChild(frag);
+}
+function renderExamCard(){
+  const card=$("quizCard"); if(!card)return;
+  if(exam.finished){renderExamResults();return;}
+  const q=exam.questions[exam.index]; if(!q){card.innerHTML='<div class="empty">لا توجد أسئلة في الاختبار.</div>';return;}
+  const k=examQuestionKey(q), selected=exam.answers[k]?.selected;
+  const parts=[];
+  parts.push(`<div class="examTop"><div class="examHeaderLine"><div class="examProgress">اختبار ${exam.questions.length} سؤال — <b>${exam.index+1}</b> / ${exam.questions.length}</div><div class="examTimer" id="examTimer">⏱ ${secondsToClock(examRemaining())}</div></div><div class="examNavHint">لن تظهر الإجابات الصحيحة إلا بعد انتهاء الاختبار.</div></div>`);
+  parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span><span class="badge">سؤال ${escapeHtml(String(q.id))}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}${exam.review[k]?'<span class="badge good">للمراجعة لاحقاً</span>':""}</div></div>`);
+  parts.push(`<div class="question">${escapeHtml(q.question)}</div><div class="options">`);
+  (q.__examOptions||q.options).forEach(o=>{let cls="option examOption"+(selected===o.key?" selected":"");parts.push(`<button class="${cls}" data-exam-pick="${o.key}"><span class="letter">${escapeHtml(o.letter)}</span><span>${escapeHtml(o.text)}</span></button>`);});
+  const reviewCount=Object.keys(exam.review).length;
+  parts.push(`</div><div class="examActions"><button class="btn" id="examPrevBtn">السابق</button><button class="btn primary" id="examNextBtn">التالي</button><button class="btn warn ${exam.review[k]?"examReviewFlag":""}" id="examReviewBtn">${exam.review[k]?"إزالة المراجعة":"مراجعة لاحقاً"}</button><button class="btn examReviewJump" id="examNextReviewBtn">الانتقال للمراجعة التالية (${reviewCount})</button><button class="btn bad" id="examFinishBtn">إنهاء الاختبار</button></div>`);
+  card.innerHTML=parts.join("");
+  card.querySelectorAll("[data-exam-pick]").forEach(btn=>btn.onclick=()=>examPick(btn.dataset.examPick));
+  $("examPrevBtn").onclick=examPrev; $("examNextBtn").onclick=examNext; $("examReviewBtn").onclick=toggleExamReview; $("examNextReviewBtn").onclick=jumpToNextExamReview; $("examFinishBtn").onclick=()=>finishExam(false);
+  updateExamTimer();
+}
+function examPick(selected){const q=exam.questions[exam.index];if(!q)return;exam.answers[examQuestionKey(q)]={selected,ts:Date.now()};render();}
+function examNext(){if(!exam.active||exam.finished)return;exam.index=(exam.index+1)%exam.questions.length;render();}
+function examPrev(){if(!exam.active||exam.finished)return;exam.index=(exam.index-1+exam.questions.length)%exam.questions.length;render();}
+function toggleExamReview(){const q=exam.questions[exam.index];if(!q)return;const k=examQuestionKey(q);exam.review[k]?delete exam.review[k]:exam.review[k]=true;render();}
+function jumpToNextExamReview(){const marked=exam.questions.map((q,i)=>({q,i,k:examQuestionKey(q)})).filter(x=>exam.review[x.k]);if(!marked.length){alert("لا توجد أسئلة معلّمة للمراجعة حالياً.");return;}const next=marked.find(x=>x.i>exam.index)||marked[0];exam.index=next.i;render();}
+function finishExam(auto){
+  if(!exam.active||exam.finished)return;
+  if(!auto){const answeredCount=Object.keys(exam.answers).length;if(!confirm("هل تريد إنهاء الاختبار الآن؟\nتمت الإجابة على "+answeredCount+" من "+exam.questions.length+" سؤال."))return;}
+  exam.finished=true;exam.endedAt=Date.now();
+  state.examMistakeKeys=examMistakeRows().map(r=>key(r.q));
+  save();
+  clearInterval(exam.timerId);exam.timerId=null;render();
+}
+function examResultsData(){
+  const lessonMap={}; let correct=0;
+  exam.questions.forEach(q=>{const lesson=q.lesson||"بدون درس";const ans=exam.answers[examQuestionKey(q)];const ok=!!ans&&ans.selected===q.answer;if(ok)correct++;if(!lessonMap[lesson])lessonMap[lesson]={total:0,correct:0,wrong:0,unanswered:0};lessonMap[lesson].total++;if(ok)lessonMap[lesson].correct++;else if(ans)lessonMap[lesson].wrong++;else lessonMap[lesson].unanswered++;});
+  return {correct,total:exam.questions.length,lessons:lessonMap};
+}
+function examMistakeRows(){
+  return exam.questions.map((q,i)=>{
+    const ans=exam.answers[examQuestionKey(q)];
+    const selected=ans?.selected||"";
+    const correct=selected===q.answer;
+    return {q,index:i,selected,correct,unanswered:!selected};
+  }).filter(r=>!r.correct);
+}
+function answerText(q,keyValue){
+  if(!keyValue)return "لم تتم الإجابة";
+  const o=(q.__examOptions||q.options||[]).find(x=>x.key===keyValue)||(q.options||[]).find(x=>x.key===keyValue);
+  return (AR[keyValue]||keyValue)+(o?" - "+o.text:"");
+}
+function renderMistakeReview(){
+  const box=$("examMistakeReview"); if(!box)return;
+  const mistakes=examMistakeRows();
+  if(!mistakes.length){box.innerHTML='<div class="examResultBox" style="text-align:center;color:var(--good)">ممتاز، لا توجد إجابات خاطئة أو أسئلة غير مجابة.</div>';return;}
+  box.innerHTML='<div class="examMistakes">'+mistakes.map((r,n)=>{
+    const q=r.q;
+    return `<div class="examMistake ${r.unanswered?'unanswered':''}"><div class="examMistakeHead"><span class="badge">الخطأ ${n+1}</span><span class="badge">سؤال الاختبار ${r.index+1}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}<span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span></div><div class="examMistakeQuestion">${escapeHtml(q.question)}</div><div class="examAnswerLine user"><strong>إجابتك:</strong> ${escapeHtml(answerText(q,r.selected))}</div><div class="examAnswerLine correct"><strong>الإجابة الصحيحة:</strong> ${escapeHtml(answerText(q,q.answer))}</div></div>`;
+  }).join("")+'</div>';
+}
+
+function startExamMistakePractice(){
+  const keys=[...new Set(state.examMistakeKeys||[])].filter(k=>QUESTIONS.some(q=>key(q)===k));
+  if(!keys.length){alert("لا توجد أخطاء محفوظة من آخر اختبار.");return;}
+  view.mode="examMistakes"; view.index=0; view.forceShow=false; view.retry=false;
+  view.examMistakeOrder=shuffleArray(keys); view.examMistakeOptionOrder={};
+  QUESTIONS.filter(q=>keys.includes(key(q))).forEach(q=>{view.examMistakeOptionOrder[key(q)]=shuffleArray(q.options);});
+  const f=$("modeFilter"); if(f)f.value="examMistakes";
+  render();
+}
+function examMistakeQuestions(){
+  const set=new Set(state.examMistakeKeys||[]);
+  return QUESTIONS.filter(q=>set.has(key(q)));
+}
+function exportExamMistakes(){
+  const list=examMistakeQuestions();
+  if(!list.length){alert("لا توجد أخطاء محفوظة من آخر اختبار لتصديرها.");return;}
+  if(typeof XLSX==="undefined"){alert("مكتبة Excel غير متاحة حالياً.");return;}
+  const rows=list.map(q=>({
+    "Form":q.form,
+    "Form Title":q.formTitle||FORM_TITLE[q.form]||q.form,
+    "Question No.":q.id,
+    "Lesson":q.lesson||"",
+    "Question":q.question,
+    "Option A":q.options.find(o=>o.key==="A")?.text||"",
+    "Option B":q.options.find(o=>o.key==="B")?.text||"",
+    "Option C":q.options.find(o=>o.key==="C")?.text||"",
+    "Option D":q.options.find(o=>o.key==="D")?.text||"",
+    "Correct Answer":q.answer
+  }));
+  const ws=XLSX.utils.json_to_sheet(rows);
+  ws['!cols']=[{wch:12},{wch:22},{wch:14},{wch:22},{wch:60},{wch:38},{wch:38},{wch:38},{wch:38},{wch:16}];
+  const wb=XLSX.utils.book_new(); XLSX.utils.book_append_sheet(wb,ws,"Exam Mistakes");
+  XLSX.writeFile(wb,"exam-mistakes.xlsx");
+}
+
+function renderExamResults(){
+  const card=$("quizCard"), data=examResultsData(); const pct=data.total?Math.round(data.correct/data.total*100):0;
+  const rows=Object.entries(data.lessons).map(([lesson,r])=>{const lpct=r.total?Math.round(r.correct/r.total*100):0;return {lesson,...r,pct:lpct};}).sort((a,b)=>a.pct-b.pct);
+  const weakest=rows.slice(0,3).map(r=>r.lesson+" ("+r.pct+"%)").join("، ");
+  const mistakes=examMistakeRows();
+  const wrongCount=mistakes.filter(r=>!r.unanswered).length;
+  const unansweredCount=mistakes.filter(r=>r.unanswered).length;
+  const table=rows.map(r=>`<tr><td>${escapeHtml(r.lesson)}</td><td>${r.total}</td><td class="okLesson">${r.correct}</td><td>${r.unanswered}</td><td class="${r.pct<70?'weakLesson':'okLesson'}">${r.pct}%</td></tr>`).join("");
+  card.innerHTML=`<div class="examResultBox"><h2 style="margin:0;text-align:center">نتيجة الاختبار</h2><div class="examScore">${pct}%<small>${data.correct} من ${data.total}</small></div><div class="examReviewSummary"><span class="badge">إجابات خاطئة: ${wrongCount}</span><span class="badge">غير مجابة: ${unansweredCount}</span></div><p style="text-align:center;color:var(--muted);margin:6px 0">أضعف الدروس: ${escapeHtml(weakest||"لا يوجد")}</p><table class="examLessonTable"><thead><tr><th>الدرس</th><th>الأسئلة</th><th>صحيح</th><th>غير مجاب</th><th>النسبة</th></tr></thead><tbody>${table}</tbody></table><button class="btn bad examReviewToggle" id="reviewMistakesBtn">مراجعة الأخطاء (${mistakes.length})</button><div class="examTools"><button class="btn primary" id="practiceMistakesBtn">التدرب على الأخطاء</button><button class="btn" id="exportMistakesResultBtn">تصدير الأخطاء إلى Excel</button></div><div id="examMistakeReview"></div><div class="examActions"><button class="btn primary" id="newExamBtn">اختبار جديد</button><button class="btn" id="backStudyBtn">العودة للمذاكرة</button></div></div>`;
+  $("reviewMistakesBtn").onclick=()=>{const box=$("examMistakeReview");if(box.innerHTML){box.innerHTML="";$("reviewMistakesBtn").textContent=`مراجعة الأخطاء (${mistakes.length})`;}else{renderMistakeReview();$("reviewMistakesBtn").textContent="إخفاء مراجعة الأخطاء";box.scrollIntoView({behavior:"smooth",block:"start"});}};
+  $("practiceMistakesBtn").onclick=()=>{exitExam();startExamMistakePractice();};
+  $("exportMistakesResultBtn").onclick=exportExamMistakes;
+  $("newExamBtn").onclick=startExam; $("backStudyBtn").onclick=exitExam;
+}
+function exitExam(){exam.active=false;exam.finished=false;exam.questions=[];exam.answers={};exam.review={};clearInterval(exam.timerId);exam.timerId=null;render();}
+
+function render(){if(exam.active){stats();renderExamNav();renderExamCard();ensureExamTimer();return;}clampIndex();stats();renderNav();renderCard();ensureTimer();}
 function pick(selected){
+  if(exam.active&&!exam.finished){examPick(selected);return;}
   const q=current(); if(!q)return;
   const elapsed=Math.max(0,Math.min(60,60-Number(view.timerLeft||0)));
   const k=key(q), record={selected,correct:selected===q.answer,elapsed,ts:Date.now()};
@@ -913,11 +653,11 @@ function pick(selected){
   state.answers[k]=record;
   view.forceShow=true; save(); render();
 }
-function showAnswer(){view.forceShow=true;render();}
+function showAnswer(){if(exam.active&&!exam.finished){alert("الإجابات الصحيحة تظهر بعد انتهاء الاختبار فقط.");return;}view.forceShow=true;render();}
 function toggleStar(){const q=current(); if(!q)return; const k=key(q); state.stars[k]?delete state.stars[k]:state.stars[k]=true; save(); render();}
-function next(){const list=currentList(); if(!list.length)return; view.index=(view.index+1)%list.length; view.forceShow=false; render();}
-function prev(){const list=currentList(); if(!list.length)return; view.index=(view.index-1+list.length)%list.length; view.forceShow=false; render();}
-function randomQ(){const list=currentList(); if(!list.length)return; view.index=Math.floor(Math.random()*list.length); view.forceShow=false; render();}
+function next(){if(exam.active&&!exam.finished){examNext();return;}const list=currentList(); if(!list.length)return; view.index=(view.index+1)%list.length; view.forceShow=false; render();}
+function prev(){if(exam.active&&!exam.finished){examPrev();return;}const list=currentList(); if(!list.length)return; view.index=(view.index-1+list.length)%list.length; view.forceShow=false; render();}
+function randomQ(){if(exam.active&&!exam.finished)return;const list=currentList(); if(!list.length)return; view.index=Math.floor(Math.random()*list.length); view.forceShow=false; render();}
 function resetProgress(){
   if(!confirm("هل تريد تصفير التقدم للنموذج المعروض؟"))return;
   const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
@@ -925,7 +665,7 @@ function resetProgress(){
   view.retry=false; view.retryKeys=[]; view.retryAnswers={};
   save();view.forceShow=false;render();
 }
-function setMode(mode){view.mode=mode;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};const f=$("modeFilter");if(f)f.value=mode;render();}
+function setMode(mode){view.mode=mode;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};if(mode!=="examMistakes"){view.examMistakeOrder=[];view.examMistakeOptionOrder={};}const f=$("modeFilter");if(f)f.value=mode;render();}
 function practiceWrong(){
   const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
   view.retryKeys=scope.filter(isWrong).map(key);
@@ -936,10 +676,10 @@ function practiceWrong(){
 function showReview(){setMode("starred");}
 function showAll(){setMode("all");}
 function applyLayout(){
-  view.layout="phone";
-  document.body.classList.add("phoneView","iphoneOnly");
+  document.body.classList.toggle("phoneView",view.layout==="phone");
+  const b=$("phoneViewBtn"); if(b)b.textContent=view.layout==="phone"?"واجهة الكمبيوتر":"واجهة iPhone";
 }
-function toggleLayout(){applyLayout();}
+function toggleLayout(){view.layout=view.layout==="phone"?"desktop":"phone";localStorage.setItem(STORE_KEY+"_layout",view.layout);applyLayout();}
 function ensureTimer(){
   const q=current();
   if(!q){clearInterval(view.timerId);view.timerId=null;view.timerKey="";return;}
@@ -1056,9 +796,9 @@ buildDynamicControls();
 
 $("formFilter").addEventListener("change",e=>{view.form=e.target.value;view.lesson="all";buildLessonOptions();view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
 $("lessonFilter").addEventListener("change",e=>{view.lesson=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
-$("modeFilter").addEventListener("change",e=>{view.mode=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};render();});
+$("modeFilter").addEventListener("change",e=>{if(e.target.value==="examMistakes"){startExamMistakePractice();return;}view.mode=e.target.value;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};view.examMistakeOrder=[];view.examMistakeOptionOrder={};render();});
 $("searchBox").addEventListener("input",e=>{view.search=e.target.value;view.index=0;view.forceShow=false;render();});
-[["prevBtnSide",prev],["nextBtnSide",next],["prevBtnBottom",prev],["nextBtnBottom",next],["randomBtnBottom",randomQ],["showBtnBottom",showAnswer],["wrongPracticeBtn",practiceWrong],["reviewPracticeBtn",showReview],["allPracticeBtn",showAll]].forEach(([id,fn])=>{const el=$(id); if(el)el.onclick=fn;});
+[["prevBtnSide",prev],["nextBtnSide",next],["prevBtnBottom",prev],["nextBtnBottom",next],["randomBtnBottom",randomQ],["showBtnBottom",showAnswer],["wrongPracticeBtn",practiceWrong],["reviewPracticeBtn",showReview],["allPracticeBtn",showAll],["examMistakePracticeBtn",startExamMistakePractice],["exportExamMistakesBtn",exportExamMistakes],["startExamBtn",startExam]].forEach(([id,fn])=>{const el=$(id); if(el)el.onclick=fn;});
 document.addEventListener("keydown",e=>{if(e.key==="ArrowRight")prev(); if(e.key==="ArrowLeft")next(); if(e.key===" "){e.preventDefault();showAnswer();}});
 applyLayout();
 render();
