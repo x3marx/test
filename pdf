@@ -1,0 +1,276 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>PDF Merge & Split Studio</title>
+  <script src="https://cdn.jsdelivr.net/npm/pdf-lib@1.17.1/dist/pdf-lib.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+  <style>
+    :root{
+      --bg:#07101f; --panel:#0d182b; --panel2:#101f36; --line:#253653;
+      --text:#edf4ff; --muted:#98aac6; --accent:#66e3c4; --accent2:#7ca7ff;
+      --danger:#ff7c8b; --warning:#ffc56d; --shadow:0 18px 60px rgba(0,0,0,.28);
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,ui-sans-serif,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;background:
+      radial-gradient(circle at 10% 0%,rgba(124,167,255,.16),transparent 28%),
+      radial-gradient(circle at 100% 0%,rgba(102,227,196,.12),transparent 25%),var(--bg);color:var(--text);min-height:100vh}
+    .app{width:min(1180px,calc(100% - 28px));margin:28px auto 44px}
+    header{display:flex;justify-content:space-between;gap:20px;align-items:flex-end;margin-bottom:20px}
+    h1{margin:0;font-size:clamp(28px,4vw,48px);letter-spacing:-.04em}
+    .subtitle{color:var(--muted);margin-top:8px;max-width:760px;line-height:1.55}
+    .privacy{font-size:12px;color:var(--accent);border:1px solid rgba(102,227,196,.25);padding:8px 11px;border-radius:999px;background:rgba(102,227,196,.06);white-space:nowrap}
+    .grid{display:grid;grid-template-columns:1.25fr .75fr;gap:18px}
+    .card{background:linear-gradient(180deg,rgba(16,31,54,.96),rgba(11,23,41,.96));border:1px solid var(--line);border-radius:22px;box-shadow:var(--shadow);overflow:hidden}
+    .card-head{padding:18px 20px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;gap:12px}
+    .card-head h2{font-size:16px;margin:0}
+    .card-body{padding:20px}
+    .dropzone{border:1.5px dashed #3f5f8f;border-radius:18px;padding:32px 20px;text-align:center;background:rgba(124,167,255,.05);transition:.2s;cursor:pointer}
+    .dropzone.drag{border-color:var(--accent);background:rgba(102,227,196,.08);transform:translateY(-1px)}
+    .drop-icon{font-size:34px;margin-bottom:10px}
+    .dropzone strong{display:block;font-size:17px}.dropzone span{display:block;color:var(--muted);font-size:13px;margin-top:6px}
+    input[type=file]{display:none}
+    button,.btn{border:0;border-radius:12px;padding:11px 14px;font-weight:700;cursor:pointer;transition:.18s;font-size:14px}
+    button:hover{transform:translateY(-1px)} button:disabled{opacity:.45;cursor:not-allowed;transform:none}
+    .primary{background:linear-gradient(135deg,var(--accent),#43cbb0);color:#05231d}
+    .secondary{background:#18304f;color:var(--text);border:1px solid #2b4569}
+    .danger{background:rgba(255,124,139,.12);color:#ffb4bd;border:1px solid rgba(255,124,139,.28)}
+    .toolbar{display:flex;flex-wrap:wrap;gap:9px;margin-top:14px}
+    .file-list{margin-top:16px;display:grid;gap:10px}
+    .empty{padding:18px;text-align:center;color:var(--muted);font-size:13px;border:1px solid var(--line);border-radius:14px}
+    .file-row{display:grid;grid-template-columns:auto 1fr auto;gap:12px;align-items:center;padding:13px;border:1px solid var(--line);border-radius:15px;background:rgba(255,255,255,.025)}
+    .file-row[draggable=true]{cursor:grab}.file-row.dragging{opacity:.4}
+    .pdf-badge{width:42px;height:42px;display:grid;place-items:center;border-radius:12px;background:rgba(255,124,139,.12);color:#ffb4bd;font-weight:900;font-size:12px}
+    .file-name{font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.file-meta{font-size:12px;color:var(--muted);margin-top:4px}
+    .row-actions{display:flex;gap:6px}.icon-btn{padding:8px 10px;background:#152945;color:var(--text);border:1px solid #294363}
+    .section{display:grid;gap:10px;margin-bottom:18px}.section:last-child{margin-bottom:0}
+    label{font-size:13px;color:#cbd8ec;font-weight:700}.help{font-size:12px;color:var(--muted);line-height:1.45}
+    select,input[type=text],input[type=number]{width:100%;padding:11px 12px;border-radius:11px;border:1px solid #2c4568;background:#0a1729;color:var(--text);outline:none}
+    select:focus,input:focus{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(124,167,255,.12)}
+    .two{display:grid;grid-template-columns:1fr 1fr;gap:10px}.stack{display:grid;gap:8px}
+    .status{margin-top:15px;min-height:44px;border-radius:13px;padding:12px 14px;background:#091526;border:1px solid var(--line);color:var(--muted);font-size:13px;line-height:1.45}
+    .status.ok{color:#b8f7e7;border-color:rgba(102,227,196,.3)}.status.err{color:#ffc1c8;border-color:rgba(255,124,139,.35)}
+    .progress{height:7px;background:#0a1526;border-radius:999px;overflow:hidden;margin-top:10px;display:none}.progress > div{height:100%;width:0;background:linear-gradient(90deg,var(--accent2),var(--accent));transition:width .2s}
+    .summary{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}.pill{font-size:12px;color:var(--muted);padding:8px 10px;border-radius:999px;background:#0b1728;border:1px solid var(--line)}
+    footer{text-align:center;color:#70839f;font-size:12px;margin-top:18px}
+    @media(max-width:860px){.grid{grid-template-columns:1fr}header{align-items:flex-start;flex-direction:column}.privacy{white-space:normal}.app{margin-top:16px}.two{grid-template-columns:1fr}.file-row{grid-template-columns:auto 1fr}.row-actions{grid-column:1/-1;justify-content:flex-end}}
+  </style>
+</head>
+<body>
+  <main class="app">
+    <header>
+      <div>
+        <h1>PDF Merge & Split Studio</h1>
+        <div class="subtitle">Combine multiple PDF files, reorder them, extract page ranges, split by fixed page counts, or export every page as a separate PDF.</div>
+      </div>
+      <div class="privacy">Processed locally in your browser</div>
+    </header>
+
+    <div class="grid">
+      <section class="card">
+        <div class="card-head"><h2>1. Add and arrange files</h2><span id="fileCount" class="pill">0 files</span></div>
+        <div class="card-body">
+          <div id="dropzone" class="dropzone" tabindex="0">
+            <div class="drop-icon">📄</div>
+            <strong>Drop PDF files here</strong>
+            <span>or tap to browse. Multiple files are supported.</span>
+          </div>
+          <input id="fileInput" type="file" accept="application/pdf,.pdf" multiple />
+          <div class="toolbar">
+            <button id="addBtn" class="secondary">Add PDFs</button>
+            <button id="sortBtn" class="secondary" disabled>Sort A-Z</button>
+            <button id="clearBtn" class="danger" disabled>Clear all</button>
+          </div>
+          <div id="fileList" class="file-list"><div class="empty">No PDF files added yet.</div></div>
+          <div class="summary"><span id="pageSummary" class="pill">0 pages</span><span id="sizeSummary" class="pill">0 MB</span></div>
+        </div>
+      </section>
+
+      <aside class="card">
+        <div class="card-head"><h2>2. Choose an action</h2></div>
+        <div class="card-body">
+          <div class="section">
+            <label>Merge all files</label>
+            <div class="help">Files are merged in the order shown on the left. Drag rows or use the arrows to change the order.</div>
+            <input id="mergeName" type="text" value="combined.pdf" aria-label="Merged output file name" />
+            <button id="mergeBtn" class="primary" disabled>Merge and download</button>
+          </div>
+
+          <div class="section">
+            <label>Split or extract from one PDF</label>
+            <select id="sourceSelect" disabled><option>Select a PDF</option></select>
+            <select id="splitMode" disabled>
+              <option value="range">Extract page range(s)</option>
+              <option value="each">Each page as a separate PDF</option>
+              <option value="chunks">Split every N pages</option>
+            </select>
+            <div id="rangeBox" class="stack">
+              <input id="ranges" type="text" placeholder="Example: 1-3, 5, 8-10" />
+              <div class="help">Use commas between ranges. Page numbering starts at 1.</div>
+            </div>
+            <div id="chunkBox" class="stack" style="display:none">
+              <input id="chunkSize" type="number" min="1" value="5" />
+              <div class="help">Creates one PDF for every group of N pages.</div>
+            </div>
+            <button id="splitBtn" class="primary" disabled>Split and download</button>
+          </div>
+
+          <div id="status" class="status">Ready.</div>
+          <div id="progress" class="progress"><div></div></div>
+        </div>
+      </aside>
+    </div>
+    <footer>Works best in current Chrome, Edge, Safari, and Firefox. Very large PDFs may require additional device memory.</footer>
+  </main>
+
+<script>
+(() => {
+  const { PDFDocument } = PDFLib;
+  const state = { files: [], dragIndex: null };
+  const $ = id => document.getElementById(id);
+  const els = {
+    dropzone:$('dropzone'), input:$('fileInput'), add:$('addBtn'), sort:$('sortBtn'), clear:$('clearBtn'), list:$('fileList'),
+    count:$('fileCount'), pages:$('pageSummary'), size:$('sizeSummary'), merge:$('mergeBtn'), mergeName:$('mergeName'),
+    source:$('sourceSelect'), mode:$('splitMode'), ranges:$('ranges'), rangeBox:$('rangeBox'), chunkBox:$('chunkBox'),
+    chunkSize:$('chunkSize'), split:$('splitBtn'), status:$('status'), progress:$('progress')
+  };
+
+  function setStatus(message, type='') {
+    els.status.textContent = message;
+    els.status.className = 'status' + (type ? ' ' + type : '');
+  }
+  function setProgress(value, visible=true) {
+    els.progress.style.display = visible ? 'block' : 'none';
+    els.progress.firstElementChild.style.width = Math.max(0, Math.min(100, value)) + '%';
+  }
+  function bytes(n){ if(n < 1024) return n+' B'; if(n < 1048576) return (n/1024).toFixed(1)+' KB'; return (n/1048576).toFixed(2)+' MB'; }
+  function safeBase(name){ return (name || 'document').replace(/\.pdf$/i,'').replace(/[\\/:*?"<>|]+/g,'_').trim() || 'document'; }
+  function ensurePdf(name){ name=(name||'combined.pdf').trim(); return /\.pdf$/i.test(name) ? name : name+'.pdf'; }
+  function downloadBlob(blob, name){ const a=document.createElement('a'); const url=URL.createObjectURL(blob); a.href=url; a.download=name; document.body.appendChild(a); a.click(); a.remove(); setTimeout(()=>URL.revokeObjectURL(url),1500); }
+
+  async function addFiles(fileList){
+    const incoming=[...fileList].filter(f => f.type==='application/pdf' || /\.pdf$/i.test(f.name));
+    if(!incoming.length){ setStatus('No valid PDF files were selected.','err'); return; }
+    setStatus('Reading PDF information...'); setProgress(5);
+    for(let i=0;i<incoming.length;i++){
+      const file=incoming[i];
+      try{
+        const data=new Uint8Array(await file.arrayBuffer());
+        const pdf=await PDFDocument.load(data,{ignoreEncryption:false});
+        state.files.push({id:crypto.randomUUID ? crypto.randomUUID() : Date.now()+'-'+Math.random(), file, data, pages:pdf.getPageCount()});
+      }catch(err){
+        console.error(err);
+        setStatus(`Could not open “${file.name}”. It may be encrypted, damaged, or unsupported.`,'err');
+      }
+      setProgress(((i+1)/incoming.length)*100);
+    }
+    render(); setProgress(0,false);
+    if(state.files.length) setStatus(`${incoming.length} PDF file(s) processed.`,'ok');
+  }
+
+  function render(){
+    const totalPages=state.files.reduce((s,f)=>s+f.pages,0), totalSize=state.files.reduce((s,f)=>s+f.file.size,0);
+    els.count.textContent=`${state.files.length} file${state.files.length===1?'':'s'}`;
+    els.pages.textContent=`${totalPages} page${totalPages===1?'':'s'}`;
+    els.size.textContent=bytes(totalSize);
+    const disabled=!state.files.length;
+    [els.sort,els.clear,els.merge,els.source,els.mode,els.split].forEach(x=>x.disabled=disabled);
+    els.source.innerHTML=disabled?'<option>Select a PDF</option>':state.files.map((f,i)=>`<option value="${f.id}">${i+1}. ${escapeHtml(f.file.name)} (${f.pages} pages)</option>`).join('');
+    if(disabled){ els.list.innerHTML='<div class="empty">No PDF files added yet.</div>'; return; }
+    els.list.innerHTML=state.files.map((f,i)=>`
+      <div class="file-row" draggable="true" data-index="${i}">
+        <div class="pdf-badge">PDF</div>
+        <div><div class="file-name" title="${escapeHtml(f.file.name)}">${escapeHtml(f.file.name)}</div><div class="file-meta">${f.pages} page${f.pages===1?'':'s'} · ${bytes(f.file.size)}</div></div>
+        <div class="row-actions">
+          <button class="icon-btn move-up" title="Move up" ${i===0?'disabled':''}>↑</button>
+          <button class="icon-btn move-down" title="Move down" ${i===state.files.length-1?'disabled':''}>↓</button>
+          <button class="icon-btn remove" title="Remove">✕</button>
+        </div>
+      </div>`).join('');
+    bindRows();
+  }
+  function escapeHtml(s){ return s.replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c])); }
+  function move(from,to){ if(to<0||to>=state.files.length)return; const [x]=state.files.splice(from,1); state.files.splice(to,0,x); render(); }
+  function bindRows(){
+    [...els.list.querySelectorAll('.file-row')].forEach(row=>{
+      const i=Number(row.dataset.index);
+      row.querySelector('.move-up').onclick=()=>move(i,i-1);
+      row.querySelector('.move-down').onclick=()=>move(i,i+1);
+      row.querySelector('.remove').onclick=()=>{state.files.splice(i,1);render();setStatus('File removed.');};
+      row.ondragstart=()=>{state.dragIndex=i;row.classList.add('dragging');};
+      row.ondragend=()=>row.classList.remove('dragging');
+      row.ondragover=e=>e.preventDefault();
+      row.ondrop=e=>{e.preventDefault(); if(state.dragIndex!==null&&state.dragIndex!==i)move(state.dragIndex,i);state.dragIndex=null;};
+    });
+  }
+
+  async function mergeAll(){
+    try{
+      setStatus('Merging PDFs...'); setProgress(3);
+      const out=await PDFDocument.create();
+      for(let i=0;i<state.files.length;i++){
+        const src=await PDFDocument.load(state.files[i].data);
+        const copied=await out.copyPages(src,src.getPageIndices()); copied.forEach(p=>out.addPage(p));
+        setProgress(((i+1)/state.files.length)*90);
+      }
+      const bytesOut=await out.save(); setProgress(100);
+      downloadBlob(new Blob([bytesOut],{type:'application/pdf'}),ensurePdf(els.mergeName.value));
+      setStatus(`Merged ${state.files.length} files into ${out.getPageCount()} pages.`,'ok');
+    }catch(err){ console.error(err); setStatus('Merge failed. One file may be encrypted, damaged, or too large for available memory.','err'); }
+    finally{setTimeout(()=>setProgress(0,false),400);}
+  }
+
+  function parseRanges(text,max){
+    if(!text.trim()) throw new Error('Enter at least one page or range.');
+    const result=[];
+    for(const token of text.split(',').map(x=>x.trim()).filter(Boolean)){
+      if(/^\d+$/.test(token)){ const n=Number(token); if(n<1||n>max)throw new Error(`Page ${n} is outside 1-${max}.`); result.push(n-1); }
+      else if(/^\d+\s*-\s*\d+$/.test(token)){
+        let [a,b]=token.split('-').map(Number); if(a>b)[a,b]=[b,a]; if(a<1||b>max)throw new Error(`Range ${token} is outside 1-${max}.`); for(let n=a;n<=b;n++)result.push(n-1);
+      } else throw new Error(`Invalid range: ${token}`);
+    }
+    return [...new Set(result)];
+  }
+
+  async function makePdfFromPages(src,indexes){ const out=await PDFDocument.create(); const copied=await out.copyPages(src,indexes); copied.forEach(p=>out.addPage(p)); return out.save(); }
+
+  async function splitSelected(){
+    const item=state.files.find(f=>f.id===els.source.value); if(!item)return;
+    try{
+      setStatus('Preparing split files...'); setProgress(4);
+      const src=await PDFDocument.load(item.data), total=src.getPageCount(), base=safeBase(item.file.name), mode=els.mode.value;
+      if(mode==='range'){
+        const idx=parseRanges(els.ranges.value,total); const outBytes=await makePdfFromPages(src,idx);
+        downloadBlob(new Blob([outBytes],{type:'application/pdf'}),`${base}_pages_${els.ranges.value.replace(/\s+/g,'')}.pdf`);
+        setStatus(`Extracted ${idx.length} page(s).`,'ok'); setProgress(100);
+      } else {
+        const zip=new JSZip(); let groups=[];
+        if(mode==='each') groups=Array.from({length:total},(_,i)=>({name:`${base}_page_${String(i+1).padStart(3,'0')}.pdf`,idx:[i]}));
+        else {
+          const n=Math.max(1,Number(els.chunkSize.value)||1);
+          for(let start=0;start<total;start+=n){ const end=Math.min(total,start+n); groups.push({name:`${base}_pages_${start+1}-${end}.pdf`,idx:Array.from({length:end-start},(_,k)=>start+k)}); }
+        }
+        for(let i=0;i<groups.length;i++){ zip.file(groups[i].name,await makePdfFromPages(src,groups[i].idx)); setProgress(((i+1)/groups.length)*78); }
+        setStatus('Creating ZIP archive...'); const blob=await zip.generateAsync({type:'blob',compression:'DEFLATE',compressionOptions:{level:6}},m=>setProgress(78+m.percent*.22));
+        downloadBlob(blob,`${base}_${mode==='each'?'separate_pages':'split_parts'}.zip`);
+        setStatus(`Created ${groups.length} PDF file(s) in a ZIP archive.`,'ok');
+      }
+    }catch(err){ console.error(err); setStatus(err.message || 'Split failed.','err'); }
+    finally{setTimeout(()=>setProgress(0,false),500);}
+  }
+
+  els.dropzone.onclick=()=>els.input.click(); els.dropzone.onkeydown=e=>{if(e.key==='Enter'||e.key===' '){e.preventDefault();els.input.click();}};
+  els.add.onclick=()=>els.input.click(); els.input.onchange=e=>{addFiles(e.target.files);e.target.value='';};
+  ['dragenter','dragover'].forEach(t=>els.dropzone.addEventListener(t,e=>{e.preventDefault();els.dropzone.classList.add('drag');}));
+  ['dragleave','drop'].forEach(t=>els.dropzone.addEventListener(t,e=>{e.preventDefault();els.dropzone.classList.remove('drag');}));
+  els.dropzone.ondrop=e=>addFiles(e.dataTransfer.files);
+  els.clear.onclick=()=>{state.files=[];render();setStatus('All files cleared.');};
+  els.sort.onclick=()=>{state.files.sort((a,b)=>a.file.name.localeCompare(b.file.name));render();setStatus('Files sorted alphabetically.');};
+  els.merge.onclick=mergeAll; els.split.onclick=splitSelected;
+  els.mode.onchange=()=>{els.rangeBox.style.display=els.mode.value==='range'?'grid':'none';els.chunkBox.style.display=els.mode.value==='chunks'?'grid':'none';};
+  render();
+})();
+</script>
+</body>
+</html>
