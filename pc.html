@@ -345,7 +345,7 @@ document.addEventListener("DOMContentLoaded", function(){
         <button class="btn bad" id="wrongPracticeBtn">تدريب الأخطاء <b id="wrongQuickCount">0</b></button>
         <button class="btn warn" id="reviewPracticeBtn">أسئلة المراجعة لاحقاً <b id="reviewQuickCount">0</b></button>
         <button class="btn" id="allPracticeBtn">عرض كل الأسئلة</button>
-        <button class="btn examStartBtn" id="startExamBtn">اختبار 125 سؤال</button>
+        <button class="btn examStartBtn" id="startExamBtn">اختبار جميع الأسئلة</button>
       </div>
       <div class="cardActions" style="margin-top:0;margin-bottom:12px">
         <button class="btn" id="prevBtnSide">السابق</button>
@@ -373,7 +373,7 @@ const AR={A:"أ",B:"ب",C:"ج",D:"د"};
 let FORM_TITLE={};
 let state={answers:{},stars:{}};
 let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",timerKey:"",timerLeft:60,timerId:null};
-let exam={active:false,finished:false,questions:[],index:0,answers:{},review:{},startedAt:0,duration:150*60,timerId:null,endedAt:0};
+let exam={active:false,finished:false,questions:[],index:0,answers:{},review:{},startedAt:0,duration:0,timerId:null,endedAt:0};
 
 try{state=Object.assign(state,JSON.parse(localStorage.getItem(STORE_KEY)||"{}"));}catch(e){}
 const $=id=>document.getElementById(id);
@@ -483,16 +483,8 @@ function examQuestionKey(q){return q.form+":"+q.id+":"+q.__examSeq;}
 function secondsToClock(sec){sec=Math.max(0,Math.floor(sec));const m=Math.floor(sec/60),ss=sec%60;return String(m).padStart(2,"0")+":"+String(ss).padStart(2,"0");}
 function startExam(){
   if(!QUESTIONS.length){alert("ارفع ملف Excel أولاً ثم ابدأ الاختبار.");return;}
-  const missing=[]; const picked=[];
-  EXAM_BLUEPRINT.forEach(rule=>{
-    const target=lessonKeyName(rule.lesson);
-    const pool=QUESTIONS.filter(q=>lessonKeyName(q.lesson)===target);
-    if(pool.length<rule.count) missing.push(rule.lesson+" المطلوب "+rule.count+" والمتاح "+pool.length);
-    picked.push(...shuffleArray(pool).slice(0,rule.count));
-  });
-  if(missing.length){alert("لا يمكن بدء الاختبار بسبب نقص الأسئلة في بعض الدروس:\n"+missing.join("\n"));return;}
-  const qs=shuffleArray(picked).map((q,i)=>Object.assign({},q,{__examSeq:i+1,__examOptions:shuffleArray(q.options)}));
-  exam={active:true,finished:false,questions:qs,index:0,answers:{},review:{},startedAt:Date.now(),duration:150*60,timerId:null,endedAt:0};
+  const qs=shuffleArray(QUESTIONS).map((q,i)=>Object.assign({},q,{__examSeq:i+1,__examOptions:shuffleArray(q.options)}));
+  exam={active:true,finished:false,questions:qs,index:0,answers:{},review:{},startedAt:Date.now(),duration:qs.length*60,timerId:null,endedAt:0};
   clearInterval(view.timerId);view.timerId=null;
   render();
 }
@@ -515,7 +507,7 @@ function renderExamCard(){
   const q=exam.questions[exam.index]; if(!q){card.innerHTML='<div class="empty">لا توجد أسئلة في الاختبار.</div>';return;}
   const k=examQuestionKey(q), selected=exam.answers[k]?.selected;
   const parts=[];
-  parts.push(`<div class="examTop"><div class="examHeaderLine"><div class="examProgress">اختبار 125 سؤال — <b>${exam.index+1}</b> / ${exam.questions.length}</div><div class="examTimer" id="examTimer">⏱ ${secondsToClock(examRemaining())}</div></div><div class="examNavHint">لن تظهر الإجابات الصحيحة إلا بعد انتهاء الاختبار.</div></div>`);
+  parts.push(`<div class="examTop"><div class="examHeaderLine"><div class="examProgress">اختبار ${exam.questions.length} سؤال — <b>${exam.index+1}</b> / ${exam.questions.length}</div><div class="examTimer" id="examTimer">⏱ ${secondsToClock(examRemaining())}</div></div><div class="examNavHint">لن تظهر الإجابات الصحيحة إلا بعد انتهاء الاختبار.</div></div>`);
   parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span><span class="badge">سؤال ${escapeHtml(String(q.id))}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}${exam.review[k]?'<span class="badge good">للمراجعة لاحقاً</span>':""}</div></div>`);
   parts.push(`<div class="question">${escapeHtml(q.question)}</div><div class="options">`);
   (q.__examOptions||q.options).forEach(o=>{let cls="option examOption"+(selected===o.key?" selected":"");parts.push(`<button class="${cls}" data-exam-pick="${o.key}"><span class="letter">${escapeHtml(o.letter)}</span><span>${escapeHtml(o.text)}</span></button>`);});
