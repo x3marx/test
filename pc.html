@@ -187,6 +187,10 @@ body.phoneView .app{max-width:460px}body.phoneView {padding:10px;padding-bottom:
 .examTools .btn{width:100%}
 .examReviewJump{grid-column:1 / -1}
 @media(max-width:860px){.examTools{grid-template-columns:1fr}}
+
+/* Cairo font override */
+html,body,button,input,select,textarea{font-family:'Cairo',system-ui,-apple-system,'Segoe UI',Tahoma,Arial,sans-serif!important;}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -279,7 +283,7 @@ const STORE_KEY="arabic_test_bank_all_forms_v2";
 const AR={A:"أ",B:"ب",C:"ج",D:"د"};
 let FORM_TITLE={};
 let state={answers:{},stars:{},examMistakeKeys:[]};
-let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},examMistakeOrder:[],examMistakeOptionOrder:{},layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",timerKey:"",timerLeft:60,timerId:null};
+let view={form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,retry:false,retryKeys:[],retryAnswers:{},examMistakeOrder:[],examMistakeOptionOrder:{},studyOptionOrder:{},layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",timerKey:"",timerLeft:60,timerId:null};
 let exam={active:false,finished:false,questions:[],index:0,answers:{},review:{},startedAt:0,duration:0,timerId:null,endedAt:0};
 
 try{state=Object.assign(state,JSON.parse(localStorage.getItem(STORE_KEY)||"{}"));}catch(e){}
@@ -345,7 +349,7 @@ function renderNav(){
     b.className="qchip"+(nav&&cur&&key(q)===key(cur)?" active":"")+(isCorrect(q)?" ok":isWrong(q)?" no":answered(q)?" done":"");
     b.textContent=q.id;
     b.title=FORM_TITLE[q.form]+" - سؤال "+q.id;
-    b.onclick=()=>{view.index=i;view.forceShow=false;render();};
+    b.onclick=()=>{view.index=i;view.forceShow=false;reshuffleStudyQuestion(q);render();};
     frag.appendChild(b);
   });
   nav.appendChild(frag);
@@ -367,13 +371,13 @@ function renderCard(){
   parts.push(`<div class="timerBox" id="timerBox"><div class="timerHead"><span>مؤقت السؤال</span><span class="timerText" id="timerText">60 ثانية</span></div><div class="timerBar"><i class="timerFill" id="timerFill"></i></div></div>`);
   parts.push(`<div class="question">${escapeHtml(q.question)}</div>`);
   parts.push('<div class="options">');
-  const displayOptions=(view.mode==="examMistakes"&&view.examMistakeOptionOrder[k])?view.examMistakeOptionOrder[k]:q.options;
-  displayOptions.forEach(o=>{
+  const displayOptions=(view.mode==="examMistakes"&&view.examMistakeOptionOrder[k])?view.examMistakeOptionOrder[k]:getStudyOptions(q);
+  displayOptions.forEach((o,optionIndex)=>{
     let cls="option";
     if(ans&&ans.selected===o.key) cls+=" selected";
     if(show&&o.key===q.answer) cls+=" correct";
     if(show&&ans&&ans.selected===o.key&&o.key!==q.answer) cls+=" wrong";
-    parts.push(`<button class="${cls}" data-pick="${o.key}"><span class="letter">${o.letter}</span><span>${escapeHtml(o.text)}</span></button>`);
+    parts.push(`<button class="${cls}" data-pick="${o.key}"><span class="letter">${fixedOptionLetter(optionIndex)}</span><span>${escapeHtml(o.text)}</span></button>`);
   });
   parts.push('</div>');
   parts.push(`<div class="cardActions"><button class="btn" id="prevInCard">السابق</button><button class="btn primary" id="nextInCard">التالي</button><button class="btn" id="showInCard">إظهار الإجابة</button><button class="btn warn" id="starInCard">${isStarred(q)?'إزالة من المراجعة':'مراجعة لاحقاً'}</button></div>`);
@@ -411,6 +415,9 @@ function escapeHtml(s){return (s||"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&
 
 function lessonKeyName(s){return norm(s||"").replace(/\s+/g," ");}
 function shuffleArray(arr){const a=[...arr];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]];}return a;}
+function getStudyOptions(q){const k=key(q);if(!view.studyOptionOrder[k])view.studyOptionOrder[k]=shuffleArray(q.options);return view.studyOptionOrder[k];}
+function reshuffleStudyQuestion(q){if(q&&view.studyOptionOrder)delete view.studyOptionOrder[key(q)];}
+function fixedOptionLetter(index){return AR[["A","B","C","D"][index]]||String(index+1);}
 function examQuestionKey(q){return q.form+":"+q.id+":"+q.__examSeq;}
 function secondsToClock(sec){sec=Math.max(0,Math.floor(sec));const m=Math.floor(sec/60),ss=sec%60;return String(m).padStart(2,"0")+":"+String(ss).padStart(2,"0");}
 function startExam(){
@@ -442,7 +449,7 @@ function renderExamCard(){
   parts.push(`<div class="examTop"><div class="examHeaderLine"><div class="examProgress">اختبار ${exam.questions.length} سؤال — <b>${exam.index+1}</b> / ${exam.questions.length}</div><div class="examTimer" id="examTimer">⏱ ${secondsToClock(examRemaining())}</div></div><div class="examNavHint">لن تظهر الإجابات الصحيحة إلا بعد انتهاء الاختبار.</div></div>`);
   parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span><span class="badge">سؤال ${escapeHtml(String(q.id))}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}${exam.review[k]?'<span class="badge good">للمراجعة لاحقاً</span>':""}</div></div>`);
   parts.push(`<div class="question">${escapeHtml(q.question)}</div><div class="options">`);
-  (q.__examOptions||q.options).forEach(o=>{let cls="option examOption"+(selected===o.key?" selected":"");parts.push(`<button class="${cls}" data-exam-pick="${o.key}"><span class="letter">${escapeHtml(o.letter)}</span><span>${escapeHtml(o.text)}</span></button>`);});
+  (q.__examOptions||q.options).forEach((o,optionIndex)=>{let cls="option examOption"+(selected===o.key?" selected":"");parts.push(`<button class="${cls}" data-exam-pick="${o.key}"><span class="letter">${fixedOptionLetter(optionIndex)}</span><span>${escapeHtml(o.text)}</span></button>`);});
   const reviewCount=Object.keys(exam.review).length;
   parts.push(`</div><div class="examActions"><button class="btn" id="examPrevBtn">السابق</button><button class="btn primary" id="examNextBtn">التالي</button><button class="btn warn ${exam.review[k]?"examReviewFlag":""}" id="examReviewBtn">${exam.review[k]?"إزالة المراجعة":"مراجعة لاحقاً"}</button><button class="btn examReviewJump" id="examNextReviewBtn">الانتقال للمراجعة التالية (${reviewCount})</button><button class="btn bad" id="examFinishBtn">إنهاء الاختبار</button></div>`);
   card.innerHTML=parts.join("");
@@ -498,8 +505,11 @@ function examMistakeRows(){
 }
 function answerText(q,keyValue){
   if(!keyValue)return "لم تتم الإجابة";
-  const o=(q.__examOptions||q.options||[]).find(x=>x.key===keyValue)||(q.options||[]).find(x=>x.key===keyValue);
-  return (AR[keyValue]||keyValue)+(o?" - "+o.text:"");
+  const display=(q.__examOptions||q.options||[]);
+  const displayIndex=display.findIndex(x=>x.key===keyValue);
+  const o=display.find(x=>x.key===keyValue)||(q.options||[]).find(x=>x.key===keyValue);
+  const shownLetter=displayIndex>=0?fixedOptionLetter(displayIndex):(AR[keyValue]||keyValue);
+  return shownLetter+(o?" - "+o.text:"");
 }
 function renderMistakeReview(){
   const box=$("examMistakeReview"); if(!box)return;
@@ -514,7 +524,7 @@ function renderMistakeReview(){
 function startExamMistakePractice(){
   const keys=[...new Set(state.examMistakeKeys||[])].filter(k=>QUESTIONS.some(q=>key(q)===k));
   if(!keys.length){alert("لا توجد أخطاء محفوظة من آخر اختبار.");return;}
-  view.mode="examMistakes"; view.index=0; view.forceShow=false; view.retry=false;
+  view.mode="examMistakes"; view.index=0; view.forceShow=false; view.retry=false; view.studyOptionOrder={};
   view.examMistakeOrder=shuffleArray(keys); view.examMistakeOptionOrder={};
   QUESTIONS.filter(q=>keys.includes(key(q))).forEach(q=>{view.examMistakeOptionOrder[key(q)]=shuffleArray(q.options);});
   const f=$("modeFilter"); if(f)f.value="examMistakes";
@@ -574,9 +584,9 @@ function pick(selected){
 }
 function showAnswer(){if(exam.active&&!exam.finished){alert("الإجابات الصحيحة تظهر بعد انتهاء الاختبار فقط.");return;}view.forceShow=true;render();}
 function toggleStar(){const q=current(); if(!q)return; const k=key(q); state.stars[k]?delete state.stars[k]:state.stars[k]=true; save(); render();}
-function next(){if(exam.active&&!exam.finished){examNext();return;}const list=currentList(); if(!list.length)return; view.index=(view.index+1)%list.length; view.forceShow=false; render();}
-function prev(){if(exam.active&&!exam.finished){examPrev();return;}const list=currentList(); if(!list.length)return; view.index=(view.index-1+list.length)%list.length; view.forceShow=false; render();}
-function randomQ(){if(exam.active&&!exam.finished)return;const list=currentList(); if(!list.length)return; view.index=Math.floor(Math.random()*list.length); view.forceShow=false; render();}
+function next(){if(exam.active&&!exam.finished){examNext();return;}const list=currentList(); if(!list.length)return; view.index=(view.index+1)%list.length; view.forceShow=false; reshuffleStudyQuestion(list[view.index]); render();}
+function prev(){if(exam.active&&!exam.finished){examPrev();return;}const list=currentList(); if(!list.length)return; view.index=(view.index-1+list.length)%list.length; view.forceShow=false; reshuffleStudyQuestion(list[view.index]); render();}
+function randomQ(){if(exam.active&&!exam.finished)return;const list=currentList(); if(!list.length)return; view.index=Math.floor(Math.random()*list.length); view.forceShow=false; reshuffleStudyQuestion(list[view.index]); render();}
 function resetProgress(){
   if(!confirm("هل تريد تصفير التقدم للنموذج المعروض؟"))return;
   const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
@@ -584,11 +594,11 @@ function resetProgress(){
   view.retry=false; view.retryKeys=[]; view.retryAnswers={};
   save();view.forceShow=false;render();
 }
-function setMode(mode){view.mode=mode;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};if(mode!=="examMistakes"){view.examMistakeOrder=[];view.examMistakeOptionOrder={};}const f=$("modeFilter");if(f)f.value=mode;render();}
+function setMode(mode){view.mode=mode;view.index=0;view.forceShow=false;view.retry=false;view.retryKeys=[];view.retryAnswers={};view.studyOptionOrder={};if(mode!=="examMistakes"){view.examMistakeOrder=[];view.examMistakeOptionOrder={};}const f=$("modeFilter");if(f)f.value=mode;render();}
 function practiceWrong(){
   const scope=QUESTIONS.filter(q=>(view.form==="all"||q.form===view.form)&&(view.lesson==="all"||(q.lesson||"")===view.lesson));
   view.retryKeys=scope.filter(isWrong).map(key);
-  view.retryAnswers={}; view.retry=true; view.mode="wrong"; view.index=0; view.forceShow=false;
+  view.retryAnswers={}; view.retry=true; view.mode="wrong"; view.index=0; view.forceShow=false; view.studyOptionOrder={};
   const f=$("modeFilter");if(f)f.value="wrong";
   render();
 }
@@ -702,7 +712,7 @@ async function handleExcelUpload(file){
     QUESTIONS=result.questions;
     FORM_TITLE=result.titles;
     state={answers:{},stars:{}};
-    view.form="all"; view.lesson="all"; view.mode="all"; view.search=""; view.index=0; view.forceShow=false; view.retry=false; view.retryKeys=[]; view.retryAnswers={};
+    view.form="all"; view.lesson="all"; view.mode="all"; view.search=""; view.index=0; view.studyOptionOrder={}; view.forceShow=false; view.retry=false; view.retryKeys=[]; view.retryAnswers={};
     localStorage.removeItem(STORE_KEY);
     buildDynamicControls();
     importStatus("تم تحميل "+QUESTIONS.length+" سؤال من الملف: "+file.name,"good");
