@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Precious Metals Management Audit</title>
+  <style>
+    :root{
+      --navy:#11263d;
+      --blue:#1f5f8b;
+      --teal:#2f7d7b;
+      --gold:#b9913d;
+      --ink:#1d2935;
+      --muted:#65717e;
+      --line:#d9e1e7;
+      --soft:#f3f6f8;
+      --white:#ffffff;
+      --danger:#9b3b3b;
+      --shadow:0 12px 30px rgba(17,38,61,.10);
+      --radius:18px;
+    }
+    *{box-sizing:border-box}
+    html{scroll-behavior:smooth}
+    body{
+      margin:0;
+      color:var(--ink);
+      background:
+        radial-gradient(circle at top right, rgba(47,125,123,.12), transparent 30%),
+        linear-gradient(180deg,#eef3f6 0,#f8fafb 28%,#f8fafb 100%);
+      font-family:Inter,Segoe UI,Arial,sans-serif;
+      line-height:1.55;
+    }
+    .topbar{
+      position:sticky;top:0;z-index:20;
+      backdrop-filter:blur(14px);
+      background:rgba(17,38,61,.94);
+      border-bottom:1px solid rgba(255,255,255,.12);
+    }
+    .topbar-inner{
+      max-width:1380px;margin:auto;padding:12px 26px;
+      display:flex;align-items:center;justify-content:space-between;gap:20px;
+    }
+    .brand{display:flex;align-items:center;gap:12px;color:white;font-weight:700}
+    .brand-mark{
+      width:38px;height:38px;border-radius:12px;
+      display:grid;place-items:center;
+      background:linear-gradient(135deg,var(--gold),#e1c77c);
+      color:var(--navy);font-weight:900;
+    }
+    nav{display:flex;gap:8px;flex-wrap:wrap;justify-content:flex-end}
+    nav a{
+      color:#dce7ef;text-decoration:none;font-size:12px;
+      padding:7px 10px;border-radius:8px;
+    }
+    nav a:hover{background:rgba(255,255,255,.1);color:white}
+    .hero{
+      max-width:1380px;margin:0 auto;padding:62px 26px 34px;
+      display:grid;grid-template-columns:1.25fr .75fr;gap:28px;align-items:stretch;
+    }
+    .hero-main,.hero-side,.panel,.scope-card,.stakeholder-card,.data-card{
+      background:rgba(255,255,255,.94);
+      border:1px solid rgba(217,225,231,.95);
+      box-shadow:var(--shadow);
+      border-radius:var(--radius);
+    }
+    .hero-main{
+      padding:44px;
+      background:
+        linear-gradient(120deg,rgba(17,38,61,.98),rgba(31,95,139,.94)),
+        var(--navy);
+      color:white;position:relative;overflow:hidden;
+    }
+    .hero-main:after{
+      content:"PM";position:absolute;right:-10px;bottom:-55px;
+      font-size:210px;font-weight:900;color:rgba(255,255,255,.045);
+      letter-spacing:-15px;
+    }
+    .eyebrow{
+      display:inline-flex;gap:8px;align-items:center;
+      padding:7px 11px;border-radius:999px;
+      background:rgba(255,255,255,.10);
+      border:1px solid rgba(255,255,255,.16);
+      font-size:12px;text-transform:uppercase;letter-spacing:.12em;
+    }
+    h1{font-size:42px;line-height:1.08;margin:20px 0 16px;max-width:800px}
+    .hero-main p{font-size:17px;color:#dce7ef;max-width:850px;margin:0}
+    .hero-side{padding:30px;display:flex;flex-direction:column;justify-content:space-between}
+    .hero-side h2{margin:0 0 15px;font-size:21px;color:var(--navy)}
+    .risk-list{display:grid;gap:10px}
+    .risk-item{
+      padding:12px 13px;border-radius:12px;background:var(--soft);
+      border-left:4px solid var(--gold);font-size:13px;
+    }
+    .boundary{
+      margin-top:24px;padding:15px;border-radius:13px;
+      background:#fff8e8;border:1px solid #ead7a6;font-size:13px;
+    }
+    main{max-width:1380px;margin:auto;padding:0 26px 70px}
+    section{margin-top:28px;scroll-margin-top:80px}
+    .section-head{
+      display:flex;align-items:end;justify-content:space-between;
+      gap:18px;margin-bottom:14px;
+    }
+    .section-head h2{margin:0;color:var(--navy);font-size:25px}
+    .section-head p{margin:0;color:var(--muted);font-size:13px;max-width:700px}
+    .panel{padding:28px}
+    .statement{
+      font-size:18px;line-height:1.75;margin:0;
+      border-left:5px solid var(--gold);padding-left:21px;
+    }
+    .scope-grid{
+      display:grid;grid-template-columns:repeat(3,1fr);gap:14px;
+    }
+    .scope-card{padding:22px;box-shadow:none}
+    .scope-card .num{
+      width:34px;height:34px;border-radius:10px;display:grid;place-items:center;
+      background:var(--navy);color:white;font-size:13px;font-weight:800;
+      margin-bottom:14px;
+    }
+    .scope-card h3{margin:0 0 7px;color:var(--navy);font-size:16px}
+    .scope-card p{margin:0;color:var(--muted);font-size:13px}
+    .lifecycle{
+      display:grid;grid-template-columns:repeat(6,1fr);gap:10px;
+      align-items:stretch;
+    }
+    .life-step{
+      min-height:112px;padding:15px 12px;border-radius:14px;
+      background:linear-gradient(180deg,#fff,#f4f7f9);
+      border:1px solid var(--line);position:relative;text-align:center;
+      display:flex;flex-direction:column;justify-content:center;
+    }
+    .life-step:not(:last-child):after{
+      content:"→";position:absolute;right:-14px;top:40%;
+      color:var(--gold);font-size:22px;font-weight:bold;z-index:2;
+    }
+    .life-step strong{color:var(--navy);font-size:14px}
+    .life-step span{color:var(--muted);font-size:11px;margin-top:5px}
+    .questions{
+      display:grid;grid-template-columns:repeat(2,1fr);gap:10px 18px;
+    }
+    .question{
+      background:var(--soft);border-radius:12px;padding:13px 14px;
+      display:flex;gap:10px;font-size:13px;
+    }
+    .question b{color:var(--teal)}
+    .data-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px}
+    .data-card{padding:20px;box-shadow:none}
+    .data-card h3{font-size:15px;color:var(--navy);margin:0 0 8px}
+    .data-card ul{margin:0;padding-left:18px;color:var(--muted);font-size:12px}
+    .data-card li{margin:5px 0}
+    .stakeholder-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:14px}
+    .stakeholder-card{padding:20px;box-shadow:none}
+    .stakeholder-card h3{font-size:15px;color:var(--navy);margin:0 0 9px}
+    .chips{display:flex;flex-wrap:wrap;gap:7px}
+    .chip{
+      font-size:11px;padding:6px 8px;border-radius:999px;
+      background:#edf3f6;border:1px solid #d6e1e7;color:#405160;
+    }
+    .approach{
+      display:grid;grid-template-columns:repeat(6,1fr);gap:12px;
+    }
+    .approach-step{
+      padding:18px 14px;border-radius:15px;background:white;border:1px solid var(--line);
+      min-height:154px;
+    }
+    .approach-step .tag{
+      color:var(--gold);font-weight:800;font-size:11px;letter-spacing:.08em;
+      text-transform:uppercase;
+    }
+    .approach-step h3{font-size:14px;color:var(--navy);margin:8px 0}
+    .approach-step p{font-size:11px;color:var(--muted);margin:0}
+    .outputs{
+      display:grid;grid-template-columns:repeat(4,1fr);gap:12px;
+    }
+    .output{
+      padding:16px;border-radius:13px;background:#f6f8fa;border:1px solid var(--line);
+      font-size:12px;
+    }
+    .footer-note{
+      margin-top:28px;background:var(--navy);color:white;padding:22px 25px;
+      border-radius:16px;display:flex;justify-content:space-between;gap:18px;align-items:center;
+    }
+    .footer-note strong{font-size:17px}
+    .footer-note span{font-size:12px;color:#d5e1ea;max-width:850px}
+    .print-btn{
+      border:0;border-radius:10px;background:var(--gold);color:var(--navy);
+      padding:10px 14px;font-weight:800;cursor:pointer;white-space:nowrap;
+    }
+    .small-note{font-size:11px;color:var(--muted);margin-top:10px}
+    @media(max-width:1050px){
+      .hero{grid-template-columns:1fr}
+      .scope-grid,.data-grid{grid-template-columns:repeat(2,1fr)}
+      .stakeholder-grid{grid-template-columns:repeat(2,1fr)}
+      .lifecycle,.approach{grid-template-columns:repeat(3,1fr)}
+      .life-step:nth-child(3):after{display:none}
+      .outputs{grid-template-columns:repeat(2,1fr)}
+    }
+    @media(max-width:680px){
+      .topbar-inner{align-items:flex-start;flex-direction:column}
+      nav{justify-content:flex-start}
+      .hero{padding-top:26px}
+      .hero-main{padding:30px 24px}
+      h1{font-size:32px}
+      .scope-grid,.data-grid,.stakeholder-grid,.questions,
+      .lifecycle,.approach,.outputs{grid-template-columns:1fr}
+      .life-step:after{display:none!important}
+      .section-head{align-items:flex-start;flex-direction:column}
+      .footer-note{align-items:flex-start;flex-direction:column}
+    }
+    @media print{
+      .topbar,.print-btn{display:none}
+      body{background:white}
+      .hero{padding-top:20px}
+      .hero-main,.hero-side,.panel,.scope-card,.stakeholder-card,.data-card{
+        box-shadow:none;break-inside:avoid
+      }
+      section{break-inside:avoid}
+      main{padding-bottom:0}
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-inner">
+      <div class="brand">
+        <div class="brand-mark">PM</div>
+        <span>Internal Audit Presentation</span>
+      </div>
+      <nav>
+        <a href="#objective">Objective</a>
+        <a href="#scope">Scope</a>
+        <a href="#questions">Audit Questions</a>
+        <a href="#data">Data Required</a>
+        <a href="#stakeholders">Stakeholders</a>
+        <a href="#approach">Audit Approach</a>
+      </nav>
+    </div>
+  </header>
+
+  <div class="hero">
+    <div class="hero-main">
+      <div class="eyebrow">Risk-Based Internal Audit</div>
+      <h1>Precious Metals Management Audit</h1>
+      <p>
+        A focused review of governance, custody, accountability, financial treatment,
+        recovery and end-to-end traceability of precious metals associated with manufacturing operations.
+      </p>
+    </div>
+    <aside class="hero-side">
+      <div>
+        <h2>Why this audit matters</h2>
+        <div class="risk-list">
+          <div class="risk-item">High-value materials may move across several functions, systems and external parties.</div>
+          <div class="risk-item">Fragmented procedures may create gaps in accountability, custody, reconciliation and recovery.</div>
+          <div class="risk-item">Differences in ownership arrangements may affect risk, accounting and settlement responsibilities.</div>
+          <div class="risk-item">Inaccurate balances, delayed recovery or unsupported write-offs may create financial exposure.</div>
+        </div>
+      </div>
+      <div class="boundary">
+        <strong>Scope boundary:</strong> The review focuses on precious-metal governance and controls.
+        It does not assess catalyst activity, selectivity, production yield or process efficiency.
+      </div>
+    </aside>
+  </div>
+
+  <main>
+    <section id="objective">
+      <div class="section-head">
+        <h2>Audit Objective and Scope</h2>
+        <p>A single statement suitable for the audit plan, engagement memorandum or presentation.</p>
+      </div>
+      <div class="panel">
+        <p class="statement">
+          To assess the adequacy, completeness, and implementation of the governance framework and
+          internal controls over the end-to-end management of precious metals, and determine whether
+          they are effectively governed, adequately safeguarded, accurately recorded, valued,
+          reconciled, recovered, settled, and written off throughout their lifecycle in compliance
+          with applicable corporate, contractual, financial, regulatory, and EHSS requirements.
+        </p>
+      </div>
+    </section>
+
+    <section id="scope">
+      <div class="section-head">
+        <h2>Key Scope Areas</h2>
+        <p>Six high-level categories covering the full control environment without expanding into operational performance.</p>
+      </div>
+      <div class="scope-grid">
+        <article class="scope-card">
+          <div class="num">01</div>
+          <h3>Governance and Compliance</h3>
+          <p>Governance, roles, responsibilities, policies, procedures, management oversight and compliance requirements.</p>
+        </article>
+        <article class="scope-card">
+          <div class="num">02</div>
+          <h3>Planning and Procurement</h3>
+          <p>Requirements planning, quantity determination, procurement, contracting and ownership arrangements.</p>
+        </article>
+        <article class="scope-card">
+          <div class="num">03</div>
+          <h3>Physical Control and Custody</h3>
+          <p>Receipt, storage, safeguarding, issuance, use, movement and transfer.</p>
+        </article>
+        <article class="scope-card">
+          <div class="num">04</div>
+          <h3>Accounting Treatment</h3>
+          <p>Recording, traceability, classification, valuation, reconciliation, adjustments and financial reporting.</p>
+        </article>
+        <article class="scope-card">
+          <div class="num">05</div>
+          <h3>Recovery and Disposal</h3>
+          <p>Recovery, reclamation, refining, settlement, write-off and disposal.</p>
+        </article>
+        <article class="scope-card">
+          <div class="num">06</div>
+          <h3>Third-Party Management</h3>
+          <p>Third-party custody, responsibilities, oversight, balance confirmation and contractual compliance.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>End-to-End Lifecycle View</h2>
+        <p>The audit follows the metal from initial requirement through final recovery, settlement or approved write-off.</p>
+      </div>
+      <div class="panel lifecycle">
+        <div class="life-step"><strong>Plan</strong><span>Requirement and quantity</span></div>
+        <div class="life-step"><strong>Acquire</strong><span>Procurement and ownership</span></div>
+        <div class="life-step"><strong>Control</strong><span>Receipt, storage and custody</span></div>
+        <div class="life-step"><strong>Record</strong><span>Traceability and accounting</span></div>
+        <div class="life-step"><strong>Recover</strong><span>Reclamation, refining and settlement</span></div>
+        <div class="life-step"><strong>Close</strong><span>Reconcile, dispose or write off</span></div>
+      </div>
+    </section>
+
+    <section id="questions">
+      <div class="section-head">
+        <h2>Key Audit Questions</h2>
+        <p>The principal questions the engagement is expected to answer.</p>
+      </div>
+      <div class="panel questions">
+        <div class="question"><b>01</b><span>Is there a complete end-to-end governance framework for precious metals?</span></div>
+        <div class="question"><b>02</b><span>Are responsibilities, ownership and transfers of custody clearly defined?</span></div>
+        <div class="question"><b>03</b><span>Are requirements, quantities and procurement arrangements justified and authorised?</span></div>
+        <div class="question"><b>04</b><span>Are precious metals safeguarded and traceable across locations and custodians?</span></div>
+        <div class="question"><b>05</b><span>Are operational, inventory, third-party and financial records complete and reconciled?</span></div>
+        <div class="question"><b>06</b><span>Are losses, adjustments and write-offs investigated, supported and approved?</span></div>
+        <div class="question"><b>07</b><span>Are recovery, refining and settlement activities adequately controlled?</span></div>
+        <div class="question"><b>08</b><span>Were corrective actions related to previous findings fully and effectively implemented?</span></div>
+      </div>
+    </section>
+
+    <section id="data">
+      <div class="section-head">
+        <h2>Initial Data Required</h2>
+        <p>A focused first request. Detailed supporting evidence can be requested after process walkthroughs and sample selection.</p>
+      </div>
+      <div class="data-grid">
+        <article class="data-card">
+          <h3>Governance</h3>
+          <ul>
+            <li>Policies, procedures and guidelines</li>
+            <li>Roles, responsibilities and authority matrix</li>
+            <li>Previous findings and corrective actions</li>
+            <li>Applicable corporate, regulatory and EHSS requirements</li>
+          </ul>
+        </article>
+        <article class="data-card">
+          <h3>Precious-Metals Population</h3>
+          <ul>
+            <li>Metal types, quantities and locations</li>
+            <li>Ownership and lifecycle status</li>
+            <li>Manufacturing units and processes involved</li>
+            <li>Items held onsite, in transit or with third parties</li>
+          </ul>
+        </article>
+        <article class="data-card">
+          <h3>Procurement and Contracts</h3>
+          <ul>
+            <li>Purchase orders and procurement transactions</li>
+            <li>Purchase, lease, consignment or metal-account agreements</li>
+            <li>Ownership, liability, pricing and settlement terms</li>
+            <li>Recovery, refining and transportation contracts</li>
+          </ul>
+        </article>
+        <article class="data-card">
+          <h3>Inventory and Custody</h3>
+          <ul>
+            <li>Receipts, issues, transfers and physical counts</li>
+            <li>Storage locations and access arrangements</li>
+            <li>Custody and chain-of-custody records</li>
+            <li>Inventory adjustments and discrepancy investigations</li>
+          </ul>
+        </article>
+        <article class="data-card">
+          <h3>Accounting and Reconciliation</h3>
+          <ul>
+            <li>General-ledger and inventory balances</li>
+            <li>Valuation and accounting policies</li>
+            <li>Metal registers and reconciliations</li>
+            <li>Adjustments, provisions, settlements and write-offs</li>
+          </ul>
+        </article>
+        <article class="data-card">
+          <h3>Recovery and Third Parties</h3>
+          <ul>
+            <li>Shipment, weighing, sampling and assay records</li>
+            <li>Recovery and refining statements</li>
+            <li>Third-party confirmations and balances</li>
+            <li>Settlement, losses and unresolved differences</li>
+          </ul>
+        </article>
+      </div>
+      <p class="small-note">Recommended review period: current year-to-date, the previous two financial years, and the latest complete recovery or settlement cycle where relevant.</p>
+    </section>
+
+    <section id="stakeholders">
+      <div class="section-head">
+        <h2>Key Stakeholders</h2>
+        <p>Grouped according to process ownership, technical support, governance and external custody.</p>
+      </div>
+      <div class="stakeholder-grid">
+        <article class="stakeholder-card">
+          <h3>Primary Process Owners</h3>
+          <div class="chips">
+            <span class="chip">Manufacturing / Operations</span>
+            <span class="chip">Supply Chain / Procurement</span>
+            <span class="chip">Warehouse / Materials</span>
+            <span class="chip">Finance / Accounting</span>
+          </div>
+        </article>
+        <article class="stakeholder-card">
+          <h3>Technical and Control Functions</h3>
+          <div class="chips">
+            <span class="chip">Process Engineering</span>
+            <span class="chip">EHSS</span>
+            <span class="chip">Laboratory / Quality</span>
+            <span class="chip">Logistics</span>
+            <span class="chip">Maintenance / Turnaround</span>
+          </div>
+        </article>
+        <article class="stakeholder-card">
+          <h3>Governance and Support</h3>
+          <div class="chips">
+            <span class="chip">Legal / Contracts</span>
+            <span class="chip">Compliance</span>
+            <span class="chip">Treasury</span>
+            <span class="chip">IT / System Owners</span>
+            <span class="chip">Senior Management</span>
+          </div>
+        </article>
+        <article class="stakeholder-card">
+          <h3>External Stakeholders</h3>
+          <div class="chips">
+            <span class="chip">Suppliers</span>
+            <span class="chip">Transporters</span>
+            <span class="chip">Laboratories</span>
+            <span class="chip">Reclaimers</span>
+            <span class="chip">Refiners</span>
+            <span class="chip">Storage / Metal Account Providers</span>
+          </div>
+        </article>
+      </div>
+    </section>
+
+    <section id="approach">
+      <div class="section-head">
+        <h2>Proposed Audit Approach</h2>
+        <p>A risk-based sequence aligned with professional internal auditing practice.</p>
+      </div>
+      <div class="approach">
+        <article class="approach-step">
+          <div class="tag">Phase 1</div>
+          <h3>Understand and Map</h3>
+          <p>Map the lifecycle, functions, systems, records, third parties and transfers of responsibility or custody.</p>
+        </article>
+        <article class="approach-step">
+          <div class="tag">Phase 2</div>
+          <h3>Assess Framework Design</h3>
+          <p>Evaluate completeness of policies, responsibilities and controls; identify gaps, overlaps and fragmentation.</p>
+        </article>
+        <article class="approach-step">
+          <div class="tag">Phase 3</div>
+          <h3>Test Implementation</h3>
+          <p>Select risk-based samples and verify whether established controls are consistently and effectively applied.</p>
+        </article>
+        <article class="approach-step">
+          <div class="tag">Phase 4</div>
+          <h3>Trace and Reconcile</h3>
+          <p>Trace balances across procurement, custody, operations, third parties and financial records; investigate differences.</p>
+        </article>
+        <article class="approach-step">
+          <div class="tag">Phase 5</div>
+          <h3>Review Third Parties</h3>
+          <p>Assess contractual safeguards, confirmations, assay evidence, recovery records and settlement accountability.</p>
+        </article>
+        <article class="approach-step">
+          <div class="tag">Phase 6</div>
+          <h3>Conclude and Report</h3>
+          <p>Identify root causes, financial or control exposure, corrective actions, owners and realistic completion dates.</p>
+        </article>
+      </div>
+    </section>
+
+    <section>
+      <div class="section-head">
+        <h2>Expected Audit Outputs</h2>
+        <p>Practical deliverables that support a clear and evidence-based conclusion.</p>
+      </div>
+      <div class="panel outputs">
+        <div class="output">End-to-end precious-metals lifecycle and responsibility map</div>
+        <div class="output">Governance and control design assessment</div>
+        <div class="output">Implementation and reconciliation testing results</div>
+        <div class="output">Third-party custody and recovery assessment</div>
+        <div class="output">Status of previous corrective actions</div>
+        <div class="output">Identified gaps, root causes and risk exposure</div>
+        <div class="output">Practical recommendations with accountable owners</div>
+        <div class="output">Overall Internal Audit conclusion</div>
+      </div>
+    </section>
+
+    <div class="footer-note">
+      <div>
+        <strong>Audit focus</strong><br />
+        <span>
+          Precious metals remain the primary subject. Other materials or processes are considered only where necessary
+          to assess ownership, custody, traceability, accounting, recovery or approved final disposition.
+        </span>
+      </div>
+      <button class="print-btn" onclick="window.print()">Print / Save as PDF</button>
+    </div>
+  </main>
+</body>
+</html>
