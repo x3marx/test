@@ -275,6 +275,17 @@ html[data-theme="light"] .recordHint{background:rgba(5,150,105,.055);color:#065f
 html[data-theme="light"] .resumeBadge{color:#92400e!important}
 html[data-theme="light"] .progressTable th,html[data-theme="light"] .progressTable td{border-color:rgba(15,23,42,.10)}
 html[data-theme="light"] .templateHint{background:rgba(15,23,42,.025)}
+/* Light-mode contrast corrections: override colors that were designed for the dark theme. */
+html[data-theme="light"] .importStatus.good{color:#047857;background:rgba(5,150,105,.08);border-color:rgba(5,150,105,.32)}
+html[data-theme="light"] .importStatus.bad{color:#be123c;background:rgba(225,29,72,.07);border-color:rgba(225,29,72,.28)}
+html[data-theme="light"] .emptyUpload h2,html[data-theme="light"] .examMistakeQuestion{color:#172033}
+html[data-theme="light"] .empty,html[data-theme="light"] .emptyUpload p,html[data-theme="light"] label,html[data-theme="light"] .excelHint,html[data-theme="light"] .examNavHint,html[data-theme="light"] .specialSub,html[data-theme="light"] .journeyStatus,html[data-theme="light"] .progressKpi span,html[data-theme="light"] .stat span,html[data-theme="light"] .metricChip .label{color:#596579}
+html[data-theme="light"] input::placeholder{color:#7a8699;opacity:1}
+html[data-theme="light"] .bankCount,html[data-theme="light"] .metricBadge,html[data-theme="light"] .stat b,html[data-theme="light"] .quickControls b{color:#047857}
+html[data-theme="light"] .timerText{color:#92400e}
+html[data-theme="light"] .qchip,html[data-theme="light"] .option,html[data-theme="light"] .btn,html[data-theme="light"] .pill,html[data-theme="light"] .metricChip{color:#172033}
+html[data-theme="light"] .option.correct{background:rgba(5,150,105,.09);border-color:rgba(5,150,105,.48)}
+html[data-theme="light"] .option.wrong{background:rgba(225,29,72,.075);border-color:rgba(225,29,72,.42)}
 @media(max-width:560px){.themeToggle{top:10px;left:10px;width:38px;height:38px;min-height:38px}}
 
 
@@ -536,6 +547,7 @@ let view={
   studySet:state.ui.studySet,examSet:state.ui.examSet,
   form:"all",lesson:"all",mode:"all",search:"",index:0,forceShow:false,
   retry:false,retryKeys:[],retryAnswers:{},
+  mistakePractice:false,practiceAnswers:{},
   examMistakeOrder:[],examMistakeOptionOrder:{},studyOptionOrder:{},
   timerKey:"",timerLeft:60,timerId:null,
   special:""
@@ -654,6 +666,7 @@ function switchStudySet(setId){
   view.studySet=setId;state.ui.studySet=setId;
   view.form="all";view.lesson="all";view.mode="all";view.search="";view.forceShow=false;view.special="";
   view.retry=false;view.retryKeys=[];view.retryAnswers={};view.studyOptionOrder={};view.examMistakeOrder=[];view.examMistakeOptionOrder={};
+  view.mistakePractice=false;view.practiceAnswers={};
   buildDynamicControls();restoreIndexForSet(setId);save();render();
 }
 
@@ -687,7 +700,9 @@ function renderNav(){
   const frag=document.createDocumentFragment();
   list.forEach((q,i)=>{
     const b=document.createElement("button");
-    b.className="qchip"+(cur&&key(q)===key(cur)?" active":"")+(isCorrect(q)?" ok":isWrong(q)?" no":answered(q)?" done":"");
+    const practiceRecord=view.mistakePractice?view.practiceAnswers[key(q)]:null;
+    const statusClass=view.mistakePractice?(practiceRecord?(practiceRecord.correct?" ok":" no"):""):(isCorrect(q)?" ok":isWrong(q)?" no":answered(q)?" done":"");
+    b.className="qchip"+(cur&&key(q)===key(cur)?" active":"")+statusClass;
     b.textContent=q.id;b.title=(FORM_TITLE[q.form]||q.form)+" - سؤال "+q.id;
     b.onclick=()=>{view.index=i;view.forceShow=false;reshuffleStudyQuestion(q);rememberCurrent(q);render();};
     frag.appendChild(b);
@@ -700,9 +715,11 @@ function renderCard(){
   const card=$("quizCard"),q=current();
   if(!q){card.innerHTML='<div class="empty"><h2>لا توجد أسئلة</h2><p>غيّر طريقة العرض أو الفلاتر داخل المجموعة الحالية.</p></div>';return;}
   rememberCurrent(q);
-  const k=key(q),ans=state.answers[k],show=view.forceShow||!!ans,metrics=cardMetrics(),set=setDef(view.studySet);
+  const k=key(q),inMistakePractice=view.mistakePractice&&(view.mode==="historyMistakes"||view.mode==="examMistakes");
+  const ans=inMistakePractice?(view.practiceAnswers[k]||null):state.answers[k];
+  const show=view.forceShow||!!ans,metrics=cardMetrics(),set=setDef(view.studySet);
   const parts=[];
-  parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${set.label} — ${set.range}</span><span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span><span class="badge">سؤال ${escapeHtml(q.id)}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}${isStarred(q)?'<span class="badge good">للمراجعة لاحقاً</span>':""}${everWrong(q)?'<span class="badge resumeBadge">ضمن سجل الأخطاء</span>':""}</div><div class="metaRates"><span class="metricBadge">✅ ${metrics.correctPct}%</span><span class="metricBadge">⏱ ${metrics.hasLast?metrics.lastElapsed+"ث":"—"}</span></div></div>`);
+  parts.push(`<div class="meta"><div class="metaInfo"><span class="badge">${set.label} — ${set.range}</span><span class="badge">${escapeHtml(FORM_TITLE[q.form]||q.form)}</span><span class="badge">سؤال ${escapeHtml(q.id)}</span>${q.lesson?`<span class="badge">${escapeHtml(q.lesson)}</span>`:""}${isStarred(q)?'<span class="badge good">للمراجعة لاحقاً</span>':""}${everWrong(q)?'<span class="badge resumeBadge">ضمن سجل الأخطاء</span>':""}${inMistakePractice?'<span class="badge good">تدريب جديد — الإجابة مخفية</span>':""}</div><div class="metaRates"><span class="metricBadge">✅ ${metrics.correctPct}%</span><span class="metricBadge">⏱ ${metrics.hasLast?metrics.lastElapsed+"ث":"—"}</span></div></div>`);
   parts.push(`<div class="timerBox" id="timerBox"><div class="timerHead"><span>مؤقت السؤال</span><span class="timerText" id="timerText">60 ثانية</span></div><div class="timerBar"><i class="timerFill" id="timerFill"></i></div></div>`);
   parts.push(`<div class="question">${escapeHtml(q.question)}</div><div class="options">`);
   const displayOptions=(view.mode==="examMistakes"&&view.examMistakeOptionOrder[k])?view.examMistakeOptionOrder[k]:getStudyOptions(q);
@@ -743,8 +760,10 @@ function pick(selected){
   if(exam.active){examPick(selected);return;}
   const q=current();if(!q)return;
   const elapsed=Math.max(0,Math.min(60,60-Number(view.timerLeft||0))),ts=Date.now(),correct=selected===q.answer;
-  state.answers[key(q)]={selected,correct,elapsed,ts};
+  const record={selected,correct,elapsed,ts};
+  state.answers[key(q)]=record;
   updateHistoryStudy(q,selected,correct,ts);
+  if(view.mistakePractice)view.practiceAnswers[key(q)]=record;
   view.forceShow=true;rememberCurrent(q);save();render();
 }
 function showAnswer(){if(exam.active){alert("الإجابات الصحيحة تظهر بعد انتهاء الاختبار فقط.");return;}view.forceShow=true;render();}
@@ -756,10 +775,16 @@ function randomQ(){if(exam.active)return;const list=currentList();if(!list.lengt
 function setMode(mode){
   view.mode=mode;view.index=0;view.forceShow=false;view.special="";
   view.retry=false;view.retryKeys=[];view.retryAnswers={};view.studyOptionOrder={};
+  view.mistakePractice=false;view.practiceAnswers={};
   if(mode!=="examMistakes"){view.examMistakeOrder=[];view.examMistakeOptionOrder={};}
   const f=$("modeFilter");if(f)f.value=mode;render();
 }
-function practiceWrong(){setMode("historyMistakes");}
+function practiceWrong(){
+  view.mode="historyMistakes";view.index=0;view.forceShow=false;view.special="";
+  view.retry=false;view.retryKeys=[];view.retryAnswers={};view.studyOptionOrder={};
+  view.mistakePractice=true;view.practiceAnswers={};view.examMistakeOrder=[];view.examMistakeOptionOrder={};
+  const f=$("modeFilter");if(f)f.value="historyMistakes";render();
+}
 function showReview(){setMode("starred");}
 function showAll(){setMode("all");}
 function startExamMistakePractice(){
@@ -768,6 +793,7 @@ function startExamMistakePractice(){
   const setId=state.lastExamSetId&&SETS.some(s=>s.id===state.lastExamSetId)?state.lastExamSetId:QUESTION_BY_KEY.get(keys[0])?.setId;
   if(setId)switchStudySet(setId);
   view.mode="examMistakes";view.index=0;view.forceShow=false;view.special="";view.studyOptionOrder={};
+  view.mistakePractice=true;view.practiceAnswers={};
   view.examMistakeOrder=shuffleArray(keys);view.examMistakeOptionOrder={};
   keys.forEach(k=>{const q=QUESTION_BY_KEY.get(k);if(q)view.examMistakeOptionOrder[k]=shuffleArray(q.options);});
   const f=$("modeFilter");if(f)f.value="examMistakes";render();
@@ -782,7 +808,7 @@ function resetProgress(){
   delete state.examSessions[view.studySet];delete state.examResults[view.studySet];
   if(state.lastExamSetId===view.studySet){state.lastExamSetId="";state.examMistakeKeys=[];}
   delete state.ui.lastQuestionBySet[view.studySet];
-  view.index=0;view.mode="all";view.search="";view.form="all";view.lesson="all";view.forceShow=false;view.studyOptionOrder={};
+  view.index=0;view.mode="all";view.search="";view.form="all";view.lesson="all";view.forceShow=false;view.studyOptionOrder={};view.mistakePractice=false;view.practiceAnswers={};
   save();buildDynamicControls();render();
 }
 
