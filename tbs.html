@@ -277,6 +277,70 @@ html[data-theme="light"] .progressTable th,html[data-theme="light"] .progressTab
 html[data-theme="light"] .templateHint{background:rgba(15,23,42,.025)}
 @media(max-width:560px){.themeToggle{top:10px;left:10px;width:38px;height:38px;min-height:38px}}
 
+
+
+/* Unified responsive layout: one HTML for desktop and iPhone */
+.mobileSection{display:contents}
+.mobileSection>summary{display:none}
+
+@media(max-width:860px){
+  /* Put the active question before the dashboard/filters on phones. */
+  .grid{display:flex!important;flex-direction:column;gap:10px}
+  #quizCard{order:1}
+  .panel{order:2;width:100%;padding:10px;position:static!important}
+
+  /* Keep the title compact so the question is visible immediately. */
+  .hero{margin-bottom:8px}
+  .compactHero{padding:8px 10px}
+  h1{font-size:1.18rem;margin:0}
+
+  /* Secondary controls become expandable sections on phones only. */
+  .mobileSection{display:block;border:1px solid var(--line);border-radius:16px;background:rgba(255,255,255,.025);margin:8px 0;overflow:hidden}
+  .mobileSection>summary{display:flex;align-items:center;justify-content:space-between;min-height:46px;padding:9px 12px;color:#dbeafe;font-weight:800;cursor:pointer;list-style:none;-webkit-tap-highlight-color:transparent}
+  .mobileSection>summary::-webkit-details-marker{display:none}
+  .mobileSection>summary::after{content:"＋";font-size:1.05rem;color:var(--brand2);font-weight:900}
+  .mobileSection[open]>summary::after{content:"−"}
+  .mobileSection>.sectionTitle{display:none}
+  .mobileSection[open]>:not(summary){margin-left:10px;margin-right:10px}
+  .mobileSection[open]>.journeyList{margin-top:0}
+
+  /* Start with only the useful navigation list expanded; other long sections stay compact. */
+  .navList{max-width:100%;scrollbar-width:thin}
+  .questionListSection .navList{margin-bottom:10px}
+
+  /* Question card itself becomes denser and touch friendly. */
+  .card{padding:13px!important;border-radius:18px;min-height:auto!important}
+  .meta{margin-bottom:8px}
+  .question{font-size:1.08rem!important;line-height:1.75;margin:10px 0 14px}
+  .options{gap:8px}
+  .option{min-height:54px;padding:11px 12px;font-size:.94rem;border-radius:15px}
+  .option .letter{flex-basis:32px;height:32px}
+  .timerBox{margin:5px 0 10px;padding:8px 10px}
+  .cardActions{margin-top:12px}
+
+  /* Fixed bottom controls stay reachable without covering the final option. */
+  body{padding-bottom:calc(88px + env(safe-area-inset-bottom))!important}
+  .bottomBar{display:flex!important}
+  .bottomBar .btn{min-width:0;font-size:.82rem;padding:8px 5px}
+
+  /* Theme control respects iPhone safe areas. */
+  .themeToggle{top:calc(8px + env(safe-area-inset-top));left:calc(8px + env(safe-area-inset-left))}
+}
+
+@media(max-width:430px){
+  body{padding-left:7px!important;padding-right:7px!important}
+  .app{width:100%;max-width:none}
+  .card{padding:11px!important}
+  .question{font-size:1.02rem!important}
+  .option{font-size:.91rem;line-height:1.55}
+  .badge,.metricBadge{font-size:.75rem;padding:5px 8px}
+  .bottomBar{gap:5px;padding-top:7px}
+  .bottomBar .btn{font-size:.76rem}
+}
+
+html[data-theme="light"] .mobileSection{background:rgba(15,23,42,.025)}
+html[data-theme="light"] .mobileSection>summary{color:#1e3a5f}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
@@ -301,8 +365,10 @@ html[data-theme="light"] .templateHint{background:rgba(15,23,42,.025)}
         </div>
       </div>
 
-      <div class="sectionTitle">رحلة المذاكرة والاختبار</div>
-      <div id="journeyProgress" class="journeyList"></div>
+      <details class="mobileSection journeySection" open>
+        <summary>رحلة المذاكرة والاختبار</summary>
+        <div class="sectionTitle">رحلة المذاكرة والاختبار</div>
+        <div id="journeyProgress" class="journeyList"></div>
 
       <div class="field">
         <label for="studySetFilter">مجموعة المراجعة</label>
@@ -328,7 +394,10 @@ html[data-theme="light"] .templateHint{background:rgba(15,23,42,.025)}
         <button class="btn examStartBtn" id="startExamBtn">بدء / استئناف الاختبار المحدد</button>
         <button class="btn primary" id="progressDashboardBtn">سجل التقدم الكامل</button>
       </div>
+      </details>
 
+      <details class="mobileSection reviewControlsSection" open>
+        <summary>التحكم بالمراجعة</summary>
       <div class="sectionTitle">التحكم بالمراجعة</div>
       <div class="field">
         <label for="formFilter">اختر النموذج</label>
@@ -366,7 +435,10 @@ html[data-theme="light"] .templateHint{background:rgba(15,23,42,.025)}
         <button class="btn" id="prevBtnSide">السابق</button>
         <button class="btn primary" id="nextBtnSide">التالي</button>
       </div>
+      </details>
 
+      <details class="mobileSection backupSection" open>
+        <summary>السجل والنسخ الاحتياطي</summary>
       <div class="sectionTitle">السجل والنسخ الاحتياطي</div>
       <div class="quickControls">
         <button class="btn primary" id="backupProgressBtn">نسخة احتياطية من التقدم</button>
@@ -374,9 +446,13 @@ html[data-theme="light"] .templateHint{background:rgba(15,23,42,.025)}
         <input id="restoreProgressInput" type="file" accept=".json,application/json" hidden>
         <button class="btn bad" id="resetProgressBtn">تصفير تقدم المجموعة الحالية</button>
       </div>
+      </details>
 
+      <details class="mobileSection questionListSection" open>
+        <summary>قائمة الأسئلة</summary>
       <div class="sectionTitle">قائمة الأسئلة</div>
       <div id="questionNav" class="navList"></div>
+      </details>
     </aside>
 
     <section id="quizCard" class="card"></section>
@@ -1035,6 +1111,25 @@ applyTheme(currentTheme(),false);
 save();
 render();
 
+
+
+/* Phone-only panel defaults. Desktop remains visually unchanged. */
+function applyResponsiveSectionDefaults(){
+  const phone=window.matchMedia('(max-width: 860px)').matches;
+  document.querySelectorAll('.mobileSection').forEach(d=>{
+    if(phone){
+      d.open=d.classList.contains('questionListSection');
+    }else{
+      d.open=true;
+    }
+  });
+}
+applyResponsiveSectionDefaults();
+let responsiveWasPhone=window.matchMedia('(max-width: 860px)').matches;
+window.addEventListener('resize',()=>{
+  const nowPhone=window.matchMedia('(max-width: 860px)').matches;
+  if(nowPhone!==responsiveWasPhone){responsiveWasPhone=nowPhone;applyResponsiveSectionDefaults();}
+});
 </script>
 </body>
 </html>
