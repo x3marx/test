@@ -5,6 +5,14 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="theme-color" content="#101828">
 <title>نظام تدريب بنك الأسئلة</title>
+<script>
+(function(){
+  try{
+    const savedTheme=localStorage.getItem("arabic_test_bank_all_forms_v2_theme");
+    document.documentElement.dataset.theme=savedTheme==="light"?"light":"dark";
+  }catch(e){document.documentElement.dataset.theme="dark";}
+})();
+</script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -111,7 +119,7 @@ select:focus,input:focus{border-color:var(--brand2)}
 body.phoneView .app{max-width:460px}body.phoneView {padding:10px;padding-bottom:calc(86px + env(safe-area-inset-bottom))}body.phoneView .hero{grid-template-columns:1fr}body.phoneView .grid{grid-template-columns:1fr}body.phoneView .panel{position:static}body.phoneView .card{min-height:auto;padding:15px}body.phoneView .navList{display:flex;overflow:auto;max-height:none;padding-bottom:4px}body.phoneView .qchip{min-width:48px}body.phoneView .actionsTop{display:none}body.phoneView .bottomBar{display:flex}body.phoneView .bottomBar .btn{flex:1;padding:9px 8px}body.phoneView .question{font-size:1.12rem;line-height:1.8}body.phoneView .option{padding:12px 13px}
 .bottomBar{position:fixed;left:0;right:0;bottom:0;z-index:5;background:rgba(11,16,32,.82);border-top:1px solid rgba(255,255,255,.1);backdrop-filter:blur(18px);padding:10px calc(12px + env(safe-area-inset-right)) calc(10px + env(safe-area-inset-bottom)) calc(12px + env(safe-area-inset-left));display:none;gap:8px}
 .empty{padding:28px;text-align:center;color:var(--muted);line-height:1.8;font-weight:500}
-.kbd{font-family:ui-monospace,Consolas,monospace;direction:ltr;unicode-bidi:bidi-override}
+.kbd{font-family:'Cairo',system-ui,-apple-system,'Segoe UI',Tahoma,Arial,sans-serif!important;direction:ltr;unicode-bidi:bidi-override}
 @media(max-width:860px){
   body{padding:10px;padding-bottom:calc(86px + env(safe-area-inset-bottom))}
   .compactHero{padding:10px}
@@ -224,11 +232,57 @@ html,body,button,input,select,textarea{font-family:'Cairo',system-ui,-apple-syst
 @media(max-width:860px){.progressKpis{grid-template-columns:1fr 1fr}.backupRow{grid-template-columns:1fr}.journeyActions{grid-template-columns:1fr 1fr}}
 @media(max-width:430px){.progressKpis{grid-template-columns:1fr 1fr}.journeyActions{grid-template-columns:1fr}}
 
+/* Dark / light theme toggle */
+.themeToggle{
+  position:fixed;top:14px;left:14px;z-index:20;width:42px;height:42px;min-height:42px;padding:0;
+  border:1px solid var(--line);border-radius:50%;background:rgba(18,26,44,.90);color:var(--text);
+  box-shadow:0 8px 24px rgba(0,0,0,.22);backdrop-filter:blur(14px);display:flex;align-items:center;justify-content:center;
+  font-size:1.05rem;line-height:1;transition:transform .15s,border-color .15s,background .2s,color .2s;
+}
+.themeToggle:hover{transform:translateY(-1px);border-color:var(--brand2)}
+.themeToggle:focus-visible{outline:3px solid rgba(56,189,248,.28);outline-offset:2px}
+
+html[data-theme="light"]{
+  --bg:#f4f7fb;--card:#ffffff;--card2:#edf3f9;--line:#d3dce8;--text:#172033;--muted:#667085;
+  --brand:#059669;--brand2:#0284c7;--good:#059669;--bad:#e11d48;--warn:#a16207;
+  --shadow:0 16px 42px rgba(15,23,42,.10);
+}
+html[data-theme="light"],html[data-theme="light"] body{
+  background:radial-gradient(circle at top left,rgba(56,189,248,.12),transparent 34rem),radial-gradient(circle at bottom right,rgba(16,185,129,.10),transparent 34rem),var(--bg);
+  color:var(--text);
+}
+html[data-theme="light"] .box,html[data-theme="light"] .panel,html[data-theme="light"] .card{background:rgba(255,255,255,.92);border-color:rgba(15,23,42,.09)}
+html[data-theme="light"] .themeToggle{background:rgba(255,255,255,.94);color:#172033;box-shadow:0 8px 24px rgba(15,23,42,.12)}
+html[data-theme="light"] .sectionTitle,html[data-theme="light"] .timerHead,html[data-theme="light"] .examProgress,html[data-theme="light"] .progressTable th{color:#1e3a5f}
+html[data-theme="light"] select,html[data-theme="light"] input{background:#ffffff;color:var(--text)}
+html[data-theme="light"] .btn,html[data-theme="light"] .pill,html[data-theme="light"] .metricChip,html[data-theme="light"] .stat,html[data-theme="light"] .qchip,html[data-theme="light"] .metricBadge,html[data-theme="light"] .badge,html[data-theme="light"] .option,html[data-theme="light"] .feedback,html[data-theme="light"] .quickControls b,html[data-theme="light"] .timerBox,html[data-theme="light"] .uploadMini,html[data-theme="light"] .importStatus,html[data-theme="light"] .journeyItem,html[data-theme="light"] .progressKpi{background:rgba(15,23,42,.035)}
+html[data-theme="light"] .question{color:#111827}
+html[data-theme="light"] .badge{color:#334155}
+html[data-theme="light"] .badge.good{color:#047857}
+html[data-theme="light"] .option .letter{background:rgba(2,132,199,.08);border-color:rgba(2,132,199,.10)}
+html[data-theme="light"] .option.eliminated{border-color:rgba(15,23,42,.08)}
+html[data-theme="light"] .option.eliminated .letter{background:rgba(15,23,42,.06)}
+html[data-theme="light"] .progressTrack,html[data-theme="light"] .timerBar{background:rgba(15,23,42,.08)}
+html[data-theme="light"] .examTop{background:rgba(255,255,255,.96);border-color:rgba(15,23,42,.10)}
+html[data-theme="light"] .bottomBar{background:rgba(255,255,255,.90);border-top-color:rgba(15,23,42,.10)}
+html[data-theme="light"] .examResultBox,html[data-theme="light"] .examAnswerLine,html[data-theme="light"] .progressTable td{background:rgba(15,23,42,.025)}
+html[data-theme="light"] .examMistake{background:rgba(225,29,72,.055)}
+html[data-theme="light"] .examMistake.unanswered{background:rgba(161,98,7,.055)}
+html[data-theme="light"] .examAnswerLine.user{color:#be123c}
+html[data-theme="light"] .examAnswerLine.correct{color:#047857}
+html[data-theme="light"] .journeyHead b{color:#24364b}
+html[data-theme="light"] .recordHint{background:rgba(5,150,105,.055);color:#065f46}
+html[data-theme="light"] .resumeBadge{color:#92400e!important}
+html[data-theme="light"] .progressTable th,html[data-theme="light"] .progressTable td{border-color:rgba(15,23,42,.10)}
+html[data-theme="light"] .templateHint{background:rgba(15,23,42,.025)}
+@media(max-width:560px){.themeToggle{top:10px;left:10px;width:38px;height:38px;min-height:38px}}
+
 </style>
 
 <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
 </head>
 <body>
+<button class="themeToggle" id="themeToggle" type="button" aria-label="تبديل الوضع الفاتح والداكن" title="تبديل الوضع الفاتح والداكن">☀️</button>
 <div class="app">
   <header class="hero">
     <div class="box compactHero">
@@ -408,7 +462,6 @@ let view={
   retry:false,retryKeys:[],retryAnswers:{},
   examMistakeOrder:[],examMistakeOptionOrder:{},studyOptionOrder:{},
   timerKey:"",timerLeft:60,timerId:null,
-  layout:localStorage.getItem(STORE_KEY+"_layout")||"desktop",
   special:""
 };
 let exam={active:false,setId:"",session:null,questions:[],index:0,timerId:null};
@@ -906,11 +959,30 @@ async function restoreProgressFile(file){
   }catch(err){alert("تعذر استعادة التقدم: "+(err?.message||err));}
 }
 
-function applyLayout(){
-  document.body.classList.toggle("phoneView",view.layout==="phone");
-  const b=$("phoneViewBtn");if(b)b.textContent=view.layout==="phone"?"واجهة الكمبيوتر":"واجهة iPhone";
+const THEME_KEY=STORE_KEY+"_theme";
+function currentTheme(){return document.documentElement.dataset.theme==="light"?"light":"dark";}
+function updateThemeToggle(){
+  const btn=$("themeToggle");if(!btn)return;
+  const light=currentTheme()==="light";
+  btn.textContent=light?"🌙":"☀️";
+  btn.setAttribute("aria-label",light?"تشغيل الوضع الداكن":"تشغيل الوضع الفاتح");
+  btn.title=light?"تشغيل الوضع الداكن":"تشغيل الوضع الفاتح";
+  const meta=document.querySelector('meta[name="theme-color"]');
+  if(meta)meta.setAttribute("content",light?"#f4f7fb":"#101828");
 }
-function toggleLayout(){view.layout=view.layout==="phone"?"desktop":"phone";localStorage.setItem(STORE_KEY+"_layout",view.layout);applyLayout();}
+function applyTheme(theme,persist=true){
+  const next=theme==="light"?"light":"dark";
+  document.documentElement.dataset.theme=next;
+  if(persist){try{localStorage.setItem(THEME_KEY,next);}catch(e){}}
+  updateThemeToggle();
+}
+function toggleTheme(){applyTheme(currentTheme()==="dark"?"light":"dark");}
+
+function applyLayout(){
+  // Layout is now controlled only by the responsive CSS media queries.
+  // Never inherit or persist a manual phone/desktop override in localStorage.
+  document.body.classList.remove("phoneView");
+}
 
 function render(){
   renderJourney();stats();
@@ -958,6 +1030,8 @@ window.addEventListener("beforeunload",()=>{if(exam.active&&exam.session)exam.se
 buildDynamicControls();
 restoreIndexForSet(view.studySet);
 applyLayout();
+const themeBtn=$("themeToggle");if(themeBtn)themeBtn.onclick=toggleTheme;
+applyTheme(currentTheme(),false);
 save();
 render();
 
